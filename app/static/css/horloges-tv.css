@@ -1,0 +1,99 @@
+/* Les horloges de la menace sur la TV (horloges-tv.js). Chromium 79 : ni inset, ni gap en flexbox (les marges en
+   tiennent lieu), ni aspect-ratio. --d est le diamètre du cadran : le nom et la lueur le suivent.
+   Rangées dans la page juste avant le calque du pointeur, sans z-index : sur le plan et la carte, elles passent sous le
+   point doré du MJ et sous les cartons. Devant l'accueil et l'image (opaques), elles montent d'un cran ; réduites sur
+   l'échoppe, la planche et le sanctuaire (des vues de rang 3), de deux. */
+.horloges-tv {
+  --d: 15vh;
+  position: fixed;
+  top: 3vh;
+  left: 2vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  transition: top .6s ease, opacity .6s ease;
+}
+.horloges-tv.n2 { --d: 13vh; }
+.horloges-tv.n3 { --d: 11vh; }
+.horloges-tv.devant { z-index: 1; }
+.horloges-tv.au-dessus { z-index: 4; }
+.horloges-tv.reduites { --d: 9vh; top: 2.4vh; left: 1.6vw; }
+.horloges-tv.reduites.n2 { --d: 8vh; }
+.horloges-tv.reduites.n3 { --d: 7vh; }
+.horloges-tv.masquees { opacity: 0; }
+/* Sous le bandeau du combat, que table.js mesure (--bandeau). */
+body.avec-combat .horloges-tv { top: calc(var(--bandeau, 0px) + 2.4vh); }
+.hz-degrades { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.horloge-tv { display: flex; flex-direction: column; align-items: center; margin: 0 0 2.2vh; transition: opacity .7s ease, transform .7s ease; }
+.horloge-tv.entree, .horloge-tv.sortie { opacity: 0; transform: translateX(-3vw); }
+.reduites .horloge-tv { margin-bottom: 1.4vh; }
+.hz-disque { position: relative; display: block; width: var(--d); height: var(--d); border-radius: 50%; box-shadow: 0 .8vh 2.2vh rgba(0, 0, 0, .55); transition: width .6s ease, height .6s ease, box-shadow .6s ease; }
+.hz-disque svg { position: absolute; top: 0; left: 0; display: block; width: 100%; height: 100%; overflow: visible; }
+/* Une part gagnée pousse depuis le centre du cadran (l'origine des coordonnées du dessin). */
+.hz-part { opacity: 0; transform: scale(.25); transform-origin: 0 0; transform-box: view-box; transition: transform .55s cubic-bezier(.2, .9, .3, 1.15), opacity .3s ease; }
+.hz-part.pleine { opacity: 1; transform: none; }
+
+/* La lueur : un anneau doré peint une fois, qui s'allume et s'élargit (opacity et transform seulement). */
+.hz-lueur {
+  position: absolute;
+  top: -30%;
+  left: -30%;
+  width: 160%;
+  height: 160%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 120, 0) 38%, rgba(255, 208, 110, .9) 47%, rgba(255, 184, 60, .4) 54%, rgba(255, 184, 60, 0) 62%);
+  opacity: 0;
+  transform: scale(.8);
+}
+.horloge-tv.luit .hz-lueur { animation: lueur-horloge 1s ease-out both; }
+@keyframes lueur-horloge {
+  0% { opacity: 0; transform: scale(.8); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.12); }
+}
+
+/* Le nom, sur une plaque sombre filetée d'or, lisible sur le parchemin comme sur un plan de nuit. Les chiffres de Cinzel
+   font d'un 1 un I : ils passent en Garamond. */
+.horloge-tv figcaption {
+  max-width: calc(var(--d) * 2.2);
+  margin-top: 1.1vh;
+  padding: .42em .85em .48em;
+  background: rgba(20, 15, 11, .88);
+  border: 1px solid rgba(214, 180, 118, .5);
+  box-shadow: 0 .8vh 2vh rgba(0, 0, 0, .45);
+  color: #f4ead4;
+  font: 700 calc(var(--d) * .17)/1.15 "Cinzel", serif;
+  letter-spacing: .04em;
+  text-align: center;
+  overflow-wrap: break-word;
+  transition: background-color .6s ease, border-color .6s ease, color .6s ease;
+}
+.reduites .horloge-tv figcaption { max-width: calc(var(--d) * 2); margin-top: .8vh; font-size: calc(var(--d) * .19); }
+.horloge-tv figcaption .chiffres { font-family: "EB Garamond", serif; font-weight: 600; font-variant-numeric: lining-nums; }
+
+/* Échue : le cadran plein cerclé de rouge, le nom sur fond de sang, et une lueur rouge à la dernière part. */
+.horloge-tv.echue .hz-disque { box-shadow: 0 0 0 .35vh rgba(179, 38, 30, .7), 0 0 3.2vh rgba(196, 46, 32, .65), 0 .8vh 2.2vh rgba(0, 0, 0, .55); }
+.horloge-tv.echue figcaption { background: #8e1b17; border-color: #e0b562; color: #fbeee0; }
+.horloge-tv.echue .hz-lueur { background: radial-gradient(circle, rgba(230, 70, 50, 0) 38%, rgba(236, 84, 58, .92) 47%, rgba(196, 40, 28, .45) 54%, rgba(196, 40, 28, 0) 62%); }
+.horloge-tv.echue.luit .hz-lueur { animation-duration: 1.5s; }
+
+/* Une tablette tenue en hauteur : la taille suit la largeur. */
+@media (orientation: portrait) and (min-width: 700px) {
+  .horloges-tv { --d: 13vw; }
+  .horloges-tv.n2 { --d: 11.5vw; }
+  .horloges-tv.n3 { --d: 10vw; }
+  .horloges-tv.reduites { --d: 8vw; }
+  .horloges-tv.reduites.n2, .horloges-tv.reduites.n3 { --d: 7vw; }
+}
+/* Un téléphone (table publique) : plus petites, collées au coin. L'échoppe, la planche et le sanctuaire y défilent ou
+   s'y serrent : un cadran fixe couvrirait l'enseigne ou les étiquettes, elles s'y effacent jusqu'au retour sur le jeu. */
+@media (max-width: 700px) {
+  .horloges-tv { --d: 19vw; top: 2vh; left: 3vw; }
+  .horloges-tv.n2 { --d: 16vw; }
+  .horloges-tv.n3 { --d: 14vw; }
+  .horloges-tv.reduites { opacity: 0; }
+  .horloge-tv { margin-bottom: 1.6vh; }
+  .horloge-tv figcaption { font-size: calc(var(--d) * .2); }
+}

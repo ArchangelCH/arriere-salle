@@ -1,0 +1,504 @@
+/* La télécommande du MJ (telecommande.html) : le chêne sombre et l'or de l'atelier, pensés pour un pouce dans un salon
+   peu éclairé. Le losange rouge de l'atelier marque ce qui est à l'écran. Sur un téléphone, un panneau à la fois et les
+   onglets sous le pouce ; à partir de 760 px (l'iPhone pliable ouvert), tout côte à côte. */
+
+@font-face { font-family: "Cinzel"; src: url("../fonts/Cinzel-VF.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: "EB Garamond"; src: url("../fonts/EBGaramond-VF.woff2") format("woff2"); font-weight: 400 800; font-display: swap; }
+@font-face { font-family: "EB Garamond"; src: url("../fonts/EBGaramond-Italic-VF.woff2") format("woff2"); font-weight: 400 800; font-style: italic; font-display: swap; }
+
+:root {
+  --nuit: #140f0b;
+  --bois: #1e1611;
+  --bois-2: #281e17;
+  --bois-3: #33271e;
+  --filet: rgba(214, 180, 118, .16);
+  --filet-fort: rgba(214, 180, 118, .34);
+  --texte: #ecdfc4;
+  --texte-doux: #b7a585;
+  --texte-pale: #8c7b61;
+  --bronze: #c29b5c;
+  --bronze-clair: #e0b562;
+  --sang: #8e1b17;
+  --sang-vif: #b3261e;
+  --parchemin: #f4ead4;
+  --vert: #6f8f4a;
+  --rayon: 3px;
+  --titre: "Cinzel", Georgia, serif;
+  --corps: "EB Garamond", Garamond, Georgia, serif;
+  /* La hauteur d'un pouce : aucune touche plus basse. */
+  --pouce: 56px;
+  --onglets: 62px;
+  --main: 64px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: calc(var(--onglets) + 24px + env(safe-area-inset-bottom));
+  background: var(--nuit) radial-gradient(ellipse at 50% 0%, #2a1f16 0%, var(--nuit) 65%) fixed;
+  color: var(--texte);
+  font: 400 18px/1.4 var(--corps);
+  font-variant-numeric: lining-nums;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+body.avec-main { padding-bottom: calc(var(--onglets) + var(--main) + 24px + env(safe-area-inset-bottom)); }
+button, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--bronze-clair); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.lecteur-seul { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.tete {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 3px 12px;
+  padding: calc(10px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
+  background: linear-gradient(#1a130e, #150f0b);
+  border-bottom: 1px solid var(--filet-fort);
+  box-shadow: 0 1px 0 #000;
+}
+.marque {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font: 700 16px/1 var(--titre);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--parchemin);
+}
+.losange {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  background: var(--parchemin);
+  transform: rotate(45deg);
+  box-shadow: inset 0 0 0 3.5px var(--sang);
+}
+.liaison {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font: 600 10.5px/1 var(--titre);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+  white-space: nowrap;
+}
+.liaison i { width: 8px; height: 8px; border-radius: 50%; background: var(--texte-pale); }
+.liaison[data-etat="ok"] i { background: var(--vert); box-shadow: 0 0 0 3px rgba(111, 143, 74, .2); }
+.liaison[data-etat="coupee"], .liaison[data-etat="erreur"] { color: #eba69b; }
+.liaison[data-etat="coupee"] i, .liaison[data-etat="erreur"] i { background: var(--sang-vif); }
+.seance-du-jour {
+  grid-column: 1 / -1;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: italic 400 16px/1.25 var(--corps);
+  color: var(--texte-doux);
+}
+
+/* « Fait » et les informations d'un geste, en tête à la place de la ligne de la séance (telecommande.js). */
+.annonce-tete {
+  grid-column: 1 / -1;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: italic 400 16px/1.25 var(--corps);
+  color: var(--parchemin);
+}
+.annonce-tete b { margin-right: 4px; font: 700 11px/1 var(--titre); font-style: normal; letter-spacing: .16em; text-transform: uppercase; color: var(--bronze-clair); }
+.annonce-tete[data-genre="attente"] { color: var(--texte-doux); }
+.annonce-en-tete .seance-du-jour { display: none; }
+
+/* Le témoin de la TV, sur toutes les pages : ce que voient les joueurs, et « Retirer ». */
+.temoin-tc {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin: 4px 0 0;
+  padding: 0 0 0 10px;
+  border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon);
+}
+.temoin-tc .mot-tv { flex: none; font: 700 10.5px/1 var(--titre); letter-spacing: .18em; color: var(--bronze-clair); }
+.temoin-tc .mot-tv.noire { padding: 3px 5px 2px; border-radius: 2px; background: var(--sang); color: var(--parchemin); }
+.temoin-tc .nom-tv { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: italic 500 17px/1.2 var(--corps); color: var(--parchemin); }
+.temoin-tc .nom-tv.pale { color: var(--texte-pale); }
+.temoin-tc .touche.petite { flex: none; min-height: 44px; border-width: 0 0 0 1px; border-radius: 0 var(--rayon) var(--rayon) 0; }
+
+.panneaux {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left));
+}
+/* Sur un téléphone, l'onglet nomme déjà le panneau. */
+.titre-panneau {
+  display: none;
+  margin: 0 0 12px;
+  font: 700 12px/1 var(--titre);
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: var(--sang-vif);
+}
+.kicker {
+  display: block;
+  margin: 0 0 6px;
+  font: 700 10.5px/1.2 var(--titre);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--bronze);
+}
+.sous-titre {
+  margin: 22px 0 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--filet);
+  font: 700 12px/1.2 var(--titre);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--parchemin);
+}
+.groupe { margin: 12px 0 8px; font: italic 400 16px/1.2 var(--corps); color: var(--texte-doux); }
+.calme, .aide { margin: 10px 0; font-style: italic; color: var(--texte-doux); }
+.aide { font-size: 16px; }
+.alerte { margin: 8px 0 0; color: #f0b0a5; }
+
+.ecran {
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon);
+  background: linear-gradient(135deg, rgba(244, 234, 212, .05), transparent 60%), var(--bois);
+}
+.vue { margin: 0; font: 600 22px/1.2 var(--corps); color: var(--parchemin); overflow-wrap: anywhere; }
+.vue .detail { display: block; margin-top: 2px; font-weight: 500; font-size: 19px; color: var(--texte); }
+.ecran .vue .losange-ecran { margin-right: 10px; vertical-align: 3px; }
+.par-dessus { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.par-dessus li { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 17px; }
+.par-dessus b { font-weight: 600; color: var(--parchemin); }
+.ecrans { margin: 10px 0 0; font: 600 10.5px/1.3 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--texte-pale); }
+.ecrans.alerte { color: #f0b0a5; }
+
+/* Ce qui est à l'écran : le losange de l'atelier, en petit. */
+.losange-ecran {
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-right: 9px;
+  vertical-align: 2px;
+  background: var(--parchemin);
+  transform: rotate(45deg);
+  box-shadow: inset 0 0 0 2.5px var(--sang-vif);
+}
+
+.touche {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: var(--pouce);
+  padding: 10px 16px;
+  border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon);
+  background: var(--bois-2);
+  color: var(--texte);
+  font: 600 14px/1.15 var(--titre);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background-color .12s, border-color .12s, transform .06s;
+}
+.touche small { font: italic 400 15px/1.15 var(--corps); letter-spacing: 0; text-transform: none; color: var(--texte-doux); }
+.touche:active { background: var(--bois-3); border-color: var(--bronze); transform: translateY(1px); }
+.touche:disabled { opacity: .35; cursor: default; transform: none; }
+.touche.principale { background: var(--sang); border-color: #b8433b; color: #fbeee0; }
+.touche.principale:active { background: var(--sang-vif); }
+.touche.large { width: 100%; }
+.touche.petite { min-height: 44px; padding: 6px 12px; font-size: 11.5px; }
+.touche[aria-pressed="true"] { background: var(--bois-3); border-color: var(--bronze-clair); color: var(--parchemin); box-shadow: inset 0 -2px 0 var(--bronze-clair); }
+.touche.carree { min-height: 68px; padding: 0; font: 500 34px/1 var(--titre); letter-spacing: 0; }
+.deux { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 8px; }
+
+/* Un geste en cours : un fil d'or court sous la touche. */
+[aria-busy="true"] {
+  cursor: progress;
+  background-image: linear-gradient(90deg, transparent, var(--bronze-clair), transparent);
+  background-size: 45% 2px;
+  background-repeat: no-repeat;
+  animation: attente 1.1s linear infinite;
+}
+@keyframes attente { from { background-position: -50% 100%; } to { background-position: 150% 100%; } }
+
+.lignes { display: grid; gap: 8px; }
+.ligne {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: var(--pouce);
+  padding: 10px 14px;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon);
+  background: var(--bois);
+  text-align: left;
+  font: 500 18px/1.25 var(--corps);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.ligne .nom { min-width: 0; }
+.ligne .note, .pastille small {
+  flex: none;
+  font: 600 9.5px/1.2 var(--titre);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--texte-pale);
+}
+.ligne:active, .pastille:active { background: var(--bois-3); }
+.ligne[aria-pressed="true"], .pastille[aria-pressed="true"] {
+  border-color: var(--bronze-clair);
+  background: var(--bois-3);
+  color: var(--parchemin);
+  box-shadow: inset 3px 0 0 var(--sang-vif);
+}
+.ligne[aria-pressed="true"] .note, .pastille[aria-pressed="true"] small { color: var(--bronze-clair); }
+.pastilles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.pastille {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  min-height: var(--pouce);
+  padding: 8px 12px;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon);
+  background: var(--bois);
+  text-align: left;
+  font: 500 17px/1.2 var(--corps);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pastille small.secret { color: #eba69b; }
+.pastille:disabled { opacity: .35; }
+.scene { margin: 14px 0 0; font-size: 17px; color: var(--texte); }
+.scene .kicker { margin-bottom: 4px; }
+/* La scène en cours et « Scène suivante », le geste de la soirée, juste sous ce que montre la TV (filet d'or). */
+.fil-tc { margin: 14px 0 12px; }
+.fil-tc .scene { margin: 0 0 8px; }
+.fil-tc .calme { margin: 0; }
+.touche.suite { border-color: var(--bronze); }
+
+.feu {
+  margin: 0 0 12px;
+  padding: 12px 14px 14px;
+  border: 1px solid rgba(179, 38, 30, .5);
+  border-radius: var(--rayon);
+  background: linear-gradient(180deg, rgba(142, 27, 23, .2), transparent 75%), var(--bois);
+}
+.feu .kicker { color: #e8977f; }
+.pas { display: grid; grid-template-columns: 76px minmax(0, 1fr) 76px; align-items: center; gap: 10px; }
+.compte { margin: 0; text-align: center; }
+.compte b { display: block; font: 700 36px/1 var(--titre); color: var(--parchemin); }
+.compte small { font: italic 400 16px/1.2 var(--corps); color: var(--texte-doux); }
+.nom-etape { margin: 10px 0 0; text-align: center; font-style: italic; color: var(--bronze-clair); }
+
+/* Les horloges de la menace : le nom, les parts en barre, puis moins, à la TV, plus. */
+.horloges-tc {
+  margin: 0 0 12px;
+  padding: 12px 14px 6px;
+  border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon);
+  background: var(--bois);
+}
+.horloge-tc { padding: 0 0 10px; }
+.horloge-tc + .horloge-tc { padding-top: 10px; border-top: 1px solid var(--filet); }
+.nom-horloge { margin: 0 0 6px; font: 600 17px/1.25 var(--corps); color: var(--parchemin); }
+.nom-horloge small { display: block; font: italic 400 14px/1.2 var(--corps); color: var(--texte-doux); }
+.parts-tc { display: flex; margin: 0 0 10px; }
+.parts-tc span { flex: 1 1 0; height: 10px; margin-right: 3px; border: 1px solid var(--filet-fort); background: var(--bois-2); }
+.parts-tc span:last-child { margin-right: 0; }
+.parts-tc span.pleine { background: var(--sang-vif); border-color: var(--sang-vif); }
+.horloge-tc.echue .nom-horloge small { color: #eba69b; }
+
+.qui {
+  margin: 2px 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 700 32px/1.1 var(--titre);
+  letter-spacing: .02em;
+  color: var(--parchemin);
+  overflow-wrap: anywhere;
+}
+.puce { flex: none; width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(0, 0, 0, .55), 0 0 0 3px var(--filet-fort); }
+.ensuite { margin: 0 0 12px; font-style: italic; color: var(--texte-doux); }
+.ordre { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.ordre li {
+  padding: 6px 9px;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon);
+  font: 600 11px/1 var(--titre);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+}
+.ordre li.actif { border-color: var(--bronze-clair); background: var(--bois-3); color: var(--parchemin); }
+.ordre li.hors { opacity: .45; text-decoration: line-through; }
+.sante { margin: 0 0 12px; padding: 12px 14px; border: 1px solid var(--filet); border-radius: var(--rayon); background: var(--bois); }
+.jauge { display: flex; align-items: center; gap: 12px; margin: 4px 0 12px; }
+.barre { flex: 1; height: 10px; border-radius: 5px; background: #0e0a08; box-shadow: inset 0 0 0 1px var(--filet); overflow: hidden; }
+.barre i { display: block; height: 100%; border-radius: 5px; transition: width .3s; }
+.jauge output { font: 700 24px/1 var(--titre); color: var(--parchemin); }
+.jauge output small { font-size: 15px; color: var(--texte-doux); }
+.etat-heros { margin: -4px 0 12px; font: 600 11px/1.2 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: #f0b0a5; }
+.passer { min-height: 66px; font-size: 16px; }
+
+.pour-seance { margin: -4px 0 12px; font-style: italic; color: var(--texte-doux); }
+.noter textarea {
+  display: block;
+  width: 100%;
+  min-height: 112px;
+  padding: 12px 14px;
+  border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon);
+  background: #120d0a;
+  color: var(--texte);
+  font: 400 18px/1.4 var(--corps);
+  resize: vertical;
+}
+.noter textarea::placeholder { color: var(--texte-pale); font-style: italic; }
+.noter textarea:focus { border-color: var(--bronze); outline: none; box-shadow: 0 0 0 3px rgba(194, 155, 92, .18); }
+.noter .touche { width: 100%; margin-top: 10px; }
+.en-attente { margin: 14px 0 0; padding: 12px 14px; border: 1px solid rgba(179, 38, 30, .5); border-radius: var(--rayon); background: rgba(142, 27, 23, .12); }
+.en-attente ul { margin: 0; padding-left: 18px; }
+.lignes-journal { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.lignes-journal li { padding-left: 12px; border-left: 2px solid var(--filet-fort); font-size: 17px; }
+.lignes-journal time { margin-right: 4px; font: 600 11px/1 var(--titre); letter-spacing: .08em; color: var(--bronze); }
+
+.bas {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+.bas > * { pointer-events: auto; }
+.annonce {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left));
+  padding: 10px 10px 10px 14px;
+  border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon);
+  background: rgba(14, 10, 8, .97);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .6);
+  font-size: 17px;
+  line-height: 1.3;
+}
+.annonce p { flex: 1; margin: 0; min-width: 0; }
+.annonce b { margin-right: 4px; font: 700 11.5px/1 var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--bronze-clair); }
+.annonce[data-genre="attente"] p { font-style: italic; color: var(--texte-doux); }
+.annonce[data-genre="echec"] { border-color: var(--sang-vif); box-shadow: 0 10px 30px rgba(0, 0, 0, .6), inset 4px 0 0 var(--sang-vif); }
+.annonce[data-genre="echec"] b { color: #f2b3a8; }
+/* Une question avant d'agir (le carton d'un PNJ qui nomme un inconnu) : la phrase en entier, le bouton dessous. */
+.annonce[data-genre="question"] { flex-wrap: wrap; justify-content: space-between; border-color: var(--sang-vif); box-shadow: 0 10px 30px rgba(0, 0, 0, .6), inset 4px 0 0 var(--sang-vif); }
+.annonce[data-genre="question"] p { flex-basis: 100%; }
+.annonce .fermer { flex: none; min-width: 44px; min-height: 44px; border: 0; background: none; color: var(--texte-doux); font-size: 26px; line-height: 1; cursor: pointer; }
+.main-courante {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: var(--main);
+  padding: 8px max(12px, env(safe-area-inset-right)) 8px max(16px, env(safe-area-inset-left));
+  background: linear-gradient(#25190f, #1b130d);
+  border-top: 1px solid var(--filet-fort);
+}
+.main-courante p { margin: 0; min-width: 0; }
+.main-courante .kicker { margin-bottom: 3px; }
+.main-courante b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 19px/1.1 var(--titre); color: var(--parchemin); }
+.main-courante .touche { flex: none; min-width: 120px; min-height: 48px; }
+.onglets {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background: #110c09;
+  border-top: 1px solid var(--filet-fort);
+}
+.onglets button {
+  min-height: var(--onglets);
+  border: 0;
+  border-top: 2px solid transparent;
+  background: none;
+  color: var(--texte-doux);
+  font: 600 12px/1 var(--titre);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.onglets button[aria-selected="true"] { color: var(--parchemin); border-top-color: var(--sang-vif); background: rgba(244, 234, 212, .035); }
+/* Un combat en cours : un petit losange sur son onglet. */
+.onglets [data-alerte="oui"]::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 7px;
+  vertical-align: 2px;
+  background: var(--sang-vif);
+  transform: rotate(45deg);
+}
+
+@media (min-width: 760px) {
+  body, body.avec-main { padding-bottom: 90px; }
+  .panneaux {
+    max-width: 1180px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    grid-template-areas: "tv combat" "tv musique" "tv journal";
+    align-items: start;
+    gap: 6px 26px;
+    padding-top: 18px;
+  }
+  .titre-panneau { display: block; }
+  [data-panneau="tv"] { grid-area: tv; }
+  [data-panneau="combat"] { grid-area: combat; }
+  [data-panneau="musique"] { grid-area: musique; }
+  [data-panneau="journal"] { grid-area: journal; }
+  .panneau + .panneau { padding-top: 0; }
+  [data-panneau="musique"], [data-panneau="journal"] { margin-top: 18px; }
+  .onglets, .main-courante { display: none !important; }
+  .annonce { width: min(560px, calc(100% - 32px)); margin: 0 auto 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* Les rayons d'une boutique trop grande pour un écran (rayons-telecommande.js) : le pas du feu, dans un filet d'or. */
+.rayons-tc { margin: 0 0 12px; padding: 12px 14px 14px; border: 1px solid rgba(224, 181, 98, .45); border-radius: var(--rayon); background: var(--bois); }

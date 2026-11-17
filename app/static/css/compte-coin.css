@@ -1,0 +1,41 @@
+/* Les comptes du coin des joueurs (js/joueurs/compte.js) : la connexion et la page du compte, sur le fond sombre
+   d'atelier.css ; et le bas des pages du coin (js/joueurs/pied-coin.js), sur ce fond comme sur la table de chêne du
+   carnet (carnet.css). Les couleurs sont écrites ici : les deux feuilles n'ont pas les mêmes variables. */
+
+.compte-coin { max-width: 560px; }
+.compte-coin .titre-page { margin-bottom: 26px; }
+.formulaire-compte { display: grid; margin: 0 0 22px; }
+.formulaire-compte h2 { margin: 0 0 14px; font: 700 15px/1.2 "Cinzel", Georgia, serif; letter-spacing: .12em; text-transform: uppercase; color: #e0b562; }
+/* atelier.css ne dessine que les champs texte : le mot de passe prend le même habit. */
+.compte-coin .champ input[type="password"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgba(214, 180, 118, .34);
+  border-radius: 3px;
+  background: #120d0a;
+  color: #ecdfc4;
+  font: 400 16px/1.35 "EB Garamond", Garamond, Georgia, serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.compte-coin .champ input[readonly] { color: #b7a585; background: transparent; border-style: dashed; }
+.compte-coin .champ input { min-height: 44px; }
+.formulaire-compte button[type="submit"] { justify-self: start; min-height: 44px; padding: 8px 20px; }
+.refus-compte { margin: 0 0 14px; color: #f2b3a8; font-size: 16px; }
+.annonce-compte { margin: 0 0 20px; padding: 10px 14px; border-left: 3px solid #e0b562; background: rgba(224, 181, 98, .08); color: #ecdfc4; font-size: 16px; }
+.compte-actions { margin-top: 8px; }
+.compte-actions .bouton, .compte-actions button { min-height: 44px; }
+
+/* « Changer mon mot de passe » et « Se déconnecter » : discrets, en bas de page, assez hauts pour le doigt. */
+.pied-coin {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0 22px;
+  margin: 28px auto 0; padding: 6px 16px max(18px, env(safe-area-inset-bottom));
+}
+.pied-coin a, .pied-coin button {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; box-shadow: none;
+  color: #a8977c; font: 600 11px/1 "Cinzel", Georgia, serif; letter-spacing: .12em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer;
+}
+.pied-coin a:hover, .pied-coin button:hover { background: none; color: #f4ead4; }
+.pied-coin button:disabled { opacity: .5; cursor: default; }
+@media print { .pied-coin { display: none; } }

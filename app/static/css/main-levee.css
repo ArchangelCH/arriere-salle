@@ -1,0 +1,109 @@
+/* « Je veux agir » (js/joueurs/main-levee.js) : le bouton flottant du coin des joueurs, en bas à droite, sous le pouce.
+   Au repos, du chêne sombre cerclé d'or, assez discret pour ne pas gêner la lecture ; main levée, tout en or ; « À
+   vous ! », l'or en grand le temps de quelques secondes. Les couleurs reprennent celles du carnet, avec une valeur de
+   secours pour une page qui ne charge pas carnet.css. */
+
+body.avec-main-levee { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+/* Le panier de l'échoppe monte les deux boutons d'une marche : le pied de page se réserve aussi cette hauteur, pour qu'il
+   reste lisible et touchable tout en bas (la barre du panier, 78 px, plus la ligne des boutons). */
+body.avec-main-levee:has(.barre-panier:not([hidden])), body.avec-jets:has(.barre-panier:not([hidden])) { padding-bottom: calc(158px + env(safe-area-inset-bottom)); }
+
+.main-levee {
+  position: fixed;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 35;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  max-width: calc(100vw - 28px);
+  pointer-events: none;
+}
+.main-levee[hidden] { display: none; }
+.main-levee > * { pointer-events: auto; }
+/* Le mot du dessus se lit, il ne se touche pas : le doigt passe à ce qu'il couvre un instant (les boutons du plan). */
+.main-levee > .dit-main-levee { pointer-events: none; }
+/* Pendant qu'on écrit (un mot au MJ, une ligne du sac, un montant d'or), le bouton s'efface : au téléphone, il se
+   poserait sur le clavier, juste sur le bouton qui envoie, et un doigt lèverait la main au lieu d'envoyer. */
+body:has(:is(input:not([type="checkbox"], [type="radio"], [type="button"], [type="submit"]), textarea, select):focus) .main-levee { display: none; }
+/* Le champ quitté, il attend encore un instant (main-levee.js, « apres-saisie ») : sinon il reparaîtrait sous le doigt ou
+   la souris qui vient de presser « Envoyer », et le relâcher tomberait sur lui. */
+.main-levee.apres-saisie { display: none; }
+/* Au-dessus du panier de l'échoppe, quand il est là. */
+body:has(.barre-panier:not([hidden])) .main-levee { bottom: calc(max(10px, env(safe-area-inset-bottom)) + 78px); }
+
+.bouton-main-levee {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 8px 18px 8px 14px;
+  border: 1px solid var(--or, #e0b562);
+  border-radius: 26px;
+  background: linear-gradient(#3a2614, #20140b);
+  color: var(--or-vif, #f0cb78);
+  font: 700 13px/1.1 var(--titre, "Cinzel", Georgia, serif);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 230, 170, .12);
+  opacity: .94;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .15s, color .15s, transform .08s;
+}
+.bouton-main-levee:active { transform: translateY(1px); }
+.bouton-main-levee:disabled { opacity: .5; cursor: default; }
+.bouton-main-levee:focus-visible { outline: 2px solid var(--or-vif, #f0cb78); outline-offset: 3px; }
+.bouton-main-levee .mots { display: flex; flex-direction: column; gap: 3px; }
+.bouton-main-levee .sous { font: italic 500 13px/1 var(--corps, "EB Garamond", Georgia, serif); letter-spacing: 0; text-transform: none; color: #d8c8a8; }
+.bouton-main-levee .sous[hidden] { display: none; }
+.losange-main { flex: none; width: 12px; height: 12px; background: var(--or, #e0b562); transform: rotate(45deg); box-shadow: inset 0 0 0 3px #20140b; }
+
+/* Main levée : tout en or, le losange plein qui respire. */
+.main-levee[data-etat="levee"] .bouton-main-levee {
+  background: linear-gradient(#f4d488, #d9a94e);
+  border-color: #fff0c4;
+  color: #2b1d12;
+  opacity: 1;
+  box-shadow: 0 0 0 4px rgba(240, 203, 120, .28), 0 8px 22px rgba(0, 0, 0, .6);
+}
+.main-levee[data-etat="levee"] .sous { color: #5a4020; }
+.main-levee[data-etat="levee"] .losange-main { background: #8e1b17; box-shadow: none; animation: main-respire 1.6s ease-in-out infinite; }
+@keyframes main-respire { 50% { transform: rotate(45deg) scale(.7); } }
+
+/* « À vous ! » : le bouton grandit un instant. */
+.main-levee[data-etat="rendue"] .bouton-main-levee {
+  min-height: 60px;
+  padding: 10px 22px 10px 16px;
+  background: linear-gradient(#ffe4a0, #e8b95a);
+  border-color: #fff4d6;
+  color: #2b1d12;
+  font-size: 17px;
+  opacity: 1;
+  box-shadow: 0 0 0 6px rgba(240, 203, 120, .35), 0 10px 26px rgba(0, 0, 0, .6);
+  animation: main-a-vous .45s ease-out;
+}
+.main-levee[data-etat="rendue"] .losange-main { background: #8e1b17; box-shadow: none; }
+@keyframes main-a-vous { 0% { transform: scale(.8); } 70% { transform: scale(1.06); } 100% { transform: scale(1); } }
+
+/* Le mot du dessus : « À vous ! », « Plus tard », une main retombée, un refus. */
+.dit-main-levee {
+  max-width: 300px;
+  margin: 0 0 8px;
+  padding: 9px 13px;
+  border: 1px solid rgba(224, 181, 98, .7);
+  border-radius: 4px;
+  background: #1c120b;
+  color: #f4ead4;
+  font: 500 16px/1.3 var(--corps, "EB Garamond", Georgia, serif);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .55);
+}
+.dit-main-levee[hidden] { display: none; }
+.dit-main-levee[data-genre="rendue"] { border-color: #fff0c4; background: #2b1d12; color: #ffe4a0; font: 700 17px/1.25 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .03em; }
+.dit-main-levee[data-genre="erreur"] { border-color: #b8433b; }
+
+@media (prefers-reduced-motion: reduce) {
+  .main-levee[data-etat="levee"] .losange-main, .main-levee[data-etat="rendue"] .bouton-main-levee { animation: none; }
+}

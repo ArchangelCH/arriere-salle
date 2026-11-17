@@ -1,0 +1,85 @@
+/* Correctifs de la recette du 11/11 pour les séances, les combats, la musique, les réglages et la corbeille.
+   Chargée avant etroit.css et doigt.css (cibles de 44 px au toucher, liées en dernier). */
+
+/* La campagne : « La tablée » garde la place de ses sept colonnes ; la réputation passe dessous quand la page se
+   rétrécit (panneau Musique ouvert, Tableau ouvert) au lieu de couper les colonnes Dés et Actif. */
+.grille-campagne { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+.grille-campagne > .tablee { flex: 1.45 1 640px; min-width: 0; }
+.grille-campagne > .reputation { flex: 1 1 320px; min-width: 0; }
+.grille-campagne .table-tablee { table-layout: auto; }
+.grille-campagne .table-tablee td, .grille-campagne .table-tablee th { white-space: normal; }
+.grille-campagne .table-tablee th:nth-last-child(-n+2), .grille-campagne .table-tablee td:nth-last-child(-n+2) { white-space: nowrap; }
+
+/* Musique : l'ambiance touchée est repérée, puis lancée par son bouton (rien n'est chargé avant). */
+.musique-boutons .principal[data-m="lancer"] { flex: 1 1 100%; min-height: 36px; font-size: 12px; }
+.musique-boutons .principal[data-m="lancer"]:disabled { opacity: .45; }
+.musique-en-cours .musique-visee { overflow: visible; white-space: normal; font-style: normal; font-size: 15px; color: var(--texte); }
+.musique-en-cours .musique-visee b { font: 700 15px/1.2 var(--corps); letter-spacing: 0; color: var(--bronze-clair); }
+.musique-ambiances .ambiance.choisie { border-color: var(--bronze-clair); background: var(--bois-3); box-shadow: inset 4px 0 0 var(--bronze-clair); }
+.musique-ambiances .ambiance.choisie .nom::after { content: " · choisie"; font: 600 11px/1 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--bronze-clair); }
+
+/* Combat, préparation : avertissements, et pastilles « agit avant » qui se voient. */
+.avertissements-combat { list-style: none; margin: 0 0 16px; padding: 10px 14px; border: 1px solid var(--sang-vif); border-left-width: 5px; border-radius: var(--rayon); background: rgba(179, 38, 30, .12); color: var(--parchemin); }
+.avertissements-combat li { margin: 0; padding: 2px 0; }
+.avertissements-combat li + li { border-top: 1px dashed var(--filet); margin-top: 4px; padding-top: 6px; }
+.choix-avant button { display: inline-flex; align-items: center; gap: 4px; border-style: dashed; color: var(--texte-doux); }
+.choix-avant button[aria-pressed="true"] { border-style: solid; border-color: var(--bronze-clair); background: var(--bronze); color: var(--nuit); font-weight: 700; box-shadow: 0 0 0 2px rgba(224, 181, 98, .35); }
+.choix-avant button[aria-pressed="true"] .choisi { font: 600 11px/1 var(--titre); letter-spacing: .1em; text-transform: uppercase; }
+
+/* Saisies rapides : l'exemple grisé n'est plus pris pour une valeur ; ce qui vient d'être fait se lit dessous. */
+.saisie::placeholder { font-style: italic; color: var(--texte-pale); opacity: .85; }
+.retour-saisie { grid-column: 1 / -1; display: block; margin: -2px 0 2px; font: italic 500 14px/1.3 var(--corps); color: var(--bronze-clair); animation: retour-saisie 9s ease-out forwards; }
+@keyframes retour-saisie { 0%, 75% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .retour-saisie { animation: none; } }
+
+/* Fin du combat : le bilan en clair. */
+.bilan-fin { max-width: 860px; margin: 0 0 22px; padding: 16px 20px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: var(--bois); }
+.bilan-fin h2 { margin: 0 0 8px; font: 700 13px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--bronze); }
+.bilan-fin .chiffre-fin { margin: 0 0 8px; font-size: 18px; color: var(--texte-doux); }
+.bilan-fin .chiffre-fin b { font: 700 30px/1 var(--titre); color: var(--parchemin); }
+.bilan-fin ul { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 5px; }
+.bilan-fin .heros-fin li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding-top: 5px; border-top: 1px solid var(--filet); }
+.bilan-fin .heros-fin .etat { padding: 1px 7px; border: 1px solid var(--sang-vif); border-radius: 999px; font: 600 10px/1.4 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: #ec7d6e; }
+.bilan-fin .puce-heros { align-self: center; }
+
+/* Clore : « Préparer la suivante » en haut, une fois la séance close. */
+.bandeau-clos { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; margin: 0 0 22px; padding: 14px 18px; border: 1px solid var(--bronze); border-left: 5px solid var(--bronze-clair); border-radius: var(--rayon); background: linear-gradient(120deg, rgba(224, 181, 98, .12), transparent 70%), var(--bois); }
+.bandeau-clos p { flex: 1 1 340px; margin: 0; }
+.bandeau-clos .actions { margin: 0; }
+
+/* Billets : qui est choisi dans « Pour » se voit (plein, coche, prénom clair) ; un billet sans destinataire se signale. */
+.destinataire { border-style: dashed; }
+.destinataire:has(input:checked) { border-style: solid; border-color: var(--bronze-clair); background: var(--bronze); color: var(--nuit); font-weight: 600; box-shadow: 0 0 0 2px rgba(224, 181, 98, .3); padding-left: 24px; }
+.destinataire:has(input:checked)::before { content: ""; position: absolute; left: 9px; top: 50%; width: 5px; height: 9px; margin-top: -6px; border: solid var(--nuit); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.destinataire:has(input:checked) i { color: rgba(20, 15, 11, .7); }
+.alerte-billet { margin: 6px 0 0; padding: 6px 10px; border-left: 4px solid var(--sang-vif); background: rgba(179, 38, 30, .12); font-size: 15px; color: var(--parchemin); }
+.alerte-billet[hidden] { display: none; }
+
+/* Réglages : mot de passe et nom de l'auberge sombres comme les autres champs. */
+.champ input[type="password"], .ligne-nom-auberge input[type="text"] {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: #120d0a; color: var(--texte);
+  font: 400 16px/1.35 var(--corps); letter-spacing: 0; text-transform: none;
+}
+.champ input[type="password"]:focus, .ligne-nom-auberge input[type="text"]:focus { border-color: var(--bronze); outline: none; box-shadow: 0 0 0 3px rgba(194, 155, 92, .18); }
+.champ input:-webkit-autofill { -webkit-text-fill-color: var(--texte); box-shadow: 0 0 0 100px #120d0a inset; }
+
+/* Corbeille : un filtre au-dessus de la liste. */
+.corbeille-filtre { display: grid; gap: 5px; max-width: 420px; margin: 0 0 14px; font: 600 11px/1.2 var(--titre); letter-spacing: .1em; text-transform: uppercase; color: var(--texte-doux); }
+.corbeille-filtre input { padding: 8px 10px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: #120d0a; color: var(--texte); font: 400 16px/1.35 var(--corps); letter-spacing: 0; text-transform: none; }
+.corbeille-genre[hidden], .corbeille-liste li[hidden] { display: none; }
+
+/* Mobile : la table des adversaires de la balance défile dans sa carte au lieu de déborder. */
+@media (max-width: 700px) {
+  .table-combat.adversaires { display: block; max-width: 100%; overflow-x: auto; }
+}
+
+/* Le fil de la séance reste collé sans laisser transparaître le texte qui défile dessous. */
+.fil-seance.bandeau { background: linear-gradient(#0e0a07, #16100c); }
+/* La barre du tour, sur un écran bas (tablette dépliée, fenêtre basse) : elle ne mange pas plus du quart de la hauteur. */
+@media (max-height: 760px) {
+  .barre-page { position: static; }
+}
+
+/* Cartons P, S, M : un mot devant, pour ne pas deviner leur sens (le survol détaille chacun). */
+.cartons-combat .tc-cartons::before { content: "Cartons"; align-self: center; margin-right: 6px; font: 600 10px/1 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--texte-pale); }
+.cartons-combat .tc-cartons { display: inline-flex; align-items: center; }

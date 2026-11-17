@@ -1,0 +1,12 @@
+[
+  {
+    "motif": "(?:\\bp(?:e|['’])?\\s*tite(?:{sep})?)?fanfrel[eé]e?s?",
+    "remplacement": "auberge",
+    "lettres": "fanfrel"
+  },
+  {
+    "motif": "\\bjamais{sep}ne{sep}dort",
+    "remplacement": "auberge",
+    "lettres": "jamaisnedort"
+  }
+]

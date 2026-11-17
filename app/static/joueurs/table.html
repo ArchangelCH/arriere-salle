@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>La table · {{campagne.nom}}</title>
+  <meta name="description" content="Tout ce que montre la TV : le plan ou la carte à déplacer et zoomer à sa guise, avec son héros mis en évidence et le tour du combat, les images, les documents, les boutiques, et les jets de la tablée.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="preload" href="/static/fonts/Cinzel-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/EBGaramond-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/css/carnet.css">
+  <link rel="stylesheet" href="/static/css/table-coin.css">
+  <link rel="stylesheet" href="/static/css/bouger-coin.css">
+  <link rel="stylesheet" href="/static/css/portrait-coin.css">
+  <link rel="stylesheet" href="/static/css/pointeurs-coin.css">
+</head>
+<body class="coin-table">
+  <header class="tete-coin">
+    <span class="marque"><span class="losange" aria-hidden="true"></span><span>{{campagne.nom}}</span><small>le coin des joueurs</small></span>
+    <nav class="onglets-coin" aria-label="Le coin des joueurs">
+      <a href="/carnet#carnet" data-icone="carnet"><span class="long">Carnet</span><span class="court">Carnet</span></a>
+      <a href="/carnet#boutiques" data-icone="boutiques"><span class="long">Boutiques</span><span class="court">Boutiques</span></a>
+      <button type="button" data-icone="menu" data-menu data-vue="menu"><span class="long">Menu</span><span class="court">Menu</span></button>
+      <a href="/table" data-icone="table" aria-current="true"><span class="long">Table</span><span class="court">Table</span></a>
+      <a href="/" data-icone="heros"><span class="long">Héros</span><span class="court">Héros</span></a>
+    </nav>
+  </header>
+  <main id="page">
+    <div class="zone-table">
+    <div class="scene-table" hidden>
+      <div class="combat-coin" aria-label="Le combat" hidden></div>
+      <div class="toile-table" aria-label="Le plan que montre la TV : un doigt le déplace, deux doigts zooment, deux touchers rapides recentrent sur votre héros">
+        <canvas class="plan-coin" role="img" aria-label="Plan de la partie"></canvas>
+        <canvas class="calque-coin brume-coin" aria-hidden="true"></canvas>
+        <canvas class="calque-coin feu-coin" aria-hidden="true"></canvas>
+        <div class="repere-pion" aria-hidden="true" hidden></div>
+      </div>
+      <div class="toile-table toile-carte" aria-label="La carte que montre la TV : un doigt la déplace, deux doigts zooment, deux touchers rapides recentrent sur le groupe" hidden>
+        <canvas class="carte-coin" role="img" aria-label="Carte du monde"></canvas>
+      </div>
+      <p class="noir-table" hidden>Le plan est encore dans le noir : il paraîtra à mesure que le MJ le révèle.</p>
+      <ul class="legende-coin" aria-label="Les héros sur le plan" hidden></ul>
+      <div class="commandes-table">
+        <button type="button" data-geste="plus" aria-label="Zoomer" title="Zoomer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button type="button" data-geste="moins" aria-label="Dézoomer" title="Dézoomer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+        <button type="button" data-geste="tout" aria-label="Voir tout ce qui est révélé" title="Voir tout ce qui est révélé"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button>
+        <button type="button" data-pointeur="montrer" aria-pressed="false" aria-label="Montrer un endroit au MJ" title="Montrer un endroit au MJ : touchez le plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.5s-6.5-5.7-6.5-10.9a6.5 6.5 0 0 1 13 0c0 5.2-6.5 10.9-6.5 10.9z"/><circle cx="12" cy="10.6" r="2.2" class="plein"/></svg></button>
+        <button type="button" data-geste="heros" aria-label="Recentrer sur mon héros" title="Recentrer sur mon héros" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" class="plein"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg></button>
+      </div>
+    </div>
+    <!-- Tout ce que montre la TV hors du plan et de la carte, et ce qui se pose dessus : la page même de la TV, dans un cadre. -->
+    <iframe class="ecran-coin" title="Ce que montre la TV" hidden></iframe>
+    </div>
+    <p class="chargement">Ouverture de la table…</p>
+  </main>
+  <script type="module" src="/static/js/joueurs/menu-coin.js"></script>
+  <script type="module" src="/static/js/joueurs/table-coin.js"></script>
+</body>
+</html>

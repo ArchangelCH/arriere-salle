@@ -1,0 +1,94 @@
+/* Les jets à l'écran de la table et sur la page Table du coin des joueurs : le bandeau d'un jet (js/ecran-tv/jet-tv.js),
+   les dés en 3D qui le précèdent (js/ecran-tv/des-3d.js) et la jauge de volume des jingles (js/ecran-tv/volume-sons.js).
+   Liée par table.html (rangée dans STATIQUES_TABLE) et par joueurs/table.html (rangée dans FICHIERS). */
+
+/* ---- Les jets à distance (lot F3, js/ecran-tv/jet-tv.js) ----
+   Le bandeau d'un test lancé depuis le coin des joueurs : en haut au centre, sous le bandeau du combat (--bandeau), au-dessus
+   des cartons ; la couleur du héros en liseré à gauche. Un critique se voit : or vif, ou rouge sang. Chromium 79 : des marges
+   au lieu de gap, ni inset ni :has(). */
+.jets-tv {
+  position: fixed;
+  top: 3vh;
+  left: 50%;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 0;
+  pointer-events: none;
+}
+body.avec-combat .jets-tv { top: calc(var(--bandeau, 0px) + 2.4vh); }
+.jet-tv {
+  flex: none;
+  margin: 0 0 1.4vh;
+  padding: 1.2vh 2.2vw 1.4vh 1.8vw;
+  min-width: 30vw;
+  max-width: 46vw;
+  background: rgba(20, 15, 11, .94);
+  border: 1px solid rgba(214, 180, 118, .6);
+  border-left: .7vw solid #d6b476;
+  box-shadow: 0 1.6vh 4vh rgba(0, 0, 0, .6);
+  color: var(--parchemin, #f4ead4);
+  text-align: left;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-2vh);
+  transition: opacity .45s ease, transform .45s ease;
+}
+.jet-tv.visible { opacity: 1; transform: none; }
+.jet-tv.sortie { opacity: 0; transform: translateY(-1vh); transition-duration: .7s; }
+.qui-jet-tv { margin: 0 0 .6vh; overflow: hidden; text-overflow: ellipsis; font: 600 clamp(18px, 2.5vh, 46px)/1.2 "EB Garamond", serif; color: #e8dcc0; }
+.qui-jet-tv b { font: 700 clamp(18px, 2.6vh, 48px)/1.2 "Cinzel", serif; letter-spacing: .04em; color: #fff3d6; }
+.qui-jet-tv span { font-style: italic; }
+.resultat-jet-tv { display: flex; align-items: baseline; margin: 0; }
+.de-jet-tv { margin-right: 1.4vw; font: 700 clamp(40px, 7.4vh, 140px)/1 "Cinzel Decorative", serif; color: #fff3d6; }
+.issue-jet-tv { font: 700 clamp(22px, 3.6vh, 68px)/1 "Cinzel", serif; letter-spacing: .08em; text-transform: uppercase; }
+.jet-tv.reussite .issue-jet-tv { color: #b9dc8f; }
+.jet-tv.echec .issue-jet-tv { color: #e9a99d; }
+.jet-tv.reussite-critique { border-color: #fff0c4; background: linear-gradient(rgba(70, 50, 18, .96), rgba(36, 25, 10, .96)); box-shadow: 0 0 4vh rgba(240, 203, 120, .55), 0 1.6vh 4vh rgba(0, 0, 0, .6); }
+.jet-tv.reussite-critique .de-jet-tv, .jet-tv.reussite-critique .issue-jet-tv { color: #ffe4a0; text-shadow: 0 0 2vh rgba(240, 203, 120, .8); }
+.jet-tv.echec-critique { border-color: #e2493f; background: linear-gradient(rgba(96, 18, 15, .96), rgba(48, 10, 8, .96)); box-shadow: 0 0 4vh rgba(179, 38, 30, .6), 0 1.6vh 4vh rgba(0, 0, 0, .6); }
+.jet-tv.echec-critique .de-jet-tv, .jet-tv.echec-critique .issue-jet-tv { color: #ffb3a8; text-shadow: 0 0 2vh rgba(179, 38, 30, .8); }
+
+/* ---- Lot G : les dés libres et les dés d'aventure (js/ecran-tv/jet-tv.js, js/ecran-tv/reserve-tv.js) ----
+   Le bandeau des dés : le total en grand, les faces à côté. Sous un test, le dé d'aventure (or) ou de mésaventure (sang),
+   sa face et son effet. */
+/* Les chiffres de Cinzel font d'un 1 un I : le total et les nombres des réserves passent en Garamond. */
+.des-tv .de-jet-tv { color: #fff3d6; font-family: "EB Garamond", serif; font-weight: 700; font-variant-numeric: lining-nums; }
+.faces-des-tv { font: 600 clamp(18px, 2.8vh, 54px)/1.1 "EB Garamond", serif; color: #e8dcc0; font-variant-numeric: lining-nums; }
+.aventure-jet-tv { display: flex; align-items: center; margin: 1vh 0 0; font: 600 clamp(16px, 2.3vh, 44px)/1.2 "EB Garamond", serif; color: #e8dcc0; }
+.aventure-jet-tv b { margin-left: .4em; font: 700 clamp(15px, 2.1vh, 40px)/1.2 "Cinzel", serif; letter-spacing: .06em; text-transform: uppercase; color: #f0cb78; }
+.aventure-jet-tv span { margin-left: .4em; font-style: italic; }
+.aventure-jet-tv .face-tv { display: inline-block; width: 1.6em; height: 1.6em; margin: 0 .6em 0 0; border-radius: .25em; background: #fff3d6; color: #1a110a;
+  font: 700 1em/1.6em "Cinzel", serif; font-style: normal; text-align: center; }
+.aventure-jet-tv.mesaventure b { color: #ffb3a8; }
+.aventure-jet-tv.mesaventure .face-tv { background: #e9a99d; }
+
+/* Sur un écran étroit (téléphone en hauteur), le bandeau prend la largeur et son texte passe à la ligne. */
+@media (max-width: 700px) {
+  .jet-tv { min-width: 72vw; max-width: 94vw; padding: 10px 14px 12px 12px; border-left-width: 5px; white-space: normal; }
+  .de-jet-tv { margin-right: 12px; }
+}
+
+/* ---- Les dés en 3D (des-3d.js) : un canvas sur tout l'écran, sous le bandeau, qui ne prend aucun toucher ---- */
+.des-3d { position: fixed; top: 0; left: 0; z-index: 6; width: 100%; height: 100%; pointer-events: none; }
+.des-3d[hidden] { display: none; }
+
+/* ---- La jauge de volume des jingles (volume-sons.js) : un bouton rond et, dépliée, la jauge de 0 à 100 % ---- */
+.volume-sons { position: fixed; left: max(12px, env(safe-area-inset-left)); bottom: max(12px, env(safe-area-inset-bottom)); z-index: 8; display: flex; align-items: center; font-family: "EB Garamond", Georgia, serif; }
+.volume-sons > button { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 1px solid rgba(214, 180, 118, .55); border-radius: 50%; background: rgba(20, 15, 11, .88); color: #f0d9a8; cursor: pointer; }
+.volume-sons > button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.volume-sons > button svg .plein { fill: currentColor; }
+.volume-sons > button[aria-expanded="true"] { border-color: #f0cb78; box-shadow: 0 0 0 1px #f0cb78; }
+.volume-sons[data-coupe="oui"] > button { color: #e9a99d; }
+.volume-sons .panneau-volume { display: flex; flex-direction: column; margin-left: 8px; padding: 8px 12px 10px; max-width: min(300px, calc(100vw - 80px)); border: 1px solid rgba(214, 180, 118, .55); border-radius: 10px; background: rgba(20, 15, 11, .96); color: #f4ead4; box-shadow: 0 8px 24px rgba(0, 0, 0, .55); }
+.volume-sons .panneau-volume[hidden] { display: none; }
+.volume-sons .ligne-volume { display: flex; align-items: center; }
+.volume-sons label { margin-right: 10px; font-size: 16px; white-space: nowrap; }
+.volume-sons input[type="range"] { flex: 1 1 auto; min-width: 110px; height: 44px; margin: 0; accent-color: #f0cb78; }
+.volume-sons output { min-width: 3.2em; margin-left: 8px; text-align: right; font-size: 16px; font-variant-numeric: lining-nums; }
+.volume-sons .aide-volume { margin: 2px 0 0; font-size: 14px; font-style: italic; color: #d9c9a6; }
+.volume-sons .aide-volume[hidden] { display: none; }
+/* Sur l'écran de la table, le bouton se fait oublier : il paraît au toucher ou au mouvement de la souris. */
+body.sans-curseur .volume-sons:not(:focus-within) > button[aria-expanded="false"] { opacity: 0; }
+.volume-sons > button { transition: opacity .4s ease; }

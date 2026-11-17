@@ -1,0 +1,95 @@
+# L'atelier du MJ et le coin des joueurs. Réglages : copier .env.example en .env (CAMPAGNE_DIR, ports, adresses
+# publiques) ; secrets : secrets/*.env (docs/installation.md). Ce qui ne vaut que pour un serveur se met dans un
+# docker-compose.override.yml, lu en plus de ce fichier et jamais versionné.
+x-construction: &construction
+  context: .
+  # Le pack de campagne recouvre les fichiers de contenu de app/ (docs/campagne.md) ; sans lui, la campagne d'exemple.
+  additional_contexts:
+    campagne: ${CAMPAGNE_DIR:-./docker/campagne-vide}
+
+services:
+  aventures-atelier:
+    build:
+      <<: *construction
+      target: atelier
+    image: aventures-atelier:latest
+    container_name: aventures-atelier
+    restart: always
+    user: "1000:1000"
+    ports:
+      - "${ATELIER_ADRESSE:+${ATELIER_ADRESSE}:}${ATELIER_PORT:-8323}:8000"
+    volumes:
+      - ./data:/data
+      # La bible de la campagne (Markdown, lecture seule) : onglet Bible, et ce que lit la rédaction.
+      - ${BIBLE_DIR:-./docker/bible-vide}:/lore:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # Les secrets, hors du dépôt (docs/installation.md). Chacun est facultatif : sans clé de rédaction, tout passe par le
+    # modèle local ; sans accès par Internet, personne n'entre par ATELIER_PUBLIC ; sans Telegram, rien ne part. Le coin
+    # des joueurs n'en reçoit aucun.
+    env_file:
+      - path: ./secrets/redaction.env
+        required: false
+      - path: ./secrets/acces.env
+        required: false
+      - path: ./secrets/telegram.env
+        required: false
+    environment:
+      - TZ=${TZ:-Europe/Paris}
+      # Le compte principal des MJ : identifiant (champ « auteur » des fiches, à ne plus changer ensuite) et nom affiché.
+      - ATELIER_MJ_PRINCIPAL=${ATELIER_MJ_PRINCIPAL:-mj}
+      - ATELIER_MJ_NOM=${ATELIER_MJ_NOM:-}
+      # Adresse du coin des joueurs, donnée aux joueurs avec leur mot de passe provisoire.
+      - LIEN_JOUEURS=${LIEN_JOUEURS:-http://localhost:8324}
+      # L'atelier lui-même, pour les liens envoyés au MJ (Telegram).
+      - LIEN_ATELIER=${LIEN_ATELIER:-http://localhost:8323}
+      # Noms d'hôte acceptés en plus de localhost et des adresses IP (séparés par des virgules).
+      - ATELIER_HOTES=${ATELIER_HOTES:-}
+      # La vue TV publiée sur Internet (lecture seule, le reste de l'atelier y répond 404). Vide : pas de table publique.
+      - TABLE_PUBLIQUE=${TABLE_PUBLIQUE:-}
+      # L'atelier entier publié sur Internet, derrière le mot de passe (secrets/acces.env). Vide : réseau local seulement.
+      - ATELIER_PUBLIC=${ATELIER_PUBLIC:-}
+      # Le cloisonnement du deuxième MJ (app/mj/cloisonnement.py) : en veille par défaut, une lecture qu'il interdirait est
+      # seulement notée (data/mj/cloisonnement.jsonl) ; « strict » la refuse. À passer en strict avant d'inviter un MJ.
+      - ATELIER_CLOISONNEMENT=${ATELIER_CLOISONNEMENT:-veille}
+      # Les invitations d'un MJ invité (app/mj/comptes_mj.py) : « ouvertes », seulement avec le strict.
+      - ATELIER_INVITATIONS=${ATELIER_INVITATIONS:-}
+
+  # Le coin des joueurs : le seul service à ouvrir sur Internet. Il ne voit que le dossier des propositions ; système de
+  # fichiers en lecture seule.
+  aventures-joueurs:
+    build:
+      <<: *construction
+      target: joueurs
+    image: aventures-joueurs:latest
+    container_name: aventures-joueurs
+    restart: always
+    user: "1000:1000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    # Il lance Chromium pour les fiches en PDF : sa mémoire et ses processus sont bornés, pour qu'un emballement reste
+    # dans ce conteneur.
+    mem_limit: 1g
+    pids_limit: 300
+    # Pas de journal des accès : l'adresse d'un lien personnel (?cle=…) y serait écrite.
+    command: ["uvicorn", "joueurs:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-server-header", "--no-access-log"]
+    ports:
+      - "${JOUEURS_ADRESSE:+${JOUEURS_ADRESSE}:}${JOUEURS_PORT:-8324}:8000"
+    volumes:
+      - ./data/propositions:/propositions
+    environment:
+      - TZ=${TZ:-Europe/Paris}
+      - ATELIER_MJ_PRINCIPAL=${ATELIER_MJ_PRINCIPAL:-mj}
+      # Noms d'hôte acceptés (séparés par des virgules), en plus de localhost et des adresses IP.
+      - HOTES=${JOUEURS_HOTES:-}
+      # Cookies « Secure » : à 0 seulement pour un coin servi en http hors de localhost (réseau local sans https).
+      - COOKIE_SECURE=${JOUEURS_COOKIE_SECURE:-1}
+    networks:
+      - coin-joueurs
+
+# Le réseau du coin des joueurs, à part : le coin n'atteint pas l'atelier. Pour le publier sans port ouvert (tunnel), le
+# déclarer interne dans l'override et y brancher le seul tunnel (docs/installation.md).
+networks:
+  coin-joueurs:
+    name: coin-joueurs

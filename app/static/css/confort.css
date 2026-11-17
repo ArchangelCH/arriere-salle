@@ -1,0 +1,55 @@
+/* ---- Le confort de la table (js/confort/confort.js) : la ligne de « Avant de jouer » et le panneau des Règles maison ---- */
+
+/* Avant de jouer : les limites en une phrase, puis un mot discret par limite que touche un texte préparé. */
+.ligne-confort .ct-noms { font-style: italic; color: var(--texte-pale); }
+.ligne-confort .ct-liens { display: inline-block; margin-left: 6px; font-size: 14px; white-space: nowrap; }
+.ligne-confort .ct-liens a { color: var(--bronze-clair); }
+.alerte-confort { display: block; position: relative; margin-top: 5px; padding-left: 16px; font-size: 15px; color: var(--texte-doux); }
+.alerte-confort::before { content: ""; position: absolute; left: 2px; top: .62em; width: 6px; height: 6px; background: var(--bronze); transform: rotate(45deg); }
+.alerte-confort.niveau-ligne::before { background: var(--sang-vif); }
+.alerte-confort b { font-weight: 600; font-style: normal; color: var(--texte); }
+
+/* Le panneau, replié en tête du registre : une ligne qui dit l'essentiel, le reste à l'ouverture. */
+.zone-confort { scroll-margin-top: calc(var(--haut-entete) + 16px); }
+.confort-table { margin: 0 0 22px; border: 1px solid var(--filet-fort); border-left: 3px solid var(--bronze); border-radius: var(--rayon); background: var(--bois); }
+.confort-table > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding: 12px 18px; cursor: pointer; list-style: none; }
+.confort-table > summary::-webkit-details-marker { display: none; }
+.confort-table > summary::before { content: ""; align-self: center; width: 7px; height: 7px; border: solid var(--bronze); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); transition: transform .15s; }
+.confort-table[open] > summary::before { transform: rotate(45deg); }
+.ct-titre { font: 700 13px/1.3 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--bronze); }
+.ct-resume { font-size: 16px; font-style: italic; color: var(--texte-doux); }
+.ct-corps { padding: 0 18px 16px; }
+.ct-intro { margin: 0 0 14px; max-width: 54em; font-size: 16px; color: var(--texte-doux); }
+.ct-colonnes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; }
+.ct-colonne h3, .ct-sous-titre { margin: 0; font: 700 12px/1.3 var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--texte-doux); }
+.ct-colonne .aide { margin: 2px 0 6px; font-size: 14px; font-style: italic; color: var(--texte-pale); }
+.ct-liste { margin: 0; padding: 0; list-style: none; }
+.ct-liste li { position: relative; padding: 3px 0 3px 16px; font-size: 17px; line-height: 1.35; }
+.ct-liste li::before { content: ""; position: absolute; left: 2px; top: .7em; width: 6px; height: 6px; background: var(--bronze); transform: rotate(45deg); }
+.ct-colonne:first-child .ct-liste li::before { background: var(--sang-vif); }
+.ct-noms { font-style: italic; color: var(--texte-pale); }
+.ct-sous-titre { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--filet); }
+.ct-corps > .aide { margin: 4px 0 10px; font-size: 14px; font-style: italic; color: var(--texte-pale); }
+.ct-etat { margin-left: 6px; font-style: normal; color: var(--texte-doux); }
+.ct-etat.erreur { color: #e39b8f; }
+
+/* Ses thèmes : deux colonnes au large, le nom puis les trois choix. */
+.ct-themes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 28px; margin: 0 0 14px; padding: 0; list-style: none; }
+.ct-themes li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px dotted var(--filet); font-size: 16px; }
+.ct-themes .segments button { min-height: 0; padding: 5px 9px; font-size: 11px; }
+.ct-themes .segments button[data-niveau="ligne"][aria-pressed="true"] { border-color: var(--sang-vif); background: var(--sang); color: var(--parchemin); }
+.ct-libres { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; }
+.ct-libelle { margin: 0 0 6px; font: 600 11px/1.3 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--texte-doux); }
+.ct-libre .puces { margin-bottom: 8px; }
+.ct-libre .puces span { min-width: 0; padding: 3px 2px 3px 12px; overflow-wrap: anywhere; font-size: 15px; }
+.ct-ajout { display: flex; gap: 8px; }
+.ct-ajout input { flex: 1 1 0; width: 0; min-width: 0; padding: 7px 10px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: var(--bois-2); color: var(--texte); font: 16px/1.3 var(--corps); }
+.ct-ajout input:focus { border-color: var(--bronze); outline: none; box-shadow: 0 0 0 3px rgba(194, 155, 92, .18); }
+.ct-ajout button { min-height: 0; padding: 6px 12px; font-size: 11px; }
+.ct-pied { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--filet); }
+.ct-pied .aide { font-size: 15px; font-style: italic; color: var(--texte-pale); }
+
+@media (max-width: 760px) {
+  .ct-colonnes, .ct-themes, .ct-libres { grid-template-columns: minmax(0, 1fr); }
+  .confort-table > summary, .ct-corps { padding-left: 12px; padding-right: 12px; }
+}

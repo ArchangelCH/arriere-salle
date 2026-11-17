@@ -1,0 +1,282 @@
+/* « Lancer un test » (js/joueurs/jets-coin.js) : le bouton flottant du coin des joueurs, sur la même ligne que « Je veux
+   agir » et juste à sa gauche (le module mesure sa largeur : --jet-decalage), puis la feuille qui monte du bas, posée sur un
+   voile : tant qu'elle est ouverte, rien d'autre de la page ne se touche (ni le plan, ni « Bouger », ni la main levée).
+   Couleurs du carnet, avec une valeur de secours pour une page qui ne charge pas carnet.css. */
+
+.bouton-jet {
+  position: fixed;
+  right: calc(max(14px, env(safe-area-inset-right)) + var(--jet-decalage, 0px));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 35;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 52px;
+  min-height: 52px;
+  padding: 8px 16px 8px 12px;
+  border: 1px solid var(--or, #e0b562);
+  border-radius: 26px;
+  background: linear-gradient(#3a2614, #20140b);
+  color: var(--or-vif, #f0cb78);
+  font: 700 13px/1.1 var(--titre, "Cinzel", Georgia, serif);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 230, 170, .12);
+  opacity: .94;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: right .15s ease, background-color .15s;
+}
+.bouton-jet[hidden] { display: none; }
+/* Sans « Je veux agir » (qui réserve déjà sa place), le dé réserve la sienne en bas de page. */
+body.avec-jets { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+.bouton-jet:active { transform: translateY(1px); }
+.bouton-jet:focus-visible { outline: 2px solid var(--or-vif, #f0cb78); outline-offset: 3px; }
+.bouton-jet svg, .feuille-jet svg { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.bouton-jet svg .plein, .feuille-jet svg .plein { fill: currentColor; stroke: none; }
+/* Un test demandé par le MJ : le bouton passe à l'or, son dé respire. */
+.bouton-jet[data-demande="oui"] {
+  background: linear-gradient(#f4d488, #d9a94e);
+  border-color: #fff0c4;
+  color: #2b1d12;
+  opacity: 1;
+  box-shadow: 0 0 0 4px rgba(240, 203, 120, .28), 0 8px 22px rgba(0, 0, 0, .6);
+}
+.bouton-jet[data-demande="oui"] svg { animation: jet-respire 1.6s ease-in-out infinite; }
+@keyframes jet-respire { 50% { transform: scale(.82) rotate(-12deg); } }
+.bouton-jet[data-pause="oui"] { opacity: .6; }
+
+/* Un téléphone étroit : le dé seul (son nom reste lu par le lecteur d'écran), « Je veux agir » garde sa place. Un test
+   demandé garde son libellé, sans jamais toucher le bord gauche ; sous 340 px il n'y tient plus à côté de « Main levée »
+   (« Test de Physique » sortait de l'écran) : le dé doré seul, comme ci-dessus. */
+@media (max-width: 539px) {
+  .bouton-jet:not([data-demande="oui"]) { padding: 0; justify-content: center; border-radius: 50%; }
+  .bouton-jet:not([data-demande="oui"]) .mot-jet { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .bouton-jet[data-demande="oui"] { max-width: calc(100vw - var(--jet-decalage, 0px) - 28px); padding-right: 12px; letter-spacing: .06em; font-size: 12px; }
+}
+@media (max-width: 339px) {
+  .bouton-jet[data-demande="oui"] { padding: 0; justify-content: center; border-radius: 50%; }
+  .bouton-jet[data-demande="oui"] .mot-jet { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* Comme « Je veux agir » : effacé pendant qu'on écrit (le clavier), au-dessus du panier de l'échoppe. Pendant que « Bouger »
+   montre son avis, en bas du plan, le dé lui laisse la place. */
+body:has(:is(input:not([type="checkbox"], [type="radio"], [type="button"], [type="submit"]), textarea, select):focus) .bouton-jet { display: none; }
+/* Le champ quitté, il attend que « Je veux agir » revienne (main-levee.js, « apres-saisie ») : sinon il reparaîtrait sous le
+   doigt qui touche « Envoyer au MJ », et l'iPhone perdrait ce toucher. */
+body:has(.main-levee.apres-saisie) .bouton-jet { display: none; }
+body:has(.barre-panier:not([hidden])) .bouton-jet { bottom: calc(max(10px, env(safe-area-inset-bottom)) + 78px); }
+body:has(.avis-bouger:not([hidden])) .bouton-jet:not([data-demande="oui"]) { visibility: hidden; }
+
+/* La page Table : la légende des héros s'arrête avant le dé et « Je veux agir » (le module mesure les deux : --jet-decalage,
+   --jet-largeur) ; sur un téléphone étroit, elle passe déjà au-dessus de leur ligne. */
+.coin-table.avec-main-levee.avec-jets .legende-coin { right: calc(max(14px, env(safe-area-inset-right)) + var(--jet-decalage, 176px) + var(--jet-largeur, 52px) + 12px); }
+@media (max-width: 539px) {
+  .coin-table.avec-main-levee.avec-jets .legende-coin { right: 66px; }
+}
+
+/* ---- La feuille ---- */
+
+.voile-jet { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 60; background: rgba(8, 5, 3, .55); }
+.voile-jet[hidden] { display: none; }
+body.jet-ouvert { overscroll-behavior: none; }
+.feuille-jet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 61;
+  max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px max(16px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  border-top: 1px solid var(--or, #e0b562);
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(#24170d, #160e08);
+  color: var(--parchemin, #f4ead4);
+  font: 400 17px/1.35 var(--corps, "EB Garamond", Georgia, serif);
+  font-variant-numeric: lining-nums;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, .6);
+  animation: jet-monte .22s ease-out;
+}
+.feuille-jet[hidden] { display: none; }
+.feuille-jet:focus { outline: none; }
+@keyframes jet-monte { from { transform: translateY(24px); opacity: .4; } }
+@media (min-width: 600px) {
+  .feuille-jet { left: auto; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); width: 440px; border: 1px solid var(--or, #e0b562); border-radius: 10px; }
+}
+
+.tete-jet { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 -6px 4px 0; }
+.tete-jet h2 { margin: 8px 0 0; font: 700 15px/1.2 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .14em; text-transform: uppercase; color: var(--or-vif, #f0cb78); }
+.fermer-jet { flex: none; width: 44px; height: 44px; border: 0; background: none; color: #c9b48f; font-size: 28px; line-height: 1; cursor: pointer; }
+.qui-jet { margin: 0 0 8px; font: 600 19px/1.2 var(--titre, "Cinzel", Georgia, serif); color: #fff3d6; }
+.etape-jet { display: flex; align-items: center; gap: 8px; margin: 14px 0 8px; font: 700 12px/1.2 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .12em; text-transform: uppercase; color: #d9c6a3; }
+.etape-jet span { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--or, #e0b562); color: #1a110a; letter-spacing: 0; }
+.etape-jet.seule { margin-top: 16px; }
+
+.feuille-jet button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.feuille-jet button:disabled { cursor: default; opacity: .45; }
+.caracs-jet { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.carac-jet {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 64px; padding: 8px 4px;
+  border: 1px solid rgba(224, 181, 98, .55); border-radius: 6px; background: rgba(244, 234, 212, .06);
+}
+.carac-jet span { font: 700 12px/1.1 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .08em; text-transform: uppercase; }
+.carac-jet b { font: 700 24px/1 var(--titre, "Cinzel", Georgia, serif); color: #fff3d6; }
+.carac-jet[aria-pressed="true"] { border-color: var(--or-vif, #f0cb78); background: var(--or-vif, #f0cb78); color: #1a110a; box-shadow: 0 0 0 2px rgba(240, 203, 120, .35); }
+.carac-jet[aria-pressed="true"] b { color: #1a110a; }
+.carton-jet { padding: 0 6px; border-radius: 3px; font: 600 12px/1.4 var(--corps, Georgia, serif); }
+.carton-jet[data-carton="jaune"] { background: #e8c547; color: #2b1d12; }
+.carton-jet[data-carton="rouge"] { background: #b3261e; color: #fff; }
+
+.mod-jet { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 12px 0 0; }
+.mod-jet > span { font: 700 12px/1 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .1em; text-transform: uppercase; color: #d9c6a3; }
+.mod-jet button { width: 44px; height: 44px; border: 1px solid rgba(224, 181, 98, .55); border-radius: 50%; background: rgba(20, 13, 8, .6); color: var(--or-vif, #f0cb78); font-size: 22px; line-height: 1; }
+.mod-jet output { min-width: 3ch; text-align: center; font: 700 20px/1 var(--titre, "Cinzel", Georgia, serif); }
+.mod-jet small { font-style: italic; font-size: 15px; color: #b8a585; }
+
+.comps-jet { display: flex; flex-wrap: wrap; gap: 8px; }
+.comp-jet {
+  display: inline-flex; align-items: baseline; gap: 6px; min-height: 44px; padding: 8px 12px;
+  border: 1px solid rgba(224, 181, 98, .55); border-radius: 22px; background: rgba(244, 234, 212, .06); text-align: left;
+}
+.comp-jet b { color: var(--or-vif, #f0cb78); }
+.comp-jet small { font: 600 13px/1 var(--titre, "Cinzel", Georgia, serif); color: #c9b48f; }
+.comp-jet:not(:disabled):active, .carac-jet:active { filter: brightness(1.2); }
+.comp-jet[aria-pressed="true"] { border-color: var(--or-vif, #f0cb78); background: var(--or-vif, #f0cb78); color: #1a110a; box-shadow: 0 0 0 2px rgba(240, 203, 120, .35); }
+.comp-jet[aria-pressed="true"] b, .comp-jet[aria-pressed="true"] small { color: #1a110a; }
+.aide-jet { margin: 8px 0 0; font-style: italic; font-size: 15px; color: #b8a585; text-align: center; }
+
+.demande-jet { margin: 4px 0 12px; font: 600 20px/1.3 var(--corps, Georgia, serif); }
+.demande-jet b { font-family: var(--titre, "Cinzel", Georgia, serif); color: var(--or-vif, #f0cb78); }
+.lancer-jet {
+  display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; padding: 10px 16px;
+  border: 1px solid #fff0c4; border-radius: 28px; background: linear-gradient(#f4d488, #d9a94e); color: #2b1d12;
+  font: 700 16px/1 var(--titre, "Cinzel", Georgia, serif) !important; letter-spacing: .14em; text-transform: uppercase;
+}
+.lancer-jet small { font-size: 13px; letter-spacing: .04em; opacity: .8; white-space: nowrap; }
+/* « .feuille-jet button » (color: inherit) l'emportait : le mot « Lancer » sortait en parchemin sur l'or. */
+.feuille-jet .lancer-jet { color: #2b1d12; }
+.feuille-jet .lancer-jet:disabled { background: rgba(244, 234, 212, .08); border-color: rgba(224, 181, 98, .35); color: #b8a585; }
+.plus-tard-jet { display: block; width: 100%; min-height: 44px; margin-top: 12px; border: 0; background: none; color: #c9b48f; font-style: italic !important; }
+
+.ajustements-jet { margin: 12px 0 0; padding: 0; list-style: none; font-style: italic; font-size: 15px; color: #e3b9a8; }
+.ajustements-jet li::before { content: ""; display: inline-block; width: 7px; height: 7px; margin: 0 8px 1px 2px; background: #b3261e; transform: rotate(45deg); }
+.pause-jet, .erreur-jet, .echec-jet { margin: 8px 0; padding: 8px 12px; border-left: 3px solid #b3261e; background: rgba(179, 38, 30, .14); }
+
+.roule-jet { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 18px 0 22px; text-align: center; font-style: italic; color: #e8dcc0; }
+.de-roule svg { width: 54px; height: 54px; color: var(--or-vif, #f0cb78); animation: jet-roule .9s linear infinite; }
+@keyframes jet-roule { to { transform: rotate(360deg); } }
+
+/* Le résultat : le dé en grand, l'issue dessous ; un critique se voit (or vif, ou rouge sang). */
+.test-jet { margin: 2px 0 6px; font: 600 16px/1.3 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .04em; color: #e8dcc0; }
+.resultat-jet { display: flex; align-items: center; gap: 18px; padding: 10px 16px; border: 1px solid rgba(224, 181, 98, .5); border-radius: 8px; background: rgba(244, 234, 212, .05); }
+.resultat-jet .de-jet { margin: 0; font: 700 56px/1 "Cinzel Decorative", var(--titre, Georgia, serif); color: #fff3d6; }
+.resultat-jet .issue-jet { margin: 0; font: 700 20px/1.15 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .08em; text-transform: uppercase; }
+.resultat-jet[data-issue="reussite"] .issue-jet { color: #b9dc8f; }
+.resultat-jet[data-issue="echec"] .issue-jet { color: #e9a99d; }
+.resultat-jet[data-issue="reussite-critique"] { border-color: #fff0c4; background: linear-gradient(rgba(240, 203, 120, .3), rgba(240, 203, 120, .1)); box-shadow: 0 0 22px rgba(240, 203, 120, .45); }
+.resultat-jet[data-issue="reussite-critique"] .de-jet, .resultat-jet[data-issue="reussite-critique"] .issue-jet { color: #ffe4a0; }
+.resultat-jet[data-issue="echec-critique"] { border-color: #e2493f; background: linear-gradient(rgba(142, 27, 23, .55), rgba(142, 27, 23, .25)); box-shadow: 0 0 22px rgba(179, 38, 30, .5); }
+.resultat-jet[data-issue="echec-critique"] .de-jet, .resultat-jet[data-issue="echec-critique"] .issue-jet { color: #ffb3a8; }
+.detail-jet { margin: 10px 0 0; font-size: 16px; color: #d9c6a3; }
+.tv-jet { margin: 8px 0 0; font-style: italic; font-size: 15px; color: #b8a585; }
+.gestes-jet { display: flex; gap: 10px; margin-top: 16px; }
+.gestes-jet button { flex: 1 1 0; min-height: 48px; border: 1px solid rgba(224, 181, 98, .6); border-radius: 6px; background: transparent; color: var(--or-vif, #f0cb78);
+  font: 700 13px/1 var(--titre, "Cinzel", Georgia, serif) !important; letter-spacing: .1em; text-transform: uppercase; }
+.gestes-jet button.principal { background: var(--or-vif, #f0cb78); border-color: var(--or-vif, #f0cb78); color: #1a110a; }
+
+/* ---- Lot G : les deux volets, les dés libres, les armes, les dés d'aventure ---- */
+
+.volets-jet { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 2px 0 6px; border: 1px solid rgba(224, 181, 98, .55); border-radius: 22px; overflow: hidden; }
+.volets-jet button { min-height: 44px; border: 0; background: transparent; color: #d9c6a3; font: 700 12px/1 var(--titre, "Cinzel", Georgia, serif) !important; letter-spacing: .12em; text-transform: uppercase; }
+.volets-jet button + button { border-left: 1px solid rgba(224, 181, 98, .55); }
+.volets-jet button[aria-pressed="true"] { background: var(--or-vif, #f0cb78); color: #1a110a; }
+
+.faces-jet { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.faces-jet button { min-height: 48px; padding: 0 2px; border: 1px solid rgba(224, 181, 98, .55); border-radius: 6px; background: rgba(244, 234, 212, .06);
+  font: 700 14px/1 var(--titre, "Cinzel", Georgia, serif) !important; letter-spacing: .02em; }
+.faces-jet button[aria-pressed="true"] { border-color: var(--or-vif, #f0cb78); background: var(--or-vif, #f0cb78); color: #1a110a; box-shadow: 0 0 0 2px rgba(240, 203, 120, .35); }
+@media (max-width: 379px) {
+  .faces-jet { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.feuille-jet[data-volet="des"] .lancer-jet { margin-top: 16px; }
+/* « Combien » et « Bonus » de même largeur : leurs boutons − et + tombent l'un sous l'autre. */
+.feuille-jet[data-volet="des"] .mod-jet > span { min-width: 6.2em; }
+
+.armes-jet { display: flex; flex-wrap: wrap; gap: 8px; }
+.arme-jet { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 6px 14px 6px 10px; border: 1px solid rgba(224, 181, 98, .7); border-radius: 24px;
+  background: linear-gradient(rgba(240, 203, 120, .16), rgba(240, 203, 120, .06)); text-align: left; }
+.arme-jet svg { width: 20px; height: 20px; color: var(--or-vif, #f0cb78); }
+.arme-jet b { font: 700 14px/1 var(--titre, "Cinzel", Georgia, serif); color: var(--or-vif, #f0cb78); letter-spacing: .04em; }
+.arme-jet:not(:disabled):active { filter: brightness(1.2); }
+
+.reserve-jet { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 8px 0 0; font-size: 15px; color: #d9c6a3; }
+.pips-jet { display: inline-flex; gap: 4px; }
+.pips-jet i { display: block; width: 12px; height: 12px; border-radius: 3px; background: var(--or-vif, #f0cb78); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .25); }
+.pips-jet i.mj { background: #b3261e; }
+.annonce-jet { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid #b3261e; background: rgba(179, 38, 30, .16); font-size: 16px; }
+.annonce-jet b { font-family: var(--titre, "Cinzel", Georgia, serif); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #ffb3a8; }
+
+.aventure-jet { margin: 12px 0 0; }
+.case-jet { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 12px 4px 8px; border: 1px solid rgba(224, 181, 98, .55); border-radius: 6px;
+  background: rgba(244, 234, 212, .05); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+/* Une case dessinée ici : la case native de WebKit, sur ce fond sombre, n'était qu'un carré noir. */
+.case-jet input { flex: none; display: grid; place-items: center; width: 26px; height: 26px; margin: 0; -webkit-appearance: none; appearance: none;
+  border: 2px solid var(--or, #e0b562); border-radius: 5px; background: rgba(20, 13, 8, .6); cursor: pointer; }
+.case-jet input::after { content: ""; width: 7px; height: 13px; margin-top: -3px; border: solid #1a110a; border-width: 0 3px 3px 0; transform: rotate(45deg); opacity: 0; }
+.case-jet input:checked { border-color: var(--or-vif, #f0cb78); background: var(--or-vif, #f0cb78); }
+.case-jet input:checked::after { opacity: 1; }
+.case-jet input:focus-visible { outline: 2px solid var(--or-vif, #f0cb78); outline-offset: 2px; }
+.case-jet input:disabled { opacity: .5; cursor: default; }
+.case-jet small { color: #b8a585; font-size: 14px; }
+.case-jet.vide { cursor: default; opacity: .6; font-style: italic; }
+.avantage-jet { margin: 8px 0 0; padding: 8px 10px 10px; border: 1px dashed rgba(159, 199, 122, .6); border-radius: 6px; background: rgba(63, 143, 74, .1); }
+.avantage-jet p { margin: 0 0 6px; font-size: 15px; font-style: italic; color: #cfe3b8; }
+.effets-jet { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.effets-jet + .effets-jet { margin-top: 8px; }
+.effets-jet > span { flex: 1 0 100%; font: 700 11px/1.2 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .1em; text-transform: uppercase; color: #d9c6a3; }
+.effets-jet button { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 48px; padding: 4px 6px;
+  border: 1px solid rgba(159, 199, 122, .6); border-radius: 6px; background: rgba(20, 13, 8, .5); font-size: 15px !important; }
+.effets-jet button small { font-size: 12px; color: #b8a585; }
+.effets-jet button[aria-pressed="true"] { background: #9fc77a; border-color: #cfe3b8; color: #14200c; }
+.effets-jet button[aria-pressed="true"] small { color: #24361a; }
+
+.des-test-jet { margin: 12px 0 0; padding: 0; list-style: none; }
+.des-test-jet li { display: flex; align-items: center; gap: 12px; padding: 6px 10px; border-left: 3px solid var(--or-vif, #f0cb78); background: rgba(240, 203, 120, .08); }
+.des-test-jet li + li { margin-top: 6px; }
+.des-test-jet li[data-de="mesaventure"] { border-left-color: #b3261e; background: rgba(179, 38, 30, .12); }
+.des-test-jet li.annule { opacity: .7; }
+.des-test-jet li.annule .face-jet { text-decoration: line-through; }
+.des-test-jet b { font: 700 12px/1.2 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .08em; text-transform: uppercase; }
+.des-test-jet small { color: #b8a585; }
+.des-test-jet em { display: block; font-size: 14px; color: #e3b9a8; }
+.face-jet { flex: none; display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 6px; background: #fff3d6; color: #1a110a;
+  font: 700 20px/1 var(--titre, "Cinzel", Georgia, serif); }
+li[data-de="mesaventure"] .face-jet { background: #e9a99d; }
+.note-jet { margin: 8px 0 0; font-size: 15px; font-style: italic; color: #e3b9a8; }
+.total-jet .issue-jet { color: var(--or-vif, #f0cb78); }
+/* Les chiffres de Cinzel font d'un 1 un I : les expressions de dés (« 1D10 ») et les totaux passent en Garamond. */
+.feuille-jet .expr-jet { font-family: var(--corps, "EB Garamond", Georgia, serif) !important; font-weight: 700; font-variant-numeric: lining-nums; letter-spacing: .01em; text-transform: none; }
+.faces-jet button.expr-jet { font-size: 17px !important; }
+.lancer-jet .expr-jet { font-size: 19px; }
+.lancer-jet small.expr-jet { font-size: 14px; font-weight: 600; }
+.arme-jet b.expr-jet { font-size: 17px; }
+.total-jet .de-jet { font-family: var(--corps, "EB Garamond", Georgia, serif); font-variant-numeric: lining-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bouton-jet[data-demande="oui"] svg, .de-roule svg, .feuille-jet { animation: none; }
+}
+
+/* L'avantage : la case « +10 % » de la feuille, et « changer l'effet » sous un dé qui a roulé. */
+.avantage-test .case-jet { border-color: rgba(159, 199, 122, .7); background: rgba(63, 143, 74, .12); }
+.des-test-jet li { flex-wrap: wrap; }
+.changer-effet { flex: 1 0 100%; margin: 8px 0 2px; padding: 8px 10px 10px; border: 1px dashed rgba(159, 199, 122, .6); border-radius: 6px; background: rgba(63, 143, 74, .1); }
+.changer-effet > span { flex: 1 0 100%; }
+.changer-effet button[disabled] { opacity: .5; }
+
+/* Posture offensive : les critiques élargis, dits avant de lancer et sous le résultat. */
+.offensive-jet { margin: 12px 0 0; padding: 9px 12px; border-left: 3px solid #c9a24b; background: rgba(201, 162, 75, .1); border-radius: 0 8px 8px 0; font-size: 15px; line-height: 1.4; color: #ecdcb4; }
+.offensive-jet b { color: #f0d48a; }

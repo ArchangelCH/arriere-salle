@@ -1,0 +1,59 @@
+/* Les pions enrichis et les images du MJ dans l'éditeur de plan (lot H2, js/plan/editeur-pions.js et editeur-images.js). */
+
+/* Les états d'un pion : une pastille par état, posée ou retirée d'un clic. */
+.etats-pion { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 0 0 14px; }
+.etats-pion button {
+  justify-content: flex-start; gap: 8px; min-height: 32px; padding: 4px 8px 4px 5px;
+  font: 500 15px/1.1 var(--corps); letter-spacing: 0; text-transform: none; color: var(--texte-doux);
+}
+.etats-pion button img, .etats-pion button svg { flex: none; width: 22px; height: 22px; }
+.etats-pion button[aria-pressed="true"] { color: var(--parchemin); }
+
+/* Les volets « Forme, cadre et image » et « Étiquette, groupe et monture ». */
+.reglages-pion { margin: 0 0 14px; border-top: 1px solid var(--filet); }
+.reglages-pion > summary {
+  padding: 10px 0 8px; cursor: pointer; list-style-position: inside;
+  font: 600 11px/1.2 var(--titre); letter-spacing: .1em; text-transform: uppercase; color: var(--bronze-clair);
+}
+.reglages-pion[open] > summary { margin-bottom: 6px; }
+.reglages-pion .champ input[type="color"] { width: 100%; height: 38px; padding: 2px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: #120d0a; }
+.image-pion { margin: 0 0 6px; }
+.image-pion .lbl { margin: 10px 0 4px; font: 600 11px/1.2 var(--titre); letter-spacing: .1em; text-transform: uppercase; color: var(--texte-doux); }
+.apercu-image-pion { display: block; width: 72px; height: 72px; object-fit: cover; margin: 0 0 8px; background: #1d1611; border: 2px solid var(--bronze); }
+.apercu-image-pion.forme-rond { border-radius: 50%; }
+.apercu-image-pion.forme-carre { border-radius: 8px; }
+.apercu-image-pion.forme-blason { border-radius: 4px 4px 50% 50% / 4px 4px 60% 60%; }
+label.bouton.principal { background: var(--sang); border-color: #b8433b; color: #fbeee0; }
+label.bouton.principal:hover { background: var(--sang-vif); }
+
+/* La bibliothèque : des vignettes rangées par rayon, sur un damier sombre (une image détourée s'y lit). */
+.rayon-images { margin: 12px 0 4px; font: italic 500 15px/1.2 var(--corps); color: var(--texte-doux); }
+.bibliotheque-images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-bottom: 8px; }
+.bibliotheque-images button {
+  display: grid; justify-items: center; gap: 3px; min-height: 0; padding: 5px 3px 4px; background: transparent; border-color: transparent;
+  font: 500 12.5px/1.1 var(--corps); letter-spacing: 0; text-transform: none; text-align: center; color: var(--texte-doux);
+}
+.bibliotheque-images button:hover { background: var(--bois-2); }
+.bibliotheque-images button[aria-pressed="true"] { background: var(--bois-3); border-color: var(--bronze-clair); color: var(--parchemin); }
+.bibliotheque-images img {
+  width: 56px; height: 56px; object-fit: contain;
+  background: repeating-conic-gradient(#2a201a 0 25%, #1a1410 0 50%) 0 0 / 12px 12px;
+}
+.bibliotheque-images span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.image-choisie { margin-top: 10px; padding-top: 4px; border-top: 1px solid var(--filet); }
+.apercu-image-objet {
+  display: block; max-width: 100%; max-height: 140px; object-fit: contain; margin: 0 0 12px; border: 1px solid var(--filet);
+  background: repeating-conic-gradient(#2a201a 0 25%, #1a1410 0 50%) 0 0 / 14px 14px;
+}
+
+/* Les états d'un pion dans le Tableau (js/tableau/etats-pions.js). */
+.tc-qui .tc-etats { display: inline-flex; flex-wrap: wrap; margin-left: 2px; }
+.tc-qui .tc-etats span { display: inline-flex; align-items: center; margin: 0 6px 0 0; font: italic 400 13px/1 var(--corps); color: var(--texte-doux); }
+.tc-qui .tc-etats img { width: 16px; height: 16px; margin-right: 3px; }
+
+/* Au doigt (iPad) : des cibles de 44 pixels, comme doigt.css. */
+@media (pointer: coarse) {
+  .etats-pion button, .bibliotheque-images button { min-height: 44px; }
+  .reglages-pion > summary { min-height: 44px; padding: 16px 0 12px; }
+  .reglages-pion .champ input[type="color"] { height: 44px; }
+}

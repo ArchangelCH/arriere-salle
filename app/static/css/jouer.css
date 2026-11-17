@@ -1,0 +1,20 @@
+/* « Jouer la scène » (js/seances/jouer-scene.js) et l'ambiance de combat du panneau Musique (js/musique/musique-combat.js). */
+
+/* Le repère de la scène en cours, dans le déroulé de Jouer et de Préparer : il suit sa ligne. */
+.repere-scene { display: inline-block; margin: 0 0 0 8px; padding: 3px 6px 2px; border: 1px solid rgba(224, 181, 98, .5); border-radius: 2px; font: 700 10px/1 var(--titre); font-style: normal; letter-spacing: .14em; text-transform: uppercase; color: var(--bronze-clair); vertical-align: .15em; white-space: nowrap; }
+p.repere-scene { margin: 0 0 6px; }
+.scene.en-cours { border-color: rgba(224, 181, 98, .45); }
+/* Monter, descendre, retirer : en ligne au bout de la scène. La barre d'outils de la carte, de même classe, les empilait
+   en colonne de boutons carrés (et la scène s'étirait en hauteur). */
+.scene .outils { flex-direction: row; align-items: center; padding: 0; background: none; border: 0; }
+.scene .outils button { width: auto; height: auto; }
+.deroule-jeu li.en-cours:not(.avec-liens) { border-color: rgba(224, 181, 98, .45); }
+
+/* Le geste en tête des liens de la scène en cours. */
+.deroule-jeu .liens-jeu li.geste-scene { border-top-color: transparent; }
+.liens-jeu .geste-scene button { min-width: 148px; }
+
+.musique-combat { margin: 0 0 12px; padding-top: 12px; border-top: 1px solid var(--filet); }
+.musique-combat .champ { margin-bottom: 6px; }
+.musique-combat .champ select { padding: 6px 8px; font-size: 15px; }
+.musique-combat .aide { margin: 0; }

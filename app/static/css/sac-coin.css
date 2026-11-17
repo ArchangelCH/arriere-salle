@@ -1,0 +1,82 @@
+/* Le sac de « Mon héros » dans le carnet du coin des joueurs (js/joueurs/sac.js) : chaque ligne se touche pour la
+   renommer, la donner ou la retirer ; la bourse dit ce qui est engagé ; les derniers gestes disent ce qu'en a fait
+   l'atelier ou le MJ. Pensé d'abord pour le téléphone : des cibles de 44 px, une action ouverte à la fois, sous sa ligne.
+   Les couleurs sont celles du carnet (carnet.css). */
+
+.sac-joueur { gap: 14px; }
+.sac-joueur > h4 { margin-bottom: 0; }
+.sr-sac { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* La bourse : les pièces, puis ce qui attend le MJ. */
+.bourse-sac { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.bourse-sac .bourse-coin { flex: 1 1 auto; }
+.engage-sac { flex: 1 1 100%; order: 3; margin: 0; font-size: 16px; font-style: italic; color: var(--doux); }
+.engage-sac b { font-style: normal; font-weight: 600; color: var(--encre); }
+
+.don-or-sac { display: grid; gap: 10px; padding: 12px 14px 14px; border: 1px solid var(--filet); border-left: 4px solid var(--or-sombre);
+  background: rgba(255, 251, 240, .6); }
+.choix-compagnon { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; border: 0; }
+.choix-compagnon legend { margin-bottom: 6px; padding: 0; font: 700 11px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--doux); }
+.compagnon-sac { min-height: 44px; padding: 0 16px; border: 1px solid rgba(107, 79, 42, .6); border-radius: 22px; background: transparent;
+  font: 500 18px/1 var(--corps); cursor: pointer; }
+.compagnon-sac[aria-pressed="true"] { border-color: #b8433b; background: var(--sang); color: #fbeee0; }
+.montant-sac { display: grid; gap: 5px; font: 700 11px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--doux); }
+.montant-sac input { width: 8em; min-height: 44px; padding: 0 10px; border: 1px solid rgba(107, 79, 42, .55); border-radius: 2px;
+  background: rgba(255, 251, 240, .8); font: 600 20px/1 var(--titre); letter-spacing: 0; text-transform: none; color: var(--encre);
+  font-variant-numeric: lining-nums; }
+.aide-sac { margin: 0; font-size: 16px; font-style: italic; color: var(--doux); overflow-wrap: anywhere; }
+.actions-sac { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+
+/* Les lignes : chacune un bouton, qui ouvre ses gestes juste en dessous. */
+.sac-joueur .liste-sac ul { list-style: none; margin: 0; padding: 0; }
+.sac-joueur .liste-sac li { padding: 0 0 0 16px; border-bottom: 1px dotted rgba(107, 79, 42, .35); }
+.sac-joueur .liste-sac li::before { top: 19px; }
+.ligne-sac { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 44px; padding: 6px 4px;
+  border: 0; background: transparent; text-align: left; font: 400 18px/1.3 var(--corps); cursor: pointer; overflow-wrap: anywhere; }
+.ligne-sac:disabled { cursor: default; }
+/* Le nom de la ligne, et sa quantité à droite : « − », le nombre, « + », des cibles de 44 px. */
+.tete-ligne-sac { display: flex; align-items: center; gap: 6px; }
+.tete-ligne-sac .ligne-sac { flex: 1 1 auto; width: auto; min-width: 0; }
+.quantite-sac { flex: none; display: inline-flex; align-items: center; gap: 2px; }
+.quantite-sac button { width: 44px; height: 44px; padding: 0; border: 1px solid rgba(107, 79, 42, .55); border-radius: 22px; background: transparent;
+  font: 600 22px/1 var(--corps); color: var(--encre); cursor: pointer; touch-action: manipulation; }
+.quantite-sac button:disabled { opacity: .45; cursor: default; }
+.quantite-sac button:focus-visible { outline: 2px solid var(--sang); outline-offset: 2px; }
+.quantite-sac output { min-width: 2.1em; text-align: center; font: 700 19px/1 var(--titre); font-variant-numeric: lining-nums tabular-nums; }
+.combien-sac { flex: 1 1 100%; }
+.ligne-sac[aria-expanded="true"] { color: var(--sang); font-weight: 600; }
+.liste-sac li.ouverte { background: rgba(255, 251, 240, .55); box-shadow: inset 3px 0 0 var(--sang); }
+.liste-sac li.en-route .ligne-sac { opacity: .62; }
+.en-route-sac { flex: none; font: italic 400 14px/1 var(--corps); color: var(--doux); }
+.actions-ligne { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 2px 4px 12px; }
+.actions-ligne .aide-sac { flex: 1 1 100%; }
+.actions-ligne .secondaire, .actions-ligne .envoyer-coin { flex: 1 1 auto; }
+.renommer-sac { display: grid; gap: 8px; padding: 2px 4px 12px; }
+.renommer-sac input, .ajouter-sac input {
+  width: 100%; min-height: 44px; padding: 0 10px; border: 1px solid rgba(107, 79, 42, .55); border-radius: 2px;
+  background: rgba(255, 251, 240, .8); font: 400 18px/1.2 var(--corps); color: var(--encre);
+}
+.renommer-sac input:focus, .ajouter-sac input:focus, .montant-sac input:focus { outline: none; border-color: var(--sang); box-shadow: 0 0 0 2px rgba(142, 27, 23, .18); }
+.ajouter-sac { display: flex; gap: 8px; margin-top: 8px; }
+.ajouter-sac input { flex: 1 1 auto; min-width: 0; }
+.ajouter-sac .secondaire { flex: none; }
+.liste-sac h4 small { font: italic 400 14px/1 var(--corps); letter-spacing: 0; text-transform: none; }
+.pause-sac { margin: 0; padding: 8px 10px; border: 1px dashed var(--sang); background: rgba(142, 27, 23, .08); font-size: 16px; }
+.refus-sac { margin: 0; }
+
+/* Les derniers gestes : ce que l'atelier en a fait, et le mot du MJ. */
+.gestes-sac h5 { margin: 6px 0 4px; font: 700 11px/1.2 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--doux); }
+.gestes-sac ol { list-style: none; margin: 0; padding: 0; }
+.geste-sac { padding: 7px 0; border-top: 1px dotted rgba(107, 79, 42, .4); font-size: 16px; }
+.geste-sac > p:first-child { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 12px; margin: 0; }
+.geste-sac .quoi { overflow-wrap: anywhere; }
+.geste-sac .statut { font: 600 11px/1.3 var(--titre); letter-spacing: .1em; text-transform: uppercase; color: var(--doux); }
+.geste-sac.statut-appliquee .statut, .geste-sac.statut-acceptee .statut { color: #4d6a2c; }
+.geste-sac.statut-refusee .statut, .geste-sac.statut-echec .statut, .geste-sac.statut-annulee .statut { color: var(--rouge); }
+.geste-sac.statut-retiree { opacity: .6; }
+.geste-sac .resultat-demande, .geste-sac .mot-du-mj { margin: 6px 0 0; }
+.geste-sac .secondaire { margin-top: 6px; }
+
+/* Un bouton éteint se voit éteint (pointillés, pâle) : « Donner de l'or » avec une bourse vide garde son explication dessous. */
+.secondaire:disabled, .envoyer-coin:disabled { opacity: .45; border-style: dashed; cursor: default; }
+.bourse-sac .aide-sac { margin-top: 6px; }

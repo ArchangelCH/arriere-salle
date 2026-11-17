@@ -1,0 +1,115 @@
+/* Le portrait de son héros, dans le coin des joueurs : en grand dans l'onglet Héros (js/joueurs/heros-coin.js),
+   « Changer de portrait » sous lui et dans « Mon héros » du carnet (js/joueurs/portrait-coin.js), la petite carte du
+   carnet fermé, la pastille de sa ligne sur la page Table. Pensé d'abord pour le téléphone : des cibles de 44 px, le
+   cadrage au doigt. Les couleurs et les boutons sont ceux du carnet (carnet.css). */
+
+/* ---- L'onglet Héros : le portrait en grand, comme un tableau dans son cadre doré ---- */
+
+.heros-coin .titre-carnet { text-align: center; }
+.heros-coin .titre-carnet h1 { margin: 0; font: 700 clamp(27px, 7.4vw, 42px)/1.08 var(--titre); }
+.portrait-heros { display: grid; justify-items: center; gap: 16px; margin: 22px 0 6px; }
+.portrait-grand {
+  position: relative; width: min(100%, 340px); margin: 0; overflow: hidden;
+  border: 3px solid var(--or-sombre); border-radius: 4px; background: #2a1a0e;
+  box-shadow: 0 0 0 1px rgba(240, 203, 120, .5) inset, 0 12px 30px rgba(43, 29, 18, .45);
+}
+.portrait-grand::before { content: ""; display: block; padding-top: 133.333%; }
+.portrait-grand::after { content: ""; position: absolute; top: 6px; right: 6px; bottom: 6px; left: 6px; border: 1px solid rgba(240, 203, 120, .45); pointer-events: none; }
+.portrait-grand img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+.portrait-grand .monogramme { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: none; place-items: center;
+  font: 700 92px/1 "Cinzel Decorative", var(--titre); color: var(--or); }
+.portrait-grand.sans-image img { display: none; }
+.portrait-grand.sans-image .monogramme { display: grid; }
+.zone-portrait { width: 100%; max-width: 560px; }
+.liens-heros { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; margin: 18px 0 4px; }
+.liens-heros .secondaire { display: inline-flex; align-items: center; text-decoration: none; }
+.liens-heros:empty { display: none; }
+.fiche-fermee { margin: 22px auto 0; max-width: 32em; text-align: center; }
+/* La fiche reprend celle du carnet ; son médaillon ferait doublon avec le grand portrait. */
+.heros-coin .fiche-du-heros { margin-top: 26px; }
+.heros-coin .fiche-coin .identite { grid-template-columns: minmax(0, 1fr); }
+.heros-coin .fiche-coin .identite .medaillon { display: none; }
+
+/* ---- « Changer de portrait » ---- */
+
+.portrait-joueur { display: grid; justify-items: center; gap: 12px; }
+.zone-portrait.dans-fiche { margin: 14px 0 6px; }
+.zone-portrait.dans-fiche .portrait-joueur { justify-items: start; }
+.changer-portrait { min-width: 220px; }
+.panneau-portrait { display: grid; gap: 18px; width: 100%; padding: 14px 14px 16px; border: 1px solid var(--filet); border-left: 4px solid var(--or-sombre);
+  background: rgba(255, 251, 240, .62); }
+.panneau-portrait h4 { margin: 0 0 6px; font: 700 12px/1.2 var(--titre); letter-spacing: .22em; text-transform: uppercase; color: var(--sang); }
+.aide-portrait { margin: 0 0 10px; font-size: 16px; font-style: italic; color: var(--doux); }
+.pause-portrait { margin: 0; padding: 8px 10px; border: 1px dashed var(--sang); background: rgba(142, 27, 23, .08); font-size: 16px; }
+.actions-portrait { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.message-portrait { margin: 0; padding: 8px 10px; border-left: 3px solid var(--or-sombre); background: rgba(224, 181, 98, .14); font-size: 16px; }
+.message-portrait.erreur { border-left-color: var(--rouge); background: rgba(179, 38, 30, .1); }
+
+/* Ses portraits : des vignettes au format portrait ; celle qu'on touche se cerne de rouge, la sienne d'or. */
+.grille-portraits { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; }
+.vignette-portrait {
+  position: relative; display: block; width: 100%; padding: 0; overflow: hidden; border: 2px solid rgba(107, 79, 42, .45); border-radius: 3px;
+  background: #2a1a0e; cursor: pointer;
+}
+.vignette-portrait::before { content: ""; display: block; padding-top: 133.333%; }
+.vignette-portrait img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+.vignette-portrait.actuel { border-color: var(--or); box-shadow: 0 0 0 2px rgba(224, 181, 98, .45); cursor: default; }
+.vignette-portrait[aria-pressed="true"] { border-color: var(--sang); box-shadow: 0 0 0 3px rgba(142, 27, 23, .35); }
+.etiquette-portrait { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 2px 5px; background: rgba(20, 13, 8, .78);
+  color: var(--or-vif); font: 700 10px/1.1 var(--titre); letter-spacing: .1em; text-transform: uppercase; text-align: center; }
+
+/* Sa propre image : le bouton du fichier, puis le cadre où l'on place l'image du doigt. */
+.choisir-image { position: relative; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; }
+.choisir-image input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.choisir-image:focus-within { outline: 2px solid var(--or); outline-offset: 2px; }
+.choisir-image.inactif { opacity: .45; pointer-events: none; }
+.cadrage-portrait { display: grid; justify-items: center; gap: 10px; margin-top: 4px; }
+.cadre-portrait {
+  /* Téléphone couché : le cadre entier tient sous l'en-tête, avec « Rapprocher » et « Envoyer au MJ » tout près. */
+  position: relative; width: min(100%, 300px, 45vh); overflow: hidden; border: 3px solid var(--or-sombre); border-radius: 4px; background: #140d08;
+  touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; cursor: grab;
+}
+.cadre-portrait::before { content: ""; display: block; padding-top: 133.333%; }
+.cadre-portrait::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(240, 203, 120, .6); }
+.cadre-portrait:active { cursor: grabbing; }
+.cadre-portrait img { position: absolute; top: 0; left: 0; max-width: none; transform-origin: 0 0; pointer-events: none; }
+.zoom-portrait { display: grid; gap: 4px; width: min(100%, 300px); font: 700 11px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--doux); }
+.zoom-portrait input { width: 100%; min-height: 44px; accent-color: var(--sang); }
+.cadrage-portrait .aide-portrait { margin: 0; text-align: center; }
+
+/* Ses images envoyées : la vignette, ce qu'en a fait le MJ, son mot. */
+.envois-portrait { list-style: none; margin: 14px 0 0; padding: 0; }
+.envois-portrait:empty { display: none; }
+.envoi-portrait { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; align-items: start; padding: 10px 0; border-top: 1px dotted rgba(107, 79, 42, .4); font-size: 16px; }
+.envoi-portrait.sans-image { grid-template-columns: minmax(0, 1fr); }
+.envoi-portrait img { display: block; width: 56px; height: 75px; object-fit: cover; border: 1px solid rgba(107, 79, 42, .5); border-radius: 2px; background: rgba(107, 79, 42, .15); }
+.envoi-portrait p { margin: 0 0 4px; }
+.envoi-portrait .quand { font-style: italic; color: var(--doux); }
+.envoi-portrait.acceptee b { color: #3d6b2a; }
+.envoi-portrait.refusee b { color: var(--rouge); }
+.envoi-portrait .mot-mj { font-style: italic; overflow-wrap: anywhere; }
+.envoi-portrait .secondaire { min-height: 44px; margin-top: 4px; }
+
+/* ---- Le carnet fermé : son portrait reste, avec le chemin vers l'onglet Héros ---- */
+
+.portrait-ferme { margin: 22px auto 0; max-width: 420px; }
+.portrait-ferme a { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border: 1px solid var(--filet); background: rgba(255, 251, 240, .55);
+  color: var(--encre); text-align: left; text-decoration: none; }
+.portrait-ferme .medaillon { flex: none; }
+.portrait-ferme b { display: block; font: 700 17px/1.2 var(--titre); }
+.portrait-ferme i { display: block; margin-top: 3px; font-size: 15px; color: var(--doux); }
+
+/* ---- La page Table : sur sa ligne de la légende, son portrait dans l'anneau de sa couleur ---- */
+
+.legende-coin .portrait-legende { width: 18px; height: 18px; flex: none; border-radius: 50%; object-fit: cover; object-position: 50% 20%;
+  box-shadow: 0 0 0 1.5px var(--c), 0 0 0 3px rgba(244, 234, 212, .85); }
+
+/* ---- Plus large : le portrait à gauche, son bloc à droite ---- */
+
+@media (min-width: 760px) {
+  .portrait-heros { grid-template-columns: 320px minmax(0, 1fr); align-items: start; justify-items: stretch; gap: 26px; }
+  .portrait-heros .portrait-grand { width: 100%; }
+  .portrait-heros .portrait-joueur { justify-items: start; }
+  .grille-portraits { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

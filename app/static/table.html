@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#140f0b">
+  <title>{{campagne.nom}} · la table</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/table.css">
+  <link rel="stylesheet" href="/static/css/affiches.css">
+  <link rel="stylesheet" href="/static/css/horloges-tv.css">
+  <link rel="stylesheet" href="/static/css/echoppe-tv.css">
+  <link rel="stylesheet" href="/static/css/jet-tv.css">
+  <link rel="stylesheet" href="/static/css/documents.css">
+</head>
+<body>
+  <canvas id="carte" aria-label="Carte de la partie"></canvas>
+  <canvas id="plan" aria-label="Plan de la partie"></canvas>
+  <canvas class="brume-plan" aria-hidden="true"></canvas>
+  <canvas class="feu-plan" aria-hidden="true"></canvas>
+  <div class="pointeur-tv" aria-hidden="true"></div>
+  <div class="attente-tv" hidden role="img" aria-label="La suite arrive"><span class="losange-attente"></span><span class="points-attente">…</span></div>
+  <ul class="legende-heros" hidden aria-label="Les héros sur le plan"></ul>
+  <section class="combat-tv" hidden aria-live="polite" aria-label="Le combat">
+    <div class="bandeau-tv">
+      <p class="tour-tv"><small>Tour</small><b></b></p>
+      <ol class="ordre-tv"></ol>
+      <p class="strat-tv"><small>Point strat</small><b></b></p>
+    </div>
+    <div class="sablier-tv" hidden><span></span></div>
+    <p class="rejoue-tv">Le monstre rejoue</p>
+  </section>
+
+  <section class="accueil visible" aria-live="polite">
+    <svg class="marque" viewBox="0 0 1000 170" role="img" aria-label="{{campagne.nom}}">
+      <defs>
+        <linearGradient id="av-metal" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fbf7ee"/><stop offset=".38" stop-color="#c9c1b3"/>
+          <stop offset=".52" stop-color="#7d746a"/><stop offset=".62" stop-color="#a39a8d"/>
+          <stop offset="1" stop-color="#e8e1d4"/>
+        </linearGradient>
+        <filter id="av-ombre" x="-5%" y="-20%" width="110%" height="150%">
+          <feDropShadow dx="0" dy="4" stdDeviation="3.5" flood-color="#2b1d12" flood-opacity=".55"/>
+        </filter>
+      </defs>
+      <text x="500" y="132" text-anchor="middle" font-family="Cinzel" font-weight="900" font-size="118" letter-spacing="3" fill="url(#av-metal)" stroke="#2b1d12" stroke-width="4.5" paint-order="stroke" filter="url(#av-ombre)"{{campagne.longueur}}>{{campagne.marque}}</text>
+    </svg>
+    <p class="lieu-accueil">{{campagne.sous_titre}}</p>
+    <p class="devise">{{campagne.devise}}</p>
+    <p class="prochaine" hidden></p>
+  </section>
+
+  <section class="plein" hidden>
+    <img alt="">
+    <p class="legende"></p>
+  </section>
+
+  <section class="document-tv" hidden aria-live="polite">
+    <div class="papier-tv"></div>
+    <p class="legende-doc"></p>
+  </section>
+
+  <aside class="carton" hidden>
+    <div class="illustration" hidden><img alt=""></div>
+    <div class="texte">
+      <p class="genre"></p>
+      <h1 class="nom"></h1>
+      <p class="resume"></p>
+    </div>
+  </aside>
+
+  <section class="planche" hidden aria-live="polite">
+    <p class="titre-planche">Contrats</p>
+    <div class="affiches"></div>
+    <div class="zoom" hidden></div>
+  </section>
+
+  <section class="boutique-tv" hidden aria-live="polite">
+    <div class="echoppe">
+      <header class="enseigne-tv">
+        <p class="chez" hidden></p>
+        <h1 class="nom-boutique"></h1>
+      </header>
+      <p class="accroche" hidden></p>
+      <figure class="marchand-tv" hidden><span class="cadre"></span><figcaption></figcaption></figure>
+      <div class="pancarte-tv" hidden>
+        <p class="page-rayon-tv" hidden><b></b><span class="ensuite"></span></p>
+      </div>
+      <div class="etageres-tv"></div>
+    </div>
+    <div class="zoom-article" hidden><article class="article-de-pres"></article></div>
+  </section>
+
+  <section class="sanctuaire-tv" hidden aria-live="polite">
+    <div class="sc-tv-village"></div>
+    <aside class="sc-tv-cote">
+      <header>
+        <p class="petit">Le refuge des aventuriers</p>
+        <h1 class="sc-tv-nom"></h1>
+        <p class="sc-tv-accroche" hidden></p>
+        <p class="sc-tv-chiffres"></p>
+      </header>
+      <h2>Les chantiers</h2>
+      <ul class="sc-tv-chantiers"></ul>
+      <h2 class="sc-tv-titre-bonus">Ce que le sanctuaire vous offre</h2>
+      <ul class="sc-tv-bonus"></ul>
+    </aside>
+    <div class="sc-tv-zoom" hidden><article class="sc-tv-fiche"></article></div>
+  </section>
+
+  <section class="precedemment" hidden aria-live="polite">
+    <div class="fonds"></div>
+    <div class="voile"></div>
+    <header><p class="petit">Précédemment dans</p></header>
+    <p class="recit"></p>
+  </section>
+
+  <section class="episode" hidden aria-live="polite">
+    <div class="fond"><img alt=""></div>
+    <div class="voile"></div>
+    <div class="generique">
+      <p class="serie"></p>
+      <span class="filet" aria-hidden="true"></span>
+      <h1 class="titre-episode"></h1>
+    </div>
+  </section>
+
+  <aside class="carton-rumeur" hidden aria-live="polite">
+    <p class="texte"></p>
+    <p class="source"></p>
+  </aside>
+
+  <aside class="carton-pnj" hidden>
+    <div class="portrait" hidden><img alt=""></div>
+    <div class="texte">
+      <p class="role"></p>
+      <h1 class="nom"></h1>
+      <p class="surnom"></p>
+      <p class="apparence"></p>
+    </div>
+  </aside>
+
+  <aside class="carton-heros" hidden aria-live="polite">
+    <div class="medaillon-tv"></div>
+    <div class="texte">
+      <p class="titre-heros"></p>
+      <h1 class="nom"></h1>
+      <p class="joueur"></p>
+      <div class="stats-tv"></div>
+      <p class="themes"></p>
+      <p class="allure"></p>
+    </div>
+  </aside>
+
+  <section class="tablee-heros" hidden aria-live="polite">
+    <header><p class="petit">La tablée</p></header>
+    <div class="heros"></div>
+  </section>
+
+  <section class="fiches-tv" hidden aria-live="polite">
+    <div class="colonnes"></div>
+  </section>
+
+  <p class="indice">Touchez l'écran pour passer en plein écran et activer le son</p>
+  <p class="tourner" aria-live="polite">Tournez votre téléphone pour voir le plan en grand</p>
+  <p class="connexion" hidden>Connexion à l'arrière-salle…</p>
+
+  <!-- La TV (Chromium 79) reçoit un script unique, transpilé pour elle à la construction de l'image (voir le Dockerfile).
+       Lancé sans construction, il manque : le module source prend le relais sur un navigateur récent. -->
+  <script src="/static/tv/table.js" onerror="var m=document.createElement('script');m.type='module';m.src='/static/js/table.js';document.body.appendChild(m)"></script>
+</body>
+</html>

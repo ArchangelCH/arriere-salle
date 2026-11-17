@@ -1,0 +1,647 @@
+{
+ "cas": [
+  {
+   "fichier": "maison.dd2vtt",
+   "fond": {
+    "x": 0,
+    "y": 0,
+    "l": 8,
+    "h": 6
+   },
+   "plan": {
+    "largeur": 8,
+    "hauteur": 6,
+    "sol": [
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     1,
+     1,
+     1,
+     1,
+     3,
+     3,
+     3,
+     3,
+     1,
+     1,
+     1,
+     1,
+     3,
+     3,
+     3,
+     3,
+     1,
+     1,
+     1,
+     1,
+     3,
+     3,
+     3,
+     3,
+     1,
+     1,
+     1,
+     1,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3
+    ],
+    "piece": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     2,
+     2,
+     3,
+     3,
+     1,
+     1,
+     1,
+     1,
+     2,
+     2,
+     3,
+     3,
+     1,
+     1,
+     1,
+     1,
+     2,
+     2,
+     3,
+     3,
+     1,
+     1,
+     1,
+     1,
+     2,
+     2,
+     3,
+     3,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "pieces": [
+     {
+      "id": 1,
+      "nom": "Extérieur",
+      "genre": "exterieur",
+      "notes": "",
+      "nom_visible": false
+     },
+     {
+      "id": 2,
+      "nom": "Salle 1",
+      "genre": "salle",
+      "notes": "",
+      "nom_visible": false
+     },
+     {
+      "id": 3,
+      "nom": "Salle 2",
+      "genre": "salle",
+      "notes": "",
+      "nom_visible": false
+     }
+    ],
+    "portes": [
+     {
+      "id": "p2",
+      "sens": "v",
+      "x": 4,
+      "y": 2,
+      "genre": "porte",
+      "etat": "ouverte"
+     },
+     {
+      "id": "p1",
+      "sens": "h",
+      "x": 3,
+      "y": 5,
+      "genre": "porte",
+      "etat": "fermee"
+     }
+    ]
+   },
+   "murs": [
+    0,
+    0,
+    4,
+    4,
+    4,
+    4,
+    0,
+    0,
+    0,
+    2,
+    9,
+    3,
+    9,
+    3,
+    8,
+    0,
+    0,
+    2,
+    8,
+    2,
+    8,
+    2,
+    8,
+    0,
+    0,
+    2,
+    8,
+    2,
+    8,
+    2,
+    8,
+    0,
+    0,
+    2,
+    12,
+    6,
+    12,
+    6,
+    8,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    0,
+    0
+   ],
+   "bilan": {
+    "salles": 2,
+    "exterieurs": 1,
+    "portes": 2,
+    "portes_perdues": 0,
+    "murs": 7,
+    "biais": 0,
+    "perdus": 0,
+    "enfermees": 0,
+    "lumieres": 2
+   },
+   "essais": [
+    {
+     "nom": "la porte intérieure ouverte se passe",
+     "de": [
+      2,
+      1
+     ],
+     "vers": [
+      5,
+      1
+     ],
+     "entrer": false,
+     "atteint": true,
+     "distance": 3
+    },
+    {
+     "nom": "le mur entre les deux salles ne se traverse pas (détour par la porte)",
+     "de": [
+      3,
+      1
+     ],
+     "vers": [
+      4,
+      1
+     ],
+     "entrer": false,
+     "atteint": true,
+     "distance": 3
+    },
+    {
+     "nom": "du pré, la porte d'entrée fermée arrête",
+     "de": [
+      0,
+      0
+     ],
+     "vers": [
+      3,
+      4
+     ],
+     "entrer": false,
+     "atteint": false,
+     "distance": null
+    },
+    {
+     "nom": "du pré, « entrer » ouvre la porte d'entrée",
+     "de": [
+      0,
+      0
+     ],
+     "vers": [
+      3,
+      4
+     ],
+     "entrer": true,
+     "atteint": true,
+     "distance": 8
+    },
+    {
+     "nom": "le mur d'enceinte ne se traverse pas",
+     "de": [
+      1,
+      1
+     ],
+     "vers": [
+      2,
+      1
+     ],
+     "entrer": false,
+     "atteint": false,
+     "distance": null
+    },
+    {
+     "nom": "on fait le tour de la maison",
+     "de": [
+      0,
+      0
+     ],
+     "vers": [
+      7,
+      5
+     ],
+     "entrer": false,
+     "atteint": true,
+     "distance": 11
+    }
+   ]
+  },
+  {
+   "fichier": "biais.uvtt",
+   "fond": {
+    "x": 0.5,
+    "y": 0,
+    "l": 6,
+    "h": 5
+   },
+   "plan": {
+    "largeur": 7,
+    "hauteur": 5,
+    "sol": [
+     3,
+     3,
+     3,
+     3,
+     1,
+     1,
+     1,
+     3,
+     3,
+     0,
+     3,
+     1,
+     1,
+     1,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     1,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     1,
+     1,
+     1,
+     3,
+     3,
+     3,
+     3
+    ],
+    "piece": [
+     1,
+     1,
+     1,
+     1,
+     2,
+     2,
+     2,
+     1,
+     1,
+     0,
+     1,
+     2,
+     2,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     3,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     3,
+     3,
+     3,
+     1,
+     1,
+     1,
+     1
+    ],
+    "pieces": [
+     {
+      "id": 1,
+      "nom": "Extérieur",
+      "genre": "exterieur",
+      "notes": "",
+      "nom_visible": false
+     },
+     {
+      "id": 2,
+      "nom": "Salle 1",
+      "genre": "salle",
+      "notes": "",
+      "nom_visible": false
+     },
+     {
+      "id": 3,
+      "nom": "Salle 2",
+      "genre": "salle",
+      "notes": "",
+      "nom_visible": false
+     }
+    ],
+    "portes": [
+     {
+      "id": "p1",
+      "sens": "h",
+      "x": 4,
+      "y": 2,
+      "genre": "porte",
+      "etat": "fermee"
+     }
+    ]
+   },
+   "murs": [
+    0,
+    0,
+    0,
+    2,
+    9,
+    1,
+    3,
+    0,
+    0,
+    0,
+    2,
+    12,
+    4,
+    6,
+    4,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    11,
+    12,
+    4,
+    0,
+    0,
+    0,
+    0,
+    12,
+    5,
+    7,
+    8,
+    0,
+    0,
+    0
+   ],
+   "bilan": {
+    "salles": 2,
+    "exterieurs": 1,
+    "portes": 1,
+    "portes_perdues": 1,
+    "murs": 8,
+    "biais": 6,
+    "perdus": 4,
+    "enfermees": 1,
+    "lumieres": 3
+   },
+   "essais": [
+    {
+     "nom": "le mur en biais, ramené au quadrillage, ne se traverse pas",
+     "de": [
+      1,
+      3
+     ],
+     "vers": [
+      0,
+      4
+     ],
+     "entrer": false,
+     "atteint": false,
+     "distance": null
+    },
+    {
+     "nom": "la salle aux murs tracés au milieu des cases reste fermée",
+     "de": [
+      3,
+      0
+     ],
+     "vers": [
+      4,
+      0
+     ],
+     "entrer": false,
+     "atteint": false,
+     "distance": null
+    },
+    {
+     "nom": "sa porte fermée s'ouvre avec « entrer »",
+     "de": [
+      4,
+      2
+     ],
+     "vers": [
+      4,
+      1
+     ],
+     "entrer": true,
+     "atteint": true,
+     "distance": 1
+    },
+    {
+     "nom": "la case murée n'a pas de sol",
+     "de": [
+      1,
+      1
+     ],
+     "vers": [
+      2,
+      1
+     ],
+     "entrer": true,
+     "atteint": false,
+     "distance": null
+    }
+   ]
+  },
+  {
+   "fichier": "sans-murs.json",
+   "fond": {
+    "x": 0,
+    "y": 0,
+    "l": 5,
+    "h": 4
+   },
+   "plan": {
+    "largeur": 5,
+    "hauteur": 4,
+    "sol": [
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3
+    ],
+    "piece": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "pieces": [
+     {
+      "id": 1,
+      "nom": "Extérieur",
+      "genre": "exterieur",
+      "notes": "",
+      "nom_visible": false
+     }
+    ],
+    "portes": []
+   },
+   "murs": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "bilan": {
+    "salles": 0,
+    "exterieurs": 1,
+    "portes": 0,
+    "portes_perdues": 0,
+    "murs": 1,
+    "biais": 0,
+    "perdus": 0,
+    "enfermees": 0,
+    "lumieres": 0
+   },
+   "essais": [
+    {
+     "nom": "sans mur, tout le plan se parcourt",
+     "de": [
+      0,
+      0
+     ],
+     "vers": [
+      4,
+      3
+     ],
+     "entrer": false,
+     "atteint": true,
+     "distance": 4
+    }
+   ]
+  }
+ ]
+}

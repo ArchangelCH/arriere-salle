@@ -1,0 +1,125 @@
+/* « L'histoire de mon héros » (js/joueurs/histoire.js) : une page de manuscrit sur la feuille du carnet. Chaque passage
+   s'écrit sur des lignes réglées à l'encre pâle, son titre en petites capitales, l'état de l'envoi tamponné dans la
+   marge comme sur les affiches des contrats. Pensée d'abord pour le téléphone : des champs qui grandissent avec le texte,
+   18 px pour que Safari ne zoome pas, la barre d'envoi au pouce. Couleurs et polices du carnet (carnet.css). Aussi le
+   lien « Étoffer mon histoire » de « Mon héros » (js/joueurs/vers-histoire.js). */
+
+.coin-histoire main { padding-bottom: 30px; }
+.coin-histoire .retour-coin { margin: 4px 0 12px 6px; }
+.feuille-histoire { max-width: 760px; }
+.titre-histoire { text-align: center; padding: 6px 8px 0; }
+.titre-histoire h1 { margin: 0; font: 700 clamp(26px, 7vw, 40px)/1.1 var(--titre); letter-spacing: .01em; }
+.titre-histoire .chapo { margin-bottom: 0; }
+.ligne-temoin { display: flex; justify-content: center; min-height: 24px; margin: 14px 0 0; }
+
+/* Le témoin d'enregistrement, à l'encre du carnet (filets.css le dessine pour la barre sombre de l'atelier). */
+.feuille-histoire .temoin-enregistrement { display: inline-flex; align-items: center; gap: 7px; font: 600 11px/1.3 var(--titre);
+  letter-spacing: .14em; text-transform: uppercase; color: #4d6a2c; }
+.feuille-histoire .temoin-enregistrement .court { display: none; }
+.feuille-histoire .temoin-enregistrement .temoin-pastille { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.feuille-histoire .temoin-enregistrement[data-etat="modifie"], .feuille-histoire .temoin-enregistrement[data-etat="enregistrement"] { color: var(--or-sombre); }
+.feuille-histoire .temoin-enregistrement[data-etat="erreur"] { color: var(--rouge); }
+
+/* L'envoi qui attend le MJ : un billet épinglé sous le titre. */
+.envoi-en-attente { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 22px 0 0; padding: 12px 16px;
+  border: 1px solid rgba(107, 79, 42, .5); border-left: 4px solid var(--or-sombre); background: rgba(255, 251, 240, .6); }
+.envoi-en-attente p { flex: 1 1 260px; margin: 0; font-size: 17px; }
+.envoi-en-attente b { font: 700 12px/1.3 var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--or-sombre); }
+
+/* ---- Les passages ---- */
+
+.groupe-histoire { margin-top: 30px; }
+.groupe-histoire .intertitre { margin: 0 0 4px; text-align: center; }
+.passage { position: relative; padding: 18px 0 16px; border-bottom: 1px solid var(--filet); }
+.passage:last-child { border-bottom: 0; }
+.tete-passage { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-height: 26px; }
+.nom-passage { margin: 0; font: 700 14px/1.3 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--sang); }
+.aide-passage { margin: 2px 0 8px; font-size: 16px; font-style: italic; color: var(--doux); }
+
+/* Le tampon de l'état, dans la marge : brouillon à l'encre brune, envoyé à l'or, refusé au rouge. */
+.tampon-passage { flex: none; padding: 2px 8px; border: 2px solid var(--doux); border-radius: 3px; color: var(--doux);
+  font: 700 11px/1.2 var(--titre); letter-spacing: .12em; text-transform: uppercase; transform: rotate(4deg); opacity: .9; white-space: nowrap; }
+.tampon-passage[data-etat="envoye"] { border-color: var(--or-sombre); color: var(--or-sombre); }
+.tampon-passage[data-etat="a-renvoyer"] { border-color: var(--sang); color: var(--sang); border-style: dashed; }
+.tampon-passage[data-etat="refuse"] { border-color: var(--rouge); color: var(--rouge); }
+
+/* Le champ : des lignes réglées, l'écriture posée dessus ; il grandit avec le texte. */
+.passage textarea {
+  display: block; width: 100%; min-height: 96px; margin: 0; padding: 4px 10px 6px; resize: none; overflow: hidden;
+  border: 0; border-left: 2px solid rgba(142, 27, 23, .28); border-radius: 0; outline: none;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 26px, rgba(107, 79, 42, .22) 26px, rgba(107, 79, 42, .22) 27px) 0 4px / 100% 27px local,
+    rgba(255, 251, 240, .5);
+  font: 400 18px/27px var(--corps); color: var(--encre); caret-color: var(--sang);
+}
+.passage textarea:focus { border-left-color: var(--sang); background-color: rgba(255, 251, 240, .82); box-shadow: 0 0 0 2px rgba(142, 27, 23, .14); }
+.passage[data-passage="histoire"] textarea { min-height: 170px; }
+.passage[data-etat="brouillon"] textarea, .passage[data-etat="a-renvoyer"] textarea { border-left-color: var(--or-sombre); }
+
+/* Un passage que le MJ garde : rien à lire ni à écrire, une mention à la plume. */
+.tenu-passage { margin: 4px 0 0; padding: 10px 14px; border: 1px dashed rgba(107, 79, 42, .55); background: rgba(139, 98, 40, .07);
+  font: italic 500 17px/1.4 var(--corps); color: var(--doux); }
+.brouillon-tenu { margin-top: 10px; padding: 10px 14px; border-left: 3px solid var(--or-sombre); background: rgba(255, 251, 240, .55); }
+.brouillon-tenu .lbl, .note-passage .lbl { display: block; margin: 0 0 4px; font: 700 10px/1.2 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--or-sombre); }
+.brouillon-tenu .texte-brouillon p { margin: 0 0 6px; overflow-wrap: anywhere; }
+
+.notes-passage:empty { display: none; }
+.note-passage { margin: 10px 0 0; padding: 9px 12px; border-left: 3px solid var(--doux); background: rgba(255, 251, 240, .55); font-size: 16px; }
+.note-passage > p { margin: 0; }
+.note-passage.change-depuis { border-left-color: var(--sang); }
+.note-passage.issue-acceptee { border-left-color: #4d6a2c; }
+.note-passage.issue-retouchee { border-left-color: var(--or-sombre); }
+.note-passage.issue-refusee { border-left-color: var(--rouge); }
+.note-passage details { margin-top: 6px; }
+.note-passage summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; font: 600 12px/1.2 var(--titre);
+  letter-spacing: .1em; text-transform: uppercase; color: var(--sang); }
+.version-fiche p, .ecart-passage { margin: 0 0 6px; overflow-wrap: anywhere; }
+.ecart-passage { line-height: 1.5; }
+.ecart-passage ins { background: rgba(77, 106, 44, .18); color: #2f4a17; text-decoration: underline; text-decoration-color: rgba(77, 106, 44, .6); }
+.ecart-passage del { background: rgba(179, 38, 30, .12); color: #7e1d17; text-decoration-color: rgba(179, 38, 30, .7); }
+.ecart-passage del + ins { margin-left: .2em; }
+
+.actions-passage { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 0; }
+.revenir-passage { justify-content: flex-end; }
+.lien-passage { min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--sang); cursor: pointer;
+  font: italic 500 16px/1 var(--corps); text-decoration: underline; text-underline-offset: 3px; }
+.confirmer-passage { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; font-size: 16px; font-style: italic; }
+.refus-passage { margin-top: 8px; }
+.pied-passage { display: flex; justify-content: flex-end; min-height: 0; margin: 4px 0 0; }
+.pied-passage .reste { font-size: 15px; font-style: italic; color: var(--doux); }
+.pied-passage .reste:empty { display: none; }
+.aide-ecriture { margin-top: 8px; }
+
+/* ---- L'envoi : une barre au pouce, posée au bas de l'écran tant que la feuille est lue ---- */
+
+.barre-envoi {
+  position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 14px;
+  margin: 26px -10px 0; padding: 12px 14px; padding-bottom: max(12px, env(safe-area-inset-bottom));
+  border: 1px solid rgba(224, 181, 98, .55); border-radius: 4px 4px 0 0; background: #1c120b; color: #f4ead4; box-shadow: 0 -6px 18px rgba(0, 0, 0, .35);
+}
+.compte-envoi { flex: 1 1 200px; margin: 0; font-size: 16px; font-style: italic; color: #e3d4b6; }
+.refus-envoi { margin-top: 12px; }
+
+/* ---- Vos envois ---- */
+
+.envois-histoire { margin-top: 40px; }
+.envois-coin { list-style: none; margin: 0; padding: 0; }
+.envoi-coin { padding: 12px 0 14px; border-top: 1px dotted rgba(107, 79, 42, .5); }
+.envoi-coin:first-child { border-top: 0; }
+.envoi-coin .tete-demande b { color: var(--or-sombre); }
+.issues-envoi { list-style: none; margin: 0 0 8px; padding: 0; }
+.issues-envoi li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; padding: 4px 0; font-size: 17px; }
+.issues-envoi i { margin-left: auto; font: 600 11px/1.6 var(--titre); font-style: normal; letter-spacing: .1em; text-transform: uppercase; color: var(--doux); }
+.issues-envoi .issue-acceptee i { color: #4d6a2c; }
+.issues-envoi .issue-retouchee i { color: var(--or-sombre); }
+.issues-envoi .issue-refusee i { color: var(--rouge); }
+
+/* ---- « Étoffer mon histoire », dans « Mon héros » du carnet ---- */
+
+.vers-histoire { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 14px 0 0; }
+.vers-histoire .secondaire { display: inline-flex; align-items: center; text-decoration: none; }
+.vers-histoire span { flex: 1 1 220px; font-size: 15px; font-style: italic; color: var(--doux); }
+
+@media (min-width: 600px) {
+  .barre-envoi { margin: 30px -20px 0; padding: 14px 20px; }
+  .passage { padding: 22px 0 18px; }
+}

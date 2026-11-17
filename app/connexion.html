@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>L'Arrière-salle</title>
+<style>
+@font-face { font-family: "Cinzel"; src: url("/static/fonts/Cinzel-VF.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: "EB Garamond"; src: url("/static/fonts/EBGaramond-VF.woff2") format("woff2"); font-weight: 400 800; font-display: swap; }
+:root {
+  --nuit: #140f0b; --bois: #1e1611; --bois-3: #33271e;
+  --filet: rgba(214, 180, 118, .16); --filet-fort: rgba(214, 180, 118, .34);
+  --texte: #ecdfc4; --texte-doux: #b7a585; --bronze: #c29b5c; --bronze-clair: #e0b562; --sang-vif: #b3261e;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  display: grid; place-items: center; padding: 16px;
+  background: radial-gradient(ellipse at 50% 30%, var(--bois) 0%, var(--nuit) 70%);
+  color: var(--texte); font: 19px/1.45 "EB Garamond", Garamond, Georgia, serif;
+}
+form {
+  width: 100%; max-width: 360px; padding: 32px 28px 28px;
+  background: var(--bois); border: 1px solid var(--filet-fort); border-radius: 3px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .55);
+}
+h1 {
+  margin: 0 0 4px; text-align: center; font: 600 26px/1.2 "Cinzel", Georgia, serif;
+  letter-spacing: .06em; color: var(--bronze-clair);
+}
+p.sous-titre { margin: 0 0 24px; text-align: center; color: var(--texte-doux); font-style: italic; }
+label { display: block; margin-bottom: 6px; color: var(--texte-doux); font-size: 16px; }
+input[type=password], input[type=text] {
+  width: 100%; padding: 10px 12px; font: inherit; color: var(--texte);
+  background: var(--nuit); border: 1px solid var(--filet-fort); border-radius: 3px;
+}
+input[type=password]:focus, input[type=text]:focus { outline: 2px solid var(--bronze); outline-offset: 1px; }
+input + label { margin-top: 14px; }
+button {
+  width: 100%; margin-top: 18px; padding: 10px; cursor: pointer;
+  font: 600 16px/1.2 "Cinzel", Georgia, serif; letter-spacing: .08em;
+  color: var(--nuit); background: var(--bronze); border: 0; border-radius: 3px;
+}
+button:hover, button:focus-visible { background: var(--bronze-clair); }
+.message { min-height: 1.4em; margin: 12px 0 0; color: #e8a49c; font-size: 16px; text-align: center; }
+.message:empty { display: none; }
+</style>
+</head>
+<body>
+<form method="post" action="/connexion">
+  <h1>L'Arrière-salle</h1>
+  <p class="sous-titre">Réservé au meneur de jeu</p>
+  <input type="hidden" name="suite" value="{{suite}}">
+  <label for="identifiant">Identifiant</label>
+  <input id="identifiant" type="text" name="identifiant" value="{{identifiant}}" maxlength="64" autocomplete="username"
+         autocapitalize="none" autocorrect="off" spellcheck="false">
+  <label for="mdp">Mot de passe</label>
+  <input id="mdp" type="password" name="mot_de_passe" autocomplete="current-password" required autofocus>
+  <button type="submit">Entrer</button>
+  <p class="message" role="alert">{{message}}</p>
+</form>
+<script>
+// L'atelier se lit dans le fragment (« /#/cartes ») que le serveur ne voit jamais : renvoyé ici depuis une telle adresse,
+// on y revient après la connexion.
+(() => {
+  const suite = document.querySelector('input[name="suite"]');
+  if (suite && suite.value === "/" && /^#\/[\w\/.-]*$/.test(location.hash)) suite.value = "/" + location.hash;
+})();
+</script>
+</body>
+</html>

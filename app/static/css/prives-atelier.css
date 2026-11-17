@@ -1,0 +1,46 @@
+/* Les billets privés dans l'atelier (js/prives/telephone.js) : sous un billet secret (Préparer, Jouer) et sous un document
+   (sa fiche, « À montrer »), les téléphones des joueurs : « envoyé à 21 h 02 », « lu à 21 h 04 », « Retirer », puis le bouton
+   « Envoyer sur son téléphone » ou « Remettre à… ». Discret comme la case « remis » : une ligne par héros. */
+
+.tel-billet[hidden], .tel-document[hidden] { display: none; }
+.tel-billet, .tel-document { display: grid; gap: 4px; }
+.billets-scene li, .billets-jeu li, .a-montrer li { flex-wrap: wrap; }
+.billets-scene .tel-billet, .billets-jeu .tel-billet, .a-montrer .tel-document { flex: 1 0 100%; margin: 2px 0 4px; }
+.billet .tel-billet { padding-top: 6px; border-top: 1px dashed var(--filet); }
+
+.envois-tel { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.billets-scene .envois-tel li, .billets-jeu .envois-tel li, .a-montrer .envois-tel li, .envois-tel li {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; padding: 2px 0; border: 0;
+}
+.qui-tel { font: 600 10px/1.4 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--bronze-clair); }
+.etat-tel { flex: 1 1 160px; min-width: 0; font: italic 400 14.5px/1.35 var(--corps); color: var(--texte-doux); }
+.etat-tel i { color: #f2b3a8; }
+.lu-tel .etat-tel { color: var(--vert, #6f8f4a); font-style: normal; }
+.lu-tel .etat-tel::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; background: currentColor; transform: rotate(45deg) translateY(-1px); }
+.papier-tel .etat-tel { color: var(--texte-pale); }
+.retenu-tel .qui-tel { color: #f2b3a8; }
+.envois-tel .retirer-tel { margin-left: auto; padding: 2px 4px; font-size: 13.5px; }
+
+.envoyer-tel {
+  justify-self: start;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 12px;
+  font: 600 10.5px/1.2 var(--titre); letter-spacing: .14em; text-transform: uppercase;
+}
+.losange-tel { width: 7px; height: 7px; background: var(--bronze-clair); transform: rotate(45deg); }
+.envoyer-tel:disabled .losange-tel { background: var(--texte-pale); }
+
+.remettre-tel summary {
+  display: inline-block; padding: 3px 0; cursor: pointer;
+  font: 600 10.5px/1.4 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--bronze-clair);
+}
+.remettre-tel .aide { margin: 2px 0 6px; font-size: 14px; }
+.choix-tel { display: flex; flex-wrap: wrap; gap: 6px; }
+.choix-tel button { padding: 4px 12px; font: 400 15px/1.3 var(--corps); }
+.choix-tel button i { color: var(--texte-pale); }
+.fiche-document .tel-document { margin-bottom: 8px; }
+
+@media (pointer: coarse) {
+  .envoyer-tel, .choix-tel button, .envois-tel .retirer-tel { min-height: 44px; }
+  .remettre-tel summary { min-height: 44px; display: inline-flex; align-items: center; }
+}

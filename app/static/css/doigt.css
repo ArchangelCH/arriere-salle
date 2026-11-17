@@ -1,0 +1,190 @@
+/* Au doigt (l'iPad posé à côté du MJ, les téléphones) : tout ce qui se touche en partie fait au moins 44 px, pour viser
+   sans regarder. Feuille liée en dernier par index.html ; tout y est sous (pointer: coarse), le Mac (souris, pavé) n'en
+   voit rien. Sous (hover: none), le survol imité par le toucher ne reste plus collé aux boutons de l'en-tête. */
+
+@media (pointer: coarse) {
+  /* Le bouton ordinaire prend 44 px ; les petits boutons des listes et des lignes de combat sont repris plus bas. */
+  button, .bouton { min-height: 44px; }
+  input[type="checkbox"], input[type="radio"] { width: 22px; height: 22px; }
+  .case { align-items: center; min-height: 44px; }
+  .case input { margin-top: 0; }
+
+  /* ---- L'en-tête : les outils, le témoin de la TV, les familles et les onglets à 44 px (deux lignes plus hautes,
+     --haut-entete suit). Le téléphone a sa propre mise en page (entete.css, jusqu'à 760 px). ---- */
+  @media (min-width: 761px) {
+    .atelier { --haut-ligne1: 56px; --haut-ligne2: 45px; }
+  }
+  .entete-atelier .marque { min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+  .entete-atelier .bouton-musique { min-width: 44px; }
+  .entete-atelier .onglets a { min-width: 44px; justify-content: center; }
+  .entete-atelier .outils-entete > button { min-height: 44px; }
+  .entete-atelier .temoin-tv { height: 44px; min-width: 44px; }
+  .entete-atelier .temoin-retirer { margin: 0; padding: 0 12px; }
+  .entete-atelier .liens-atelier a, .entete-atelier .liens-atelier button { display: inline-flex; align-items: center; min-height: 44px; }
+  /* « Chercher », au bout de la seconde ligne : 26 px de haut (chercher.css). Au doigt, la zone touchée déborde de 10 px
+     en haut et en bas (toute la ligne, 44 px) sans grossir le bouton. Le téléphone (entete.css) lui donne déjà 44 px. */
+  @media (min-width: 761px) {
+    .entete-atelier .chercher-entete::after { content: ""; position: absolute; top: -10px; bottom: -10px; left: 0; right: 0; }
+  }
+
+  /* ---- Les messages : « Annuler », « Rouvrir » et la croix ---- */
+  .toast-action { min-height: 44px; padding: 6px 14px; }
+  .toast-fermer { width: 44px; min-height: 44px; margin: -10px -6px -10px 0; }
+
+  /* ---- Les éditeurs de carte et de plan ---- */
+  @media (min-width: 821px) {
+    .editeur { grid-template-rows: minmax(56px, auto) minmax(0, 1fr); }
+  }
+  .barre-carte .retour { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; }
+  .barre-carte .icone-seule, .barre-carte .defilement button { width: 44px; }
+  /* Annuler et Rétablir écartés : le doigt qui vise l'un ne prend pas l'autre. */
+  .barre-carte [data-action="annuler"] + [data-action="refaire"] { margin-left: 14px; }
+  /* « Suivre » devient un vrai bouton, enfoncé quand la TV suit. */
+  .barre-carte .bascule {
+    min-height: 44px; padding: 0 14px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: var(--bois-2); color: var(--texte);
+  }
+  .barre-carte .bascule:has(input:checked) { background: var(--bois-3); border-color: var(--bronze-clair); color: var(--parchemin); box-shadow: inset 0 -2px 0 var(--bronze-clair); }
+  .barre-carte .bascule input { position: absolute; opacity: 0; pointer-events: none; }
+  .barre-carte .bascule:has(input:focus-visible) { outline: 2px solid var(--bronze-clair); outline-offset: 2px; }
+  .menu-exporter .menu { top: 50px; }
+  /* Les étapes du feu : des carrés de 44 px. */
+  .etapes-plan { padding: 5px 6px 5px 14px; gap: 6px; }
+  .etapes-plan button { min-width: 44px; min-height: 44px; }
+  .etapes-liste button { min-width: 44px; }
+  .liste-lieux button { min-height: 44px; }
+  .agrandir button { min-height: 44px; padding: 6px 12px; }
+  .palette-meubles button { min-height: 44px; }
+  .famille-meubles summary { min-height: 44px; padding: 0 2px; }
+  .palette-recherche input { min-height: 44px; }
+  /* 44 px eux aussi : cinq pots tiennent encore sur une rangée du panneau le plus étroit (290 px, iPad en hauteur). */
+  .nuancier .pastille-teinte, .nuancier .teinte-libre input { width: 44px; height: 44px; }
+  /* Tourner le meuble posé ou le prochain : deux carrés de 44 px. */
+  .tourner .icone-seule { min-width: 44px; }
+  .nuancier .teinte-origine { min-height: 44px; }
+
+  /* ---- Séances › Jouer : les moments, « Qui est là », les gestes des scènes et ce qu'on montre ---- */
+  .onglets-seance button { min-height: 44px; }
+  .presents .case, .deroule-jeu .case { min-height: 44px; margin: 0; }
+  .liens-jeu button, .liens-jeu .bouton, .a-montrer button, .a-montrer .boutons .bouton { min-height: 44px; padding: 6px 14px; }
+  .journal-saisie input { min-height: 44px; }
+  .avant-de-jouer .a-ajouter button { min-height: 44px; padding: 6px 12px; }
+  .fil-seance.tableau button.principal { min-height: 44px; }
+
+  /* ---- L'onglet Aventuriers : « Retirer » un joueur, « Oublier » un appareil, « Fermer » un MJ, des liens discrets de
+     20 px de haut sans cela. ---- */
+  .liste-joueurs .lien-danger { min-height: 44px; padding: 8px 6px; }
+
+  /* ---- La compagnie et le combat : repos, sac, cartons, jetons, postures, Santé ---- */
+  .cp-repos button { min-height: 44px; padding: 6px 14px; }
+  .cp-sac summary { display: flex; align-items: center; min-height: 44px; }
+  .cp-lignes .retirer { min-width: 44px; min-height: 44px; }
+  .cp-quantite button, .equip-quantite button { min-width: 44px; min-height: 44px; }
+  .cp-lignes li, .liste-equipement li { flex-wrap: wrap; }
+  .cp-sac .cp-lignes li input[type="text"]:not(.saisie), .liste-equipement li input[type="text"] { flex: 1 1 6em; width: auto; }
+  .cp-suivre { display: inline-flex; align-items: center; min-height: 44px; }
+  .tc-cartons button { width: 44px; min-height: 44px; margin-right: 6px; }
+  /* Dans le Tableau, la posture et les cartons d'abord ; le jeton passe dessous, à droite, faute de place. */
+  .tc-marques { flex-wrap: wrap; row-gap: 6px; }
+  .tc-marques .jeton-combat { margin-left: auto; }
+  .jeton-combat button { width: 44px; height: 44px; min-height: 44px; margin-left: 6px; }
+  .postures-combat { gap: 6px; }
+  .postures-combat button { width: 44px; height: 44px; min-height: 44px; }
+  .postures-combat .signe-posture { width: 20px; height: 20px; }
+  .ligne-combat > button, .rappel button, .combat-compact .rappel button { min-height: 44px; }
+  .ligne-combat .saisie, .tc-jauge .saisie { min-height: 44px; }
+  .cp-heros .cp-notes { min-height: 44px; }
+
+  /* Le chiffre de Santé se touche : la rangée des coups et des soins s'ouvre dessous (degats-doigt.js). */
+  .ligne-combat:not(.au-combat) .sante-combat, .tc-jauge.sante output { cursor: pointer; }
+  .ligne-combat:not(.au-combat) .sante-combat output, .tc-jauge.sante output { text-decoration: underline dotted rgba(214, 180, 118, .55); text-underline-offset: 5px; text-decoration-thickness: 1px; }
+  .rangee-degats {
+    position: fixed; z-index: 120; display: flex; gap: 6px; padding: 6px; border: 1px solid var(--bronze); border-radius: var(--rayon);
+    background: var(--bois-2); box-shadow: 0 14px 34px rgba(0, 0, 0, .6);
+  }
+  .rangee-degats button { width: 46px; min-height: 46px; padding: 0; font: 700 18px/1 var(--corps); font-variant-numeric: lining-nums tabular-nums; letter-spacing: 0; }
+  .rangee-degats .coup { color: #f2b3a8; }
+  .rangee-degats .soin { color: #b9d48f; }
+  .rangee-degats .coup + .soin { margin-left: 10px; }
+
+  /* La barre du combat, sur la page et dans le Tableau (la télécommande a déjà ses touches au pouce). */
+  .bc-ordre button, .barre-tableau .bc-ordre button { min-height: 44px; }
+  .barre-tableau .bc-kit .touche, .tc-kit button { min-height: 44px; }
+  .barre-combat .bc-fin { min-height: 44px; padding: 6px 4px; }
+
+  /* Les liens de partie écrits petit (le nom du combat, le retour à la séance) : 44 px de haut au doigt, sans rien
+     déplacer autour. */
+  .combat-compact .tc-tete h2 a, .tete-combat .kicker a.vers-seance, .fil-seance.tableau .fil-nom { display: inline-flex; align-items: center; min-height: 44px; margin: -14px 0; }
+
+  /* ---- Le Tableau : la croix, les noms qui retrouvent leur pion, les jauges, les horloges ---- */
+  .tableau-tete .fermer { width: 44px; min-height: 44px; margin-right: -8px; }
+  .tc-qui { min-height: 44px; }
+  .tc-jauge > button, .combat-compact .tc-tete button { min-height: 44px; }
+  .tc-jauge { grid-template-columns: 34px minmax(0, 1fr) 48px 60px; }
+  .tc-adversaire .tc-jauge { grid-template-columns: 34px minmax(0, 1fr) 44px 56px auto; }
+  .hz-pas { gap: 8px; }
+  .hz-pas button { width: 44px; height: 44px; min-height: 44px; }
+  .hz-actions button[data-hz-action="tv"], .hz-nouvelle button { min-height: 44px; padding: 6px 12px; }
+  .hz-nouvelle input, .hz-nouvelle select { min-height: 44px; }
+  .ta-aide li button:not(.lien):not(.ta-accroche):not(.ta-envie), .ta-titre-bloc > button, .ta-actions button:not(.lien), .ta-actions .bouton { min-height: 44px; padding: 6px 12px; }
+  .ta-tete button { min-height: 44px; }
+  .ta-difficultes button { min-height: 44px; }
+
+  /* ---- Les petits liens de préparation : versions précédentes, corbeille, fiche du marchand, toutes les touches. 44 px
+     de haut au doigt, la lettre ne grossit pas. ---- */
+  .lien-versions, .versions-retour, .identite-boutique .liens a, .resume-boutique a { display: inline-flex; align-items: center; min-height: 44px; }
+  .corbeille-genres button.lien { min-height: 44px; }
+  .tableau-pied .toutes-les-touches { min-height: 44px; padding: 0 4px; }
+
+  /* ---- Les boutiques (d17) : flèches, Dupliquer et Retirer, la case « Caché aux joueurs », les liens d'article ---- */
+  button.mini { min-height: 44px; padding: 6px 12px; font-size: 11px; }
+  button.mini[data-action$="monter"], button.mini[data-action$="descendre"] { min-width: 44px; padding: 0; font-size: 16px; }
+  .outils-article .case { min-height: 44px; }
+  .outils-article .categorie-article { width: 10em; }
+  .tete-rayon .lien, .outils-article .lien { display: inline-flex; align-items: center; min-height: 44px; }
+  .dessin-article select { min-height: 44px; }
+
+  /* ---- L'onglet Table : les interrupteurs des réglages (« En jeu » / « Éteints », « Ouverte » / « Fermée »…), que
+     atelier.css fixe à 38 px ---- */
+  .choix-publique button { min-height: 44px; }
+  /* Les champs de nombre (distances, dés d'aventure, aides par mois) et le lien vers la boîte des demandes. */
+  .table-etat input[type="number"] { min-height: 44px; }
+  .table-etat .bloc p > a { padding: 12px 0; }
+  /* Onglet Aventuriers : le prénom d'un joueur à inviter et le nom de l'appareil à reconnaître (« Vos appareils »), 40 px. */
+  .inviter-joueur input { min-height: 44px; }
+
+  /* ---- La boîte des demandes : le lien « Réglages dans l'onglet Table », 19 px de haut dans sa phrase. Le décalage
+     vertical d'un lien dans le texte agrandit ce qu'on touche sans bouger les lignes. ---- */
+  .reglages-boite a { padding: 13px 0; }
+
+  /* ---- Le Tableau : « Les 12 derniers » jets (jets.css le fixe à 28 px, chargé après cette feuille). ---- */
+  button.jets-plus { min-height: 44px; }
+  /* Ses aides : « Voir les 5 autres » (24 px), « Tirer une rencontre » (30 px), le choix du lieu (41 px). */
+  button.lien.ta-plus { display: inline-flex; align-items: center; min-height: 44px; }
+  button.ta-large { min-height: 44px; }
+  .ta-lieu select { min-height: 44px; }
+
+  /* ---- Les cartes des listes (cartes, plans) : « Supprimer », un lien discret de 20 px. ---- */
+  .fiche-carte .lien-danger { display: inline-flex; align-items: center; min-height: 44px; margin-bottom: 2px; }
+
+  /* ---- La barre des éditeurs de carte et de plan, au doigt au-delà de 1 200 px (l'iPad Pro couché, 1 366 px) : ses
+     boutons de 44 px n'y tiennent plus toujours sur une ligne (« Accueil » sortait de 22 px). Ce qui touche la TV passe
+     alors dessous, à droite ; la ligne grandit (minmax plus haut). ---- */
+  @media (min-width: 1201px) {
+    .barre-carte { flex-wrap: wrap; row-gap: 6px; padding-top: 6px; padding-bottom: 6px; }
+    .barre-carte .table-ctrl { margin-left: auto; }
+  }
+}
+
+/* Le toucher imite le survol et le laisse collé au dernier bouton touché : le bouton Tableau semblait encore ouvert
+   après l'avoir refermé. Les boutons de l'en-tête reprennent leur air de repos ; ouverts, ils gardent leur état. */
+@media (hover: none) {
+  .ouvrir-tableau:hover, .bouton-musique:hover { background: transparent; border-color: var(--filet-fort); }
+  .noter-journal:hover, .noter-idee:hover { background: transparent; border-color: rgba(224, 181, 98, .45); }
+  .ouvrir-tableau[aria-expanded="true"]:hover, .bouton-musique[aria-expanded="true"]:hover { background: var(--bois-3); border-color: var(--bronze-clair); }
+  .bouton-musique[data-joue="1"]:hover { border-color: var(--bronze); }
+  .familles .famille:hover { color: var(--texte-doux); }
+  .familles .famille.courante:hover { color: var(--texte); }
+  .familles .famille[aria-expanded="true"]:hover { color: var(--parchemin); }
+  .entete-atelier .onglets a:hover { color: var(--texte-doux); }
+  .entete-atelier .onglets a[aria-current="page"]:hover { color: var(--parchemin); }
+}

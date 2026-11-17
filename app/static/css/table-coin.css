@@ -1,0 +1,158 @@
+/* La table dans le coin des joueurs (js/joueurs/table-coin.js) : le plan de la TV sur tout l'écran sous l'en-tête, le
+   bandeau du combat au-dessus, les boutons au bord, l'anneau doré du héros du joueur. Après carnet.css. */
+
+/* Safari sur iPhone : le pincement et le double toucher ne zooment jamais la page entière (touch-action vaut pour tout ce
+   que porte le corps) ; le plan et la carte gardent leur propre zoom, les feuilles défilent toujours. */
+body.coin-table { touch-action: pan-x pan-y; display: flex; flex-direction: column; height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; overscroll-behavior: none; }
+.coin-table .tete-coin { flex: none; }
+.coin-table main { position: relative; flex: 1 1 auto; min-height: 0; padding: 0; display: flex; flex-direction: column; }
+.coin-table main > .chargement { margin: auto; }
+/* « Mon héros » (etat-coin.css) : la Santé, la Psy et la posture du joueur, sous l'en-tête, quoi que montre la TV. */
+.coin-table main > .etat-coin { flex: none; }
+.coin-table .message-table { margin: 12vh 12px auto; align-self: center; width: calc(100% - 24px); }
+
+/* En grille : le bandeau du combat, puis le plan. Les boutons, la légende et le mot « dans le noir » se posent dans la
+   case du plan (une case de grille sert de cadre à ce qui y est posé en absolu) : jamais sur le bandeau. */
+/* Le cadre du plan et de l'écran de la TV : l'un sur l'autre, sous « Mon héros ». */
+.zone-table { position: relative; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; background: #0b0806; }
+.zone-table[hidden] { display: none; }
+/* L'écran de la TV (joueurs/ecran.html) : sur tout le cadre. Sur un plan ou une carte (data-calques), transparent et sans
+   prise au doigt : le joueur déplace son plan dessous, les cartons et les horloges se posent dessus. */
+.ecran-coin { position: absolute; top: 0; left: 0; z-index: 4; width: 100%; height: 100%; border: 0; background: transparent; color-scheme: normal; }
+/* Les boutons flottants (« Je veux agir », « Lancer un test », le volume) gardent leur bande en bas : l'écran s'arrête
+   au-dessus, ses cartons et ses légendes ne passent pas dessous. */
+.avec-main-levee .ecran-coin, .avec-jets .ecran-coin { height: calc(100% - 76px - env(safe-area-inset-bottom)); }
+.ecran-coin[hidden] { display: none; }
+.ecran-coin[data-calques="oui"] { pointer-events: none; }
+
+.scene-table {
+  position: relative; flex: 1 1 auto; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr); background: #0b0806;
+}
+.scene-table > .combat-coin { grid-row: 1; grid-column: 1; }
+.scene-table > .toile-table, .scene-table > .noir-table, .scene-table > .legende-coin, .scene-table > .commandes-table { grid-row: 2; grid-column: 1; }
+
+/* ---- Le plan : un canvas et ses deux calques (brume, feu), les gestes sur leur cadre ---- */
+
+.toile-table {
+  position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden;
+  touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+  cursor: grab;
+}
+.toile-table.en-main { cursor: grabbing; }
+.toile-table canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; }
+.toile-table .calque-coin { pointer-events: none; }
+
+/* L'anneau du héros du joueur : posé au centre de son pion (transform), une pulsation douce autour. */
+.repere-pion {
+  --d: 30px;
+  position: absolute; top: 0; left: 0; width: var(--d); height: var(--d); margin: calc(var(--d) / -2) 0 0 calc(var(--d) / -2);
+  border: 3px solid var(--or-vif); border-radius: 50%; pointer-events: none; will-change: transform;
+  box-shadow: 0 0 0 2px rgba(20, 13, 8, .85), 0 0 14px 2px rgba(240, 203, 120, .55);
+}
+/* La pulsation est une ombre portée qui s'étend : une ombre ne compte pas dans le débordement du cadre (un cercle agrandi,
+   si : le repère « débordait » de son parent). */
+.repere-pion { animation: pulsation-repere 2.2s ease-out infinite; }
+@keyframes pulsation-repere {
+  0% { box-shadow: 0 0 0 2px rgba(20, 13, 8, .85), 0 0 14px 2px rgba(240, 203, 120, .55), 0 0 0 0 rgba(240, 203, 120, .7); }
+  70%, 100% { box-shadow: 0 0 0 2px rgba(20, 13, 8, .85), 0 0 14px 2px rgba(240, 203, 120, .55), 0 0 0 14px rgba(240, 203, 120, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .repere-pion { animation: none; }
+}
+
+.noir-table {
+  position: absolute; top: 50%; left: 50%; z-index: 2; width: min(86%, 420px); margin: 0; transform: translate(-50%, -50%);
+  padding: 14px 18px; border: 1px solid rgba(224, 181, 98, .55); border-radius: 4px; background: rgba(20, 13, 8, .92);
+  color: #f4ead4; font: italic 19px/1.4 var(--corps); text-align: center; pointer-events: none;
+}
+
+/* ---- Le bandeau du combat : le tour, l'ordre (le héros qui a la main cerclé d'or), à qui c'est de jouer ---- */
+
+.combat-coin {
+  flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 7px 12px 8px;
+  padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right));
+  background: linear-gradient(#24170d, #1a110a); border-bottom: 1px solid rgba(224, 181, 98, .4); color: var(--parchemin);
+}
+.tour-coin { display: flex; gap: 10px; margin: 0; font: 700 12px/1.2 var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--or); }
+.tour-coin .strat { color: #c9b48f; letter-spacing: .08em; }
+.ordre-coin { display: flex; gap: 6px; flex: 1 1 auto; min-width: 0; margin: 0; padding: 2px 0; list-style: none; overflow-x: auto; scrollbar-width: none; }
+.ordre-coin::-webkit-scrollbar { display: none; }
+.ordre-coin li {
+  flex: none; padding: 4px 9px 3px; border: 1px solid rgba(224, 181, 98, .28); border-left: 4px solid var(--c, #8a6424); border-radius: 3px;
+  background: rgba(244, 234, 212, .06); font: 600 13px/1.2 var(--titre); letter-spacing: .04em; white-space: nowrap;
+}
+.ordre-coin li.ennemis { border-left-color: var(--rouge); color: #e9b9ae; }
+.ordre-coin li.coma { opacity: .55; text-decoration: line-through; }
+.ordre-coin li.actif { border-color: var(--or-vif); border-left-color: var(--c, var(--or-vif)); background: rgba(240, 203, 120, .2); color: #fff3d6; box-shadow: 0 0 0 1px var(--or-vif); }
+.main-coin { flex: 1 0 100%; margin: 0; font: italic 600 16px/1.25 var(--corps); color: #f2e3c3; }
+.combat-coin.mon-tour .main-coin { color: var(--or-vif); font-style: normal; font-family: var(--titre); font-size: 14px; letter-spacing: .12em; text-transform: uppercase; }
+
+/* ---- Les boutons, au bord droit ; la légende des héros, en bas à gauche ---- */
+
+.commandes-table {
+  position: absolute; z-index: 3; right: max(10px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom));
+  display: flex; flex-direction: column;
+}
+.commandes-table button {
+  width: 44px; height: 44px; margin-top: 8px; padding: 0; display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(224, 181, 98, .55); border-radius: 50%; background: rgba(20, 13, 8, .82); color: var(--or-vif); cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+}
+.commandes-table button:active { background: rgba(60, 40, 20, .95); }
+.commandes-table svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.commandes-table svg .plein { fill: currentColor; stroke: none; }
+.commandes-table [data-geste="heros"] { border-color: var(--or-vif); }
+
+.legende-coin {
+  position: absolute; z-index: 2; left: max(10px, env(safe-area-inset-left)); bottom: max(12px, env(safe-area-inset-bottom)); right: 66px;
+  display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; pointer-events: none;
+}
+.legende-coin li {
+  display: flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 3px; background: rgba(20, 13, 8, .78);
+  color: var(--parchemin); font: 600 12px/1.2 var(--titre); letter-spacing: .05em;
+}
+.legende-coin li.moi { box-shadow: 0 0 0 1.5px var(--or-vif); color: #fff3d6; }
+.legende-coin .pastille { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 1.5px rgba(244, 234, 212, .85); }
+
+/* ---- « Je veux agir » (main-levee.css), sous le pouce en bas à droite, par-dessus le plan ----
+   Les boutons du plan montent au-dessus de lui ; la légende des héros s'arrête avant lui, ou passe au-dessus de sa ligne
+   sur un téléphone étroit. Le bouton grandit (« Main levée », « À vous ! ») jusqu'à 214 px de large environ. */
+
+body.coin-table.avec-main-levee { padding-bottom: 0; }
+.avec-main-levee .commandes-table { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 66px); }
+.avec-main-levee .legende-coin { right: calc(max(14px, env(safe-area-inset-right)) + 224px); }
+@media (max-width: 539px) {
+  .avec-main-levee .legende-coin { right: 66px; bottom: calc(max(14px, env(safe-area-inset-bottom)) + 66px); }
+}
+
+/* ---- Un écran bas (un téléphone couché) : le plan garde la place ----
+   L'en-tête sans la marque, le bandeau du combat sur une ligne, les boutons du plan en ligne en haut à droite. */
+
+@media (max-height: 500px) {
+  .coin-table .tete-coin { padding-top: max(4px, env(safe-area-inset-top)); }
+  .coin-table .marque { display: none; }
+  .coin-table .onglets-coin a { padding-top: 6px; padding-bottom: 6px; }
+  .combat-coin { flex-wrap: nowrap; padding-top: 5px; padding-bottom: 5px; }
+  .tour-coin { flex: none; }
+  .main-coin { flex: 0 1 auto; min-width: 0; max-width: 40%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .commandes-table, .avec-main-levee .commandes-table { top: 10px; bottom: auto; flex-direction: row; }
+  .commandes-table button { margin: 0 0 0 8px; }
+  .legende-coin { bottom: max(14px, env(safe-area-inset-bottom)); }
+  .avec-main-levee .legende-coin { bottom: max(14px, env(safe-area-inset-bottom)); right: calc(max(14px, env(safe-area-inset-right)) + 224px); }
+}
+
+/* ---- Les cartes : la carte du monde dans son cadre (.toile-carte, mêmes gestes que le plan) ; le mot
+   d'attente pendant qu'elle se dessine. ---- */
+.attente-carte {
+  position: absolute; top: 50%; left: 50%; z-index: 2; width: min(86%, 420px); margin: 0; transform: translate(-50%, -50%);
+  color: #d9c6a3; font: italic 19px/1.4 var(--corps); text-align: center; pointer-events: none;
+}
+
+/* ---- Les jets de la tablée (jets-table-coin.js, css/jet-tv.css) : le bandeau de la TV sous la barre du haut, les dés en
+   3D par-dessus tout, feuille « Lancer un test » comprise (le joueur voit rouler son propre test) ; la jauge de volume en bas à gauche, au-dessus de la légende. */
+body.coin-table .jets-tv { top: calc(64px + env(safe-area-inset-top)); z-index: 63; }
+body.coin-table .des-3d { z-index: 62; }
+body.coin-table .volume-coin { z-index: 36; }
+/* La légende des héros laisse sa place au bouton du volume, en bas à gauche. */
+body.coin-table .legende-coin { left: calc(max(12px, env(safe-area-inset-left)) + 54px); }

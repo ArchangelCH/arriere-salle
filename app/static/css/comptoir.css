@@ -1,0 +1,79 @@
+/* Le comptoir d'une boutique (js/boutiques/comptoir.js) : pour jouer, une ligne par article, le rayon à gauche comme sur
+   une carte de marchand ; l'éditeur complet se déplie sous la ligne. Au comptoir, la tête de la fiche se resserre (le
+   marchand, le lieu et l'ajustement en une ligne, les notes du MJ seulement si elles existent) : dix-huit articles
+   tiennent sans défiler sur un ordinateur portable. */
+
+/* La barre des articles : les deux modes et « Chercher un article » */
+
+.barre-articles h2 { margin-right: 4px; }
+.barre-articles .modes-boutique { flex: none; }
+.barre-articles .chercher-article {
+  flex: 1 1 200px; min-width: 0; max-width: 320px; margin-right: auto; padding: 6px 10px; border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon); background: #120d0a; color: var(--texte); font: 400 16px/1.3 var(--corps);
+}
+.barre-articles .chercher-article:focus { border-color: var(--bronze); outline: none; box-shadow: 0 0 0 3px rgba(194, 155, 92, .18); }
+.rayons-mj > .compte-articles { margin: 0 0 -8px; }
+
+/* La tête de la fiche, au comptoir */
+
+.resume-boutique { display: none; margin: -6px 0 0; font-size: 16px; color: var(--texte-doux); }
+.resume-boutique a { color: var(--bronze-clair); }
+.fiche-boutique[data-mode="comptoir"] .resume-boutique { display: block; }
+.fiche-boutique[data-mode="comptoir"] .identite-boutique > .champ,
+.fiche-boutique[data-mode="comptoir"] .identite-boutique > .grille-boutique,
+.fiche-boutique[data-mode="comptoir"] .identite-boutique > .aide,
+.fiche-boutique[data-mode="comptoir"] .identite-boutique > .ouverte-joueurs,
+.fiche-boutique[data-mode="comptoir"] .identite-boutique > .liens { display: none; }
+.fiche-boutique[data-mode="comptoir"] .nom-boutique { margin-bottom: 10px; }
+.fiche-boutique[data-mode="comptoir"] .tete-boutique { padding-bottom: 8px; }
+/* Les notes du MJ restent sous la main quand il y en a. */
+.fiche-boutique[data-mode="comptoir"] .notes-boutique:has(textarea:placeholder-shown) { display: none; }
+.fiche-boutique[data-mode="comptoir"] .notes-boutique { margin-bottom: 12px; }
+.fiche-boutique[data-mode="comptoir"] .barre-articles { padding-top: 10px; }
+.fiche-boutique[data-mode="comptoir"] .rayons-mj { gap: 0; margin-top: 10px; }
+
+/* Les rayons et leurs lignes */
+
+.comptoir-boutique { border-top: 1px solid var(--filet-fort); }
+.rayon-comptoir { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 0 14px; padding: 2px 0; border-bottom: 1px solid var(--filet-fort); }
+.rayon-comptoir h3 { margin: 0; padding: 7px 0 0; font: 700 14px/1.2 var(--titre); letter-spacing: .04em; color: var(--parchemin); }
+.rayon-comptoir h3 .compte { margin-left: 6px; font: italic 400 13px var(--corps); letter-spacing: 0; color: var(--texte-pale); }
+.lignes-comptoir { list-style: none; margin: 0; padding: 0; min-width: 0; }
+.comptoir-article + .comptoir-article { border-top: 1px solid var(--filet); }
+.ligne-comptoir { display: grid; grid-template-columns: 30px minmax(0, 1fr) 96px 86px auto; align-items: center; gap: 0 12px; min-height: 32px; padding: 1px 4px; border-radius: var(--rayon); }
+.comptoir-article:hover > .ligne-comptoir { background: rgba(244, 234, 212, .035); }
+.ligne-comptoir .vignette-article { width: 28px; height: 28px; }
+.ligne-comptoir .vignette-article svg { width: 25px; height: 25px; }
+.article-comptoir { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; color: var(--texte-doux); }
+.article-comptoir .nom { font-weight: 600; font-size: 17px; color: var(--parchemin); }
+.article-comptoir .lu, .article-comptoir .note-mj { margin-left: 10px; font-style: italic; font-size: 15px; }
+.article-comptoir .note-mj { color: #e39b8f; }
+.marque-cache { margin-left: 8px; padding: 1px 5px; border: 1px dashed var(--filet-fort); border-radius: 2px; font: 700 9px/1 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--texte-pale); vertical-align: 2px; }
+.prix-comptoir { text-align: right; font-variant-numeric: tabular-nums; font-size: 16px; color: var(--bronze-clair); white-space: nowrap; }
+.prix-comptoir small { display: block; margin-top: -2px; font-size: 12px; color: var(--texte-pale); }
+.prix-comptoir .sans-prix { font-style: italic; color: var(--texte-pale); }
+.stock-comptoir { font-size: 14px; font-style: italic; color: var(--texte-pale); white-space: nowrap; }
+.epuise-mot { font-style: normal; font-weight: 600; color: #f2b3a8; }
+.gestes-comptoir { display: flex; align-items: center; gap: 14px; white-space: nowrap; }
+.gestes-comptoir .lien { font-size: 15px; }
+.gestes-comptoir .deplier { color: var(--texte-pale); }
+.gestes-comptoir .deplier[aria-expanded="true"] { color: var(--bronze-clair); }
+.comptoir-article.cache > .ligne-comptoir { opacity: .72; }
+.comptoir-article.epuise .nom, .comptoir-article.epuise .prix-comptoir { text-decoration: line-through; text-decoration-color: var(--sang-vif); }
+.comptoir-article.de-pres > .ligne-comptoir { background: var(--bois-2); box-shadow: inset 3px 0 0 var(--bronze-clair); }
+/* L'article déplié : son éditeur complet, sous sa ligne. */
+.comptoir-article > .articles-mj { margin: 4px 0 10px 42px; }
+
+/* Plus étroit (iPad en portrait, iPhone déplié) : le rayon passe au-dessus de ses articles. */
+@media (max-width: 1250px) {
+  .rayon-comptoir { grid-template-columns: minmax(0, 1fr); }
+  .rayon-comptoir h3 { padding: 8px 0 2px; }
+}
+@media (max-width: 760px) {
+  .ligne-comptoir { grid-template-columns: 30px minmax(0, 1fr) auto; grid-template-areas: "v a p" "v g g"; padding: 4px; }
+  .ligne-comptoir .vignette-article { grid-area: v; }
+  .article-comptoir { grid-area: a; }
+  .prix-comptoir { grid-area: p; }
+  .stock-comptoir { display: none; }
+  .gestes-comptoir { grid-area: g; flex-wrap: wrap; gap: 6px 14px; }
+}

@@ -1,0 +1,626 @@
+/* Le carnet de la compagnie et l'échoppe du coin des joueurs (js/joueurs/carnet.js, echoppe.js). Le carnet est une
+   feuille de parchemin au cadre double à losanges, comme la fiche du kit, posée sur la table de chêne ; l'échoppe
+   reprend celle de la TV (mur de planches, enseigne, étagères, étiquettes pendues), à la taille d'un téléphone. */
+
+@font-face { font-family: "Cinzel"; src: url("../fonts/Cinzel-VF.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: "Cinzel Decorative"; src: url("../fonts/CinzelDecorative-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "EB Garamond"; src: url("../fonts/EBGaramond-VF.woff2") format("woff2"); font-weight: 400 800; font-display: swap; }
+@font-face { font-family: "EB Garamond"; src: url("../fonts/EBGaramond-Italic-VF.woff2") format("woff2"); font-weight: 400 800; font-style: italic; font-display: swap; }
+@font-face { font-family: "Grenze Gotisch"; src: url("../fonts/GrenzeGotisch-VF.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: "Zeyada"; src: url("../fonts/Zeyada.woff2") format("woff2"); font-display: swap; }
+
+:root {
+  --nuit: #140d08;
+  --chene: #2a1a0e;
+  --chene-clair: #6e4526;
+  --or: #e0b562;
+  --or-vif: #f0cb78;
+  --or-sombre: #8a6424;
+  --parchemin: #f4ead4;
+  --encre: #2b1d12;
+  --doux: #6b5a45;
+  --sang: #8e1b17;
+  --rouge: #b3261e;
+  --filet: rgba(107, 79, 42, .38);
+  --losange: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><polygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/><polygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/></svg>");
+  --haut-entete: 64px;
+  --titre: "Cinzel", Georgia, serif;
+  --corps: "EB Garamond", Garamond, Georgia, serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--encre);
+  font: 400 18px/1.45 var(--corps);
+  font-variant-numeric: lining-nums;
+  background: var(--nuit) url("../img/planche-chene.jpg") center top / 900px auto repeat;
+  -webkit-font-smoothing: antialiased;
+}
+/* La table de chêne, assombrie sur les bords : la feuille y est posée sous une lampe. */
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 20%, rgba(20, 11, 5, .15), rgba(12, 7, 3, .78) 80%); }
+a { color: var(--sang); }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--or); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+/* ---- L'en-tête : la marque et les pages du coin ---- */
+
+.tete-coin {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 20px;
+  padding: 10px 16px 0; padding-top: max(10px, env(safe-area-inset-top));
+  background: linear-gradient(#1c120b, #140d08); border-bottom: 1px solid rgba(224, 181, 98, .45); box-shadow: 0 2px 10px rgba(0, 0, 0, .5);
+}
+.marque { display: flex; align-items: baseline; gap: 9px; color: var(--parchemin); font: 700 18px/1 var(--titre); letter-spacing: .06em; }
+.marque small { font: italic 400 15px var(--corps); letter-spacing: 0; color: #a8977c; }
+.losange { width: 11px; height: 11px; background: var(--losange) center / contain no-repeat; align-self: center; }
+/* Les cinq pages du coin (carnet, boutiques, bible, table, aventurier). Sur un téléphone, une icône et un mot court ;
+   plus large, le titre entier ; quand tout tient, sur la ligne de la marque. Des onglets qui ne tiendraient plus (un
+   texte agrandi) défilent de côté, sans barre visible, au lieu de déborder de l'écran. */
+.onglets-coin {
+  display: flex; flex: 1 1 100%; min-width: 0; margin: 0 -6px;
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+}
+.onglets-coin::-webkit-scrollbar { display: none; }
+.onglets-coin a, .onglets-coin button {
+  flex: 1 1 0; min-width: max-content; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+  padding: 10px 6px 11px; text-align: center; text-decoration: none; white-space: nowrap;
+  color: #c9b48f; font: 600 12px/1 var(--titre); letter-spacing: .12em; text-transform: uppercase; border-bottom: 2px solid transparent;
+}
+.onglets-coin button { background: none; border-top: 0; border-left: 0; border-right: 0; cursor: pointer; }
+.onglets-coin a[aria-current="true"], .onglets-coin button[aria-current="true"], .onglets-coin button[aria-expanded="true"] { color: var(--or-vif); border-bottom-color: var(--or); }
+.onglets-coin .court { display: none; }
+.onglets-coin a[data-icone]::before, .onglets-coin button[data-icone]::before {
+  content: ""; display: none; width: 20px; height: 20px; flex: none; background: currentColor;
+  -webkit-mask: var(--icone) center / contain no-repeat; mask: var(--icone) center / contain no-repeat;
+}
+.onglets-coin [data-icone="carnet"] { --icone: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M6.5 3.5h11v17h-11a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2z'/><path d='M4.5 18.5a2 2 0 0 1 2-2h11'/><path d='M9.5 3.5v6l1.75-1.3 1.75 1.3v-6'/></svg>"); }
+.onglets-coin [data-icone="boutiques"] { --icone: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M5.5 8.5h13l-1.2 11.2a1 1 0 0 1-1 .8H7.7a1 1 0 0 1-1-.8z'/><path d='M9 8.5V7a3 3 0 0 1 6 0v1.5'/></svg>"); }
+.onglets-coin [data-icone="bible"] { --icone: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M12 6.5C10 5 7.5 4.5 4 4.8v13.4c3.5-.3 6 .2 8 1.8 2-1.6 4.5-2.1 8-1.8V4.8c-3.5-.3-6 .2-8 1.7z'/><path d='M12 6.5V20'/></svg>"); }
+.onglets-coin [data-icone="table"] { --icone: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><rect x='3.5' y='3.5' width='17' height='17' rx='1.5'/><path d='M9.2 3.5v17M14.8 3.5v17M3.5 9.2h17M3.5 14.8h17'/><circle cx='12' cy='12' r='1.9' fill='black' stroke='none'/></svg>"); }
+.onglets-coin [data-icone="heros"] { --icone: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='8.2' r='3.7'/><path d='M4.8 20.5c.6-4 3.5-6.5 7.2-6.5s6.6 2.5 7.2 6.5'/></svg>"); }
+.onglets-coin [data-icone="menu"] { --icone: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M4.5 7h15M4.5 12h15M4.5 17h15'/></svg>"); }
+.chargement { margin: 18vh auto; color: #e8dcc3; font: italic 19px var(--corps); text-align: center; }
+
+/* ---- La feuille : parchemin, double cadre, losanges aux coins ---- */
+
+main { padding: 14px 10px 40px; }
+body.avec-panier main { padding-bottom: 120px; }
+.feuille-coin {
+  position: relative; max-width: 860px; margin: 0 auto; padding: 30px 22px 34px;
+  background: #f6eedb url("../img/kit/parchemin-clair.jpg") center / 100% 100%;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .6);
+}
+.feuille-coin::before, .feuille-coin::after { content: ""; position: absolute; pointer-events: none; }
+.feuille-coin::before {
+  inset: 8px; border: 1px solid #6b4f2a;
+  background: var(--losange) left top / 11px no-repeat, var(--losange) right top / 11px no-repeat,
+    var(--losange) left bottom / 11px no-repeat, var(--losange) right bottom / 11px no-repeat;
+}
+.feuille-coin::after { inset: 12px; border: .5px solid rgba(107, 79, 42, .7); }
+.feuille-coin > * { position: relative; z-index: 1; }
+/* Le signet de soie rouge qui dépasse du carnet. */
+.signet { position: absolute; top: -6px; right: 34px; z-index: 2; width: 18px; height: 64px; background: linear-gradient(90deg, #6e1210, #a8231c 50%, #6e1210);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%); box-shadow: 0 2px 4px rgba(0, 0, 0, .3); }
+
+.kicker { margin: 0 0 6px; font: 700 12px/1.3 var(--titre); letter-spacing: .3em; text-transform: uppercase; color: var(--sang); }
+.titre-carnet { text-align: center; padding: 6px 8px 0; }
+.titre-carnet h1 { margin: 0; font: 700 clamp(27px, 7.4vw, 42px)/1.08 var(--titre); letter-spacing: .01em; }
+.chapo { max-width: 34em; margin: 12px auto 0; font-style: italic; color: var(--doux); }
+.maj { margin: 10px 0 0; font: 600 11px/1.4 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--or-sombre); }
+.message-coin { max-width: 560px; margin-top: 12vh; text-align: center; }
+.message-coin h1 { margin: 0 0 10px; font: 700 28px/1.15 var(--titre); }
+.vide { font-style: italic; color: var(--doux); }
+.dizaine { color: var(--rouge); }
+
+/* Le filet : un trait qui s'efface aux bouts, un losange au milieu (comme l'article montré de près à la TV). */
+.filet { position: relative; display: block; width: 70%; max-width: 300px; height: 14px; margin: 8px auto 0; }
+.filet::before { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: 1px;
+  background: linear-gradient(to right, rgba(43, 29, 18, 0), rgba(43, 29, 18, .7) 30%, rgba(43, 29, 18, .7) 70%, rgba(43, 29, 18, 0)); }
+.filet::after { content: ""; position: absolute; top: 50%; left: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; background: var(--sang); transform: rotate(45deg);
+  box-shadow: inset 0 0 0 2px var(--sang), inset 0 0 0 3.5px var(--parchemin); }
+
+/* ---- Le sommaire, comme la table d'un livre ---- */
+
+.sommaire { max-width: 480px; margin: 26px auto 8px; }
+.sommaire h2 { margin: 0 0 6px; text-align: center; font: 700 13px/1 var(--titre); letter-spacing: .3em; text-transform: uppercase; color: var(--or-sombre); }
+.sommaire ol { list-style: none; margin: 0; padding: 0; }
+.sommaire a { display: flex; align-items: baseline; gap: 8px; padding: 7px 2px; color: var(--encre); text-decoration: none; font: 500 19px/1.2 var(--corps); }
+.sommaire a:hover span:first-child { color: var(--sang); }
+.sommaire .points { flex: 1; min-width: 20px; border-bottom: 2px dotted rgba(107, 79, 42, .5); transform: translateY(-4px); }
+.sommaire .compte { font: 600 15px/1 var(--titre); color: var(--sang); max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vers-boutiques { margin: 12px 0 0; text-align: center; }
+.vers-boutiques a { font: 600 13px/1.3 var(--titre); letter-spacing: .1em; text-transform: uppercase; }
+
+.chercher { display: block; max-width: 480px; margin: 18px auto 0; }
+.chercher span { display: block; margin-bottom: 5px; font: 700 11px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--doux); }
+.chercher input {
+  width: 100%; padding: 10px 12px; border: 1px solid rgba(107, 79, 42, .55); border-radius: 2px; background: rgba(255, 251, 240, .7);
+  font: 400 18px var(--corps); color: var(--encre);
+}
+.chercher input:focus { outline: none; border-color: var(--sang); box-shadow: 0 0 0 2px rgba(142, 27, 23, .18); }
+
+/* ---- Les sections ---- */
+
+.section-coin { margin-top: 40px; scroll-margin-top: 104px; }
+.tete-section { text-align: center; margin-bottom: 18px; scroll-margin-top: 104px; }
+.tete-section h2 { margin: 0; font: 700 16px/1.25 var(--titre); letter-spacing: .24em; text-transform: uppercase; color: var(--sang); }
+.sous-titre { margin: 8px 0 0; font-style: italic; font-size: 16px; color: var(--doux); }
+.intertitre { margin: 26px 0 12px; font: 700 13px/1.2 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--or-sombre); }
+.intertitre:first-of-type { margin-top: 4px; }
+.aucun { font-style: italic; color: var(--doux); text-align: center; }
+h3 { font-family: var(--titre); }
+
+/* Le « Précédemment » : une chronique, la plus récente ouverte d'une lettrine rouge. */
+.chronique { padding: 4px 0 20px; }
+.chronique + .chronique { padding-top: 20px; border-top: 1px solid var(--filet); }
+.chronique .quand { margin: 0; font: 700 11px/1.4 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--or-sombre); }
+.chronique h3 { margin: 4px 0 8px; font: 700 21px/1.2 var(--titre); }
+.recit p { margin: 0 0 10px; }
+.recente .recit p:first-child::first-letter { float: left; margin: 6px 8px 0 0; font: 700 3.3em/.8 "Cinzel Decorative", var(--titre); color: var(--sang); }
+.vignettes { clear: both; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.vignettes figure { margin: 0; }
+.vignettes img { display: block; width: 100%; height: 108px; object-fit: cover; border: 3px solid #f8f1de; outline: 1px solid rgba(107, 79, 42, .6); box-shadow: 0 4px 10px rgba(43, 29, 18, .3); }
+.vignettes figcaption { margin-top: 4px; font: italic 500 14px/1.2 var(--corps); color: var(--doux); text-align: center; }
+.sans-image > img, figure.sans-image { display: none; }
+
+/* Les personnages : un médaillon ovale cerclé d'or, ou leur initiale quand ils n'ont pas de portrait. */
+.galerie { display: grid; gap: 14px; }
+.personnage { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 14px; align-items: start; padding-bottom: 14px; border-bottom: 1px solid var(--filet); }
+.medaillon { position: relative; display: block; width: 74px; height: 94px; overflow: hidden; border-radius: 50%; border: 3px solid var(--or-sombre);
+  background: radial-gradient(circle at 50% 38%, #4a2f1a, #1f130a); box-shadow: inset 0 0 0 1.5px var(--or), 0 0 0 1px #3d2410, 0 5px 12px rgba(43, 29, 18, .35); }
+.medaillon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+.medaillon .monogramme { position: absolute; inset: 0; display: grid; place-items: center; font: 700 34px/1 "Cinzel Decorative", var(--titre); color: var(--or); }
+.medaillon img + .monogramme { display: none; }
+.medaillon.sans-image img { display: none; }
+.medaillon.sans-image .monogramme { display: grid; }
+.personnage h3 { margin: 2px 0 0; font-size: 19px; line-height: 1.2; }
+.personnage .surnom { margin: 1px 0 0; font-style: italic; color: var(--sang); }
+.personnage .role { margin: 2px 0 0; font: 600 12px/1.35 var(--titre); letter-spacing: .08em; text-transform: uppercase; color: var(--doux); }
+.personnage .apparence { margin: 6px 0 0; font-size: 16px; line-height: 1.38; }
+
+/* Les lieux : une vue encadrée, puis le genre, le nom et le résumé. */
+.lieux { display: grid; gap: 18px; }
+.lieu { display: grid; gap: 8px; }
+.lieu .vue { display: block; }
+.lieu .vue img { display: block; width: 100%; height: 150px; object-fit: cover; border: 4px solid #f8f1de; outline: 1px solid rgba(107, 79, 42, .6); box-shadow: 0 6px 14px rgba(43, 29, 18, .32); }
+.lieu .vue.sans-image { display: none; }
+.lieu .genre { margin: 0; font: 700 11px/1.3 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--sang); }
+.lieu h3 { margin: 2px 0 4px; font-size: 20px; line-height: 1.2; }
+.lieu p { margin: 0; }
+.lieu.sans-image { padding-left: 12px; border-left: 3px solid var(--or-sombre); }
+
+/* Les contrats pris : de petites affiches clouées, tamponnées ; les rumeurs, entre guillemets. */
+.affiches-coin { display: grid; gap: 16px; }
+.affiche-coin { position: relative; padding: 18px 18px 14px; background: #efe1bf; border: 1px solid rgba(107, 79, 42, .5); transform: rotate(var(--r));
+  box-shadow: 0 6px 14px rgba(43, 29, 18, .3); }
+.affiche-coin::before { content: ""; position: absolute; top: 7px; left: 50%; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #c9c9c9, #4a4a4a); box-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
+.affiche-coin h3 { margin: 4px 0 8px; font: 700 20px/1.15 "Grenze Gotisch", var(--titre); letter-spacing: .02em; text-align: center; }
+.affiche-coin p { margin: 0 0 6px; font-size: 16px; }
+.affiche-coin .recompense { font-weight: 700; }
+.affiche-coin .contact { font-style: italic; color: var(--doux); }
+.affiche-coin .mention { font: 400 21px/1.1 "Zeyada", cursive; color: var(--sang); }
+.tampon { position: absolute; top: 10px; right: 10px; padding: 2px 8px; border: 2px solid var(--rouge); border-radius: 3px; color: var(--rouge);
+  font: 700 12px/1.2 var(--titre); letter-spacing: .14em; text-transform: uppercase; transform: rotate(8deg); opacity: .85; }
+.etat-reussi .tampon { border-color: #4f6b2a; color: #4f6b2a; }
+.etat-echoue .tampon { border-color: #4a4038; color: #4a4038; }
+.rumeurs-coin { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.rumeurs-coin blockquote { position: relative; margin: 0; padding-left: 26px; font: italic 500 18px/1.4 var(--corps); }
+.rumeurs-coin blockquote::before { content: "«"; position: absolute; left: 0; top: -6px; font: 700 34px/1 var(--titre); color: var(--sang); }
+.rumeurs-coin .source { margin: 3px 0 0 26px; font: 600 11px/1.3 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--doux); }
+
+/* Les règles de la table, numérotées comme les articles d'une charte. */
+.regles-coin { margin: 0; padding: 0 0 0 30px; counter-reset: regle; list-style: none; }
+.regles-coin li { position: relative; margin-bottom: 16px; counter-increment: regle; }
+.regles-coin li::before { content: counter(regle); position: absolute; left: -30px; top: 1px; width: 22px; height: 22px; display: grid; place-items: center;
+  border: 1px solid var(--sang); border-radius: 50%; font: 700 12px/1 var(--titre); color: var(--sang); }
+.regles-coin h3 { margin: 0 0 4px; font-size: 17px; }
+.regles-coin p { margin: 0 0 6px; }
+.regles-coin .date { font-size: 14px; font-style: italic; color: var(--doux); }
+
+/* Mon héros : sa fiche, avec la Santé et la Psy en losanges comme les cases qu'on coche. */
+.fiche-coin { display: grid; gap: 14px; }
+.fiche-coin .identite { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; }
+.medaillon.grand { width: 92px; height: 118px; }
+.medaillon.grand .monogramme { font-size: 44px; }
+.fiche-coin h3 { margin: 0; font: 700 25px/1.12 var(--titre); }
+.titre-heros { margin: 4px 0 0; font-style: italic; color: var(--doux); }
+.joueur { margin: 4px 0 0; font: 600 12px/1.4 var(--titre); letter-spacing: .08em; text-transform: uppercase; color: var(--doux); }
+.pastille { display: inline-block; width: 10px; height: 10px; margin-right: 7px; border-radius: 50%; border: 1px solid rgba(43, 29, 18, .6); vertical-align: 0; }
+.caracs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.carac { display: grid; justify-items: center; padding: 10px 4px 8px; border: 1px solid var(--filet); background: rgba(139, 98, 40, .08); }
+.carac .valeur { font: 700 28px/1 var(--titre); }
+.carac .nom { margin-top: 4px; font: 700 10px/1 var(--titre); letter-spacing: .18em; text-transform: uppercase; color: var(--doux); }
+.jauges { display: grid; gap: 10px; }
+.jauge p { display: flex; align-items: baseline; gap: 8px; margin: 0 0 4px; }
+.jauge b { font: 700 12px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; }
+.jauge .chiffres { font: 600 17px/1 var(--titre); }
+.jauge .coma { font-size: 15px; color: var(--rouge); }
+.losanges { display: flex; flex-wrap: wrap; gap: 5px; }
+.losanges i { width: 13px; height: 13px; border: 1.5px solid var(--sang); transform: rotate(45deg); margin: 2px; }
+.losanges i.plein { background: var(--sang); }
+.psy .losanges i { border-color: #3d5a7a; }
+.psy .losanges i.plein { background: #3d5a7a; }
+.barre { display: block; height: 10px; border: 1px solid var(--sang); background: rgba(255, 255, 255, .35); }
+.barre i { display: block; height: 100%; background: var(--sang); }
+.psy .barre { border-color: #3d5a7a; }
+.psy .barre i { background: #3d5a7a; }
+.cartons { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0; }
+.cartons b { font: 700 12px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; margin-right: 4px; }
+.carton { padding: 3px 8px; border-radius: 2px; font: 600 12px/1.3 var(--titre); letter-spacing: .06em; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); }
+.carton.jaune { background: #e8c547; color: #3a2d06; }
+.carton.rouge { background: #b3261e; color: #fbeee0; }
+.fiche-coin h4 { margin: 8px 0 0; padding-bottom: 4px; border-bottom: 1px solid var(--filet); font: 700 12px/1.2 var(--titre); letter-spacing: .22em; text-transform: uppercase; color: var(--sang); }
+.fiche-coin ul { list-style: none; margin: 0; padding: 0; }
+.competences li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; padding: 5px 0; border-bottom: 1px dotted var(--filet); }
+.competences .bonus { font: 700 16px/1.3 var(--titre); color: var(--rouge); }
+.competences i { grid-column: 1 / -1; font-size: 14px; color: var(--doux); }
+.armes li, .dons li { padding: 6px 0; border-bottom: 1px dotted var(--filet); }
+.armes i { display: block; font-size: 15px; color: var(--doux); }
+.dons .cout { margin-left: 8px; font: 600 12px/1 var(--titre); color: #3d5a7a; }
+.dons p { margin: 2px 0 0; font-size: 16px; }
+.competences .valeur, .armes .valeur, .combat-coin .valeur { font: 700 17px/1.3 var(--titre); color: var(--rouge); }
+.armes li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; }
+.armes i { grid-column: 1 / -1; }
+.combat-coin { display: grid; gap: 6px; }
+.combat-coin p, .meta-coin { margin: 0; }
+.combat-coin b, .meta-coin b { margin-right: 6px; font: 700 12px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; }
+.combat-coin i { font-size: 16px; color: var(--doux); }
+.posture-coin { font-size: 16px; }
+.meta-coin { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.histoire-coin p { margin: 6px 0 0; }
+.histoire-coin .lbl { display: block; margin-top: 6px; font: 700 11px/1.3 var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--doux); }
+.conseils-coin { padding: 12px 16px; border: 1px solid var(--filet); background: rgba(139, 98, 40, .08); }
+.conseils-coin h4 { margin: 0 0 6px; padding: 0; border: 0; }
+.conseils-coin li { position: relative; padding: 3px 0 3px 16px; font-size: 16px; }
+.conseils-coin li::before { content: ""; position: absolute; left: 2px; top: .75em; width: 6px; height: 6px; background: var(--sang); transform: rotate(45deg); }
+.protection { margin: 0; }
+.protection b { font: 700 12px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; margin-right: 6px; }
+.sac-coin { display: grid; gap: 10px; }
+.bourse-coin { margin: 0; font-size: 18px; }
+.bourse-coin .pieces { display: inline-grid; place-items: center; min-width: 40px; height: 40px; margin-right: 8px; padding: 0 6px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #fbe7a6, #d9a93f 55%, #8a6424); box-shadow: inset 0 0 0 2px rgba(110, 69, 38, .55), 0 2px 5px rgba(43, 29, 18, .4);
+  font: 700 15px/1 var(--titre); color: #3d2410; vertical-align: middle; }
+.bourse-coin.grande { text-align: center; margin: 20px 0 6px; }
+.listes-sac { display: grid; gap: 12px; }
+.liste-sac h4 { border: 0; padding: 0; margin: 0 0 4px; color: var(--doux); }
+.liste-sac li { padding: 3px 0 3px 16px; position: relative; }
+.liste-sac li::before { content: ""; position: absolute; left: 2px; top: .7em; width: 6px; height: 6px; background: var(--sang); transform: rotate(45deg); }
+
+/* ---- Les boutiques : la liste des enseignes, puis l'échoppe ---- */
+
+.alerte-coin { margin: 18px 0 0; padding: 10px 12px; border-left: 3px solid var(--rouge); background: rgba(179, 38, 30, .08); font-size: 16px; }
+.aide-coin { margin: 6px 0 0; font-size: 15px; font-style: italic; color: var(--doux); }
+.enseignes-coin { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 30px; }
+.enseigne-coin {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 14px 12px; text-align: center; text-decoration: none;
+  background: linear-gradient(rgba(60, 34, 16, .2), rgba(20, 10, 4, .5)), url("../img/planche-chene.jpg") center / 260%;
+  border: 3px solid #1c0f07; border-radius: 10px / 26px; color: var(--parchemin);
+  box-shadow: inset 0 0 0 2px rgba(231, 191, 105, .55), inset 0 0 22px rgba(0, 0, 0, .6), 0 10px 20px rgba(0, 0, 0, .45);
+}
+.enseigne-coin::before, .enseigne-coin::after { content: ""; position: absolute; top: -22px; width: 4px; height: 22px;
+  background: repeating-linear-gradient(#9a9c9a 0, #9a9c9a 4px, #3a3c3c 4px, #3a3c3c 6px); }
+.enseigne-coin::before { left: 16%; }
+.enseigne-coin::after { right: 16%; }
+.enseigne-coin .chez { font: 700 11px/1.3 var(--titre); letter-spacing: .3em; text-transform: uppercase; color: rgba(241, 228, 198, .82); }
+.enseigne-coin .nom-boutique { max-width: 100%; font: 700 clamp(30px, 9vw, 46px)/1.05 "Grenze Gotisch", serif; color: #e7bf69; text-shadow: 0 2px 0 #3d2410, 0 0 16px rgba(231, 191, 105, .35); overflow-wrap: anywhere; }
+.enseigne-coin .accroche { font: italic 500 16px/1.25 var(--corps); color: rgba(241, 228, 198, .86); }
+.enseigne-coin .compte { margin-top: 6px; font: 600 11px/1.3 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--or); }
+.mes-commandes { margin-top: 34px; }
+.mes-commandes h2 { margin: 0 0 10px; text-align: center; font: 700 15px/1.2 var(--titre); letter-spacing: .24em; text-transform: uppercase; color: var(--sang); }
+.mes-commandes ul, .etat-commande ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.commande-coin { padding: 10px 12px; border: 1px solid var(--filet); border-left: 4px solid var(--or-sombre); background: rgba(255, 251, 240, .55); }
+.commande-coin.statut-en-attente { border-left-color: var(--or); }
+.commande-coin.statut-vendue { border-left-color: #4f6b2a; }
+.commande-coin.statut-refusee { border-left-color: var(--rouge); }
+.tete-commande { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; }
+.tete-commande .statut { font: 700 11px/1.3 var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--or-sombre); }
+.statut-vendue .statut { color: #4f6b2a; }
+.statut-refusee .statut { color: var(--rouge); }
+.tete-commande b { font-family: var(--titre); font-size: 15px; }
+.tete-commande .date { margin-left: auto; font-size: 14px; font-style: italic; color: var(--doux); }
+.commande-coin .lignes { margin: 4px 0 0; }
+.commande-coin .suite { margin: 2px 0 0; font-size: 15px; color: var(--doux); }
+.lien-coin { margin-top: 6px; padding: 0; border: 0; background: none; color: var(--sang); font: 600 13px/1.3 var(--titre); letter-spacing: .06em; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+/* L'échoppe : le mur de planches du marchand, sous une lampe. */
+body:has(.echoppe-coin) { background-color: #1a100a; }
+.echoppe-coin { max-width: 980px; margin: -14px auto 0; padding: 18px 6px 10px; }
+.retour-coin { display: inline-block; margin: 0 0 30px 6px; color: var(--or); font: 600 12px/1 var(--titre); letter-spacing: .12em; text-transform: uppercase; text-decoration: none; }
+.retour-coin::before { content: "‹ "; }
+.enseigne-coin.grande { max-width: 560px; margin: 0 auto; padding: 16px 16px 14px; }
+.enseigne-coin.grande .nom-boutique { margin: 0; }
+.comptoir-coin { display: flex; align-items: center; justify-content: center; gap: 16px; max-width: 560px; margin: 18px auto 0; padding: 0 8px; }
+.marchand-coin { flex: none; margin: 0; text-align: center; }
+.marchand-coin .cadre { position: relative; display: block; width: 78px; height: 100px; overflow: hidden; border-radius: 50%; border: 4px solid #6b4a1e; background: #2a1a0e;
+  box-shadow: inset 0 0 0 2px #e7bf69, 0 0 0 2px #1c0f07, 0 8px 16px rgba(0, 0, 0, .6); }
+.marchand-coin img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; }
+.marchand-coin figcaption { display: inline-block; margin-top: 6px; padding: 2px 8px; background: linear-gradient(90deg, #8a6424, #e7bf69, #8a6424); color: #2b1d12;
+  font: 700 10px/1.2 var(--titre); letter-spacing: .08em; border-radius: 2px; box-shadow: 0 2px 5px rgba(0, 0, 0, .5); }
+.comptoir-coin .accroche { margin: 0; font: italic 500 19px/1.3 var(--corps); color: rgba(241, 228, 198, .9); text-shadow: 0 2px 6px #000; }
+.etat-commande { max-width: 560px; margin: 18px auto 0; padding: 0 6px; }
+.etat-commande:empty { display: none; }
+.etat-commande .commande-coin { background: #f2e6c9; }
+.etat-commande .aide-coin, .etat-commande .alerte-coin { color: #eadbbd; background: rgba(20, 10, 4, .6); }
+.etat-commande .alerte-coin { margin-top: 0; }
+.vide-echoppe { margin: 40px 0; text-align: center; font: italic 500 20px var(--corps); color: rgba(241, 228, 198, .8); }
+
+/* Les étagères : un rayon par catégorie, sa plaque de laiton, deux objets par planche sur un téléphone. */
+.etageres-coin { display: grid; gap: 22px; margin-top: 26px; }
+.rayon-coin { position: relative; }
+.plaque-coin { display: table; margin: 0 auto 6px; padding: 2px 14px; background: linear-gradient(90deg, #7a5420, #f0cb78 50%, #8a6226); color: #2b1d12;
+  border: 1px solid #2b1d12; box-shadow: 0 2px 4px rgba(0, 0, 0, .6); font: 700 11px/1.4 var(--titre); letter-spacing: .22em; text-transform: uppercase; }
+/* Chaque objet a sa part de planche : une rangée incomplète reste au milieu, comme un rayon court à la TV. */
+.rangees-coin { display: flex; flex-wrap: wrap; justify-content: center; row-gap: 14px; }
+.article-coin { position: relative; flex: 0 0 50%; display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.pose { position: relative; display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 118px; padding: 0 10px; }
+.pose .objet { display: block; width: 100%; max-width: 120px; height: 112px; filter: drop-shadow(0 5px 4px rgba(0, 0, 0, .45)); }
+.article-coin .planche { display: block; align-self: stretch; height: 16px; background: linear-gradient(#a8743f, #6e4526 55%, #3d2410); border-top: 2px solid #c79458;
+  box-shadow: 0 9px 12px rgba(0, 0, 0, .5); }
+.etiquette-coin { position: relative; width: 86%; margin-top: 12px; padding: 12px 8px 7px; text-align: center; color: #2b1d12;
+  background: radial-gradient(ellipse at 50% 40%, #f7ecd2, #e2cc9c); border: 1px solid #8a6a3c; box-shadow: 0 6px 10px rgba(0, 0, 0, .5);
+  transform: rotate(var(--r)); transform-origin: 50% -10px; }
+.etiquette-coin::before { content: ""; position: absolute; top: -13px; left: 50%; width: 1.5px; height: 13px; background: #d8c49a; }
+.etiquette-coin::after { content: ""; position: absolute; top: 4px; left: 50%; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #3d2a18; }
+.etiquette-coin b { display: block; font: 600 17px/1.08 var(--corps); overflow-wrap: anywhere; }
+.etiquette-coin i { display: block; margin-top: 2px; font: italic 500 14px/1.15 var(--corps); color: #5b4128; }
+.etiquette-coin .prix { display: block; margin-top: 4px; font: 700 18px/1 var(--titre); color: var(--sang); font-variant-numeric: lining-nums; }
+.article-coin.epuise .objet { opacity: .28; filter: grayscale(1); }
+.article-coin.epuise .prix { text-decoration: line-through; color: #7a6450; }
+.article-coin .mention { position: absolute; left: 0; right: 0; top: 34%; text-align: center; font: 400 38px/1 "Zeyada", cursive; font-style: normal; color: #e86a5c;
+  text-shadow: 0 0 6px #000; transform: rotate(-10deg); }
+.article-coin.choisi .etiquette-coin { box-shadow: 0 0 0 2px var(--or), 0 6px 12px rgba(0, 0, 0, .55); }
+.quantite-coin { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; margin-top: 8px; }
+.quantite-coin button {
+  min-width: 44px; height: 40px; padding: 0 12px; border: 1px solid #c79458; border-radius: 3px; background: linear-gradient(#4a2f1a, #2a1a0e); color: var(--or-vif);
+  font: 700 20px/1 var(--titre); cursor: pointer; box-shadow: 0 2px 5px rgba(0, 0, 0, .5);
+}
+.quantite-coin button.ajouter { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.quantite-coin button:disabled { opacity: .4; cursor: default; }
+.quantite-coin output { min-width: 30px; text-align: center; font: 700 20px/1 var(--titre); color: var(--parchemin); text-shadow: 0 1px 3px #000; }
+
+/* Le panier : une barre de chêne au bas de l'écran, la bourse et l'envoi au MJ. */
+.barre-panier {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; padding-bottom: max(10px, env(safe-area-inset-bottom));
+  background: linear-gradient(#24170d, #120b06); border-top: 1px solid rgba(224, 181, 98, .6); box-shadow: 0 -6px 18px rgba(0, 0, 0, .55); color: var(--parchemin);
+}
+.resume-panier { flex: 1; min-width: 0; }
+.resume-panier p { margin: 0; }
+.resume-panier .total { font-size: 17px; }
+.resume-panier .total b { font-family: var(--titre); font-size: 15px; letter-spacing: .04em; }
+.resume-panier .total i { color: #c9b48f; }
+.resume-panier .reste { font-size: 15px; color: #c9b48f; }
+.resume-panier .manque { font-size: 15px; font-weight: 600; color: #f2a093; }
+.invite-panier { margin: 0; font-size: 15px; font-style: italic; color: #d8c8a8; }
+.envoyer-coin {
+  flex: none; min-height: 44px; padding: 0 18px; border: 1px solid #b8433b; border-radius: 3px; background: var(--sang); color: #fbeee0;
+  font: 700 13px/1 var(--titre); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; box-shadow: 0 3px 8px rgba(0, 0, 0, .45);
+}
+.envoyer-coin:disabled { opacity: .45; cursor: default; }
+
+.confirmer-commande { width: min(440px, calc(100vw - 24px)); max-height: calc(100vh - 40px); padding: 26px 22px 20px; border: 0; color: var(--encre);
+  background: #f6eedb url("../img/kit/parchemin-clair.jpg") center / 100% 100%; box-shadow: 0 20px 60px rgba(0, 0, 0, .7); }
+.confirmer-commande::backdrop { background: rgba(10, 6, 3, .72); }
+.confirmer-commande h2 { margin: 0 0 12px; font: 700 22px/1.2 var(--titre); }
+.confirmer-commande ul { list-style: none; margin: 0; padding: 0; }
+.confirmer-commande li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px dotted var(--filet); }
+.confirmer-commande .prix { font: 600 15px/1.4 var(--titre); color: var(--sang); white-space: nowrap; }
+.confirmer-commande .total { margin: 12px 0 0; font-weight: 700; }
+.refus-coin { margin: 10px 0 0; padding: 8px 10px; border-left: 3px solid var(--rouge); background: rgba(179, 38, 30, .1); font-size: 16px; }
+.actions-coin { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.secondaire { min-height: 44px; padding: 0 16px; border: 1px solid rgba(107, 79, 42, .6); border-radius: 3px; background: transparent; color: var(--encre);
+  font: 600 13px/1 var(--titre); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+
+/* ---- Un téléphone, une petite tablette : les cinq onglets en icônes et mots courts, de 320 pixels de large et plus ---- */
+
+@media (max-width: 739px) {
+  .onglets-coin a, .onglets-coin button { padding: 8px 2px 7px; font-size: 10px; letter-spacing: .06em; }
+  .onglets-coin a[data-icone]::before, .onglets-coin button[data-icone]::before { display: block; }
+  .onglets-coin [data-icone] .long { display: none; }
+  .onglets-coin [data-icone] .court { display: inline; }
+}
+@media (max-width: 380px) {
+  .onglets-coin a, .onglets-coin button { letter-spacing: .03em; }
+  .marque small { display: none; }
+}
+
+/* ---- Plus large : l'iPhone déplié, la tablette, l'ordinateur ---- */
+
+@media (min-width: 600px) {
+  main { padding: 26px 18px 60px; }
+  .feuille-coin { padding: 46px 48px 50px; }
+  .feuille-coin::before { inset: 12px; }
+  .feuille-coin::after { inset: 17px; }
+  .galerie { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; }
+  .lieux, .affiches-coin { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+  .vignettes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .listes-sac { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .article-coin { flex-basis: 33.333%; }
+  .competences { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; }
+  .enseignes-coin { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 24px; }
+}
+@media (min-width: 860px) {
+  .article-coin { flex-basis: 25%; }
+  .pose { height: 140px; }
+  .pose .objet { max-width: 140px; height: 132px; }
+  .barre-panier { left: 50%; right: auto; width: 720px; margin-left: -360px; border: 1px solid rgba(224, 181, 98, .6); border-bottom: 0; border-radius: 6px 6px 0 0; }
+}
+
+/* La marque et les cinq onglets sur une seule ligne : seulement quand ils y tiennent. */
+@media (min-width: 1080px) {
+  .tete-coin { flex-wrap: nowrap; padding: 0 22px; }
+  .onglets-coin { flex: none; margin: 0; }
+  .onglets-coin a, .onglets-coin button { flex: none; min-width: 0; padding: 19px 14px 17px; }
+  .section-coin, .tete-section { scroll-margin-top: 70px; }
+}
+
+/* ---- La prochaine séance, en tête du carnet (E22) ---- */
+
+.prochaine-coin { display: inline-block; margin: 14px auto 0; padding: 6px 16px; border: 1px solid rgba(142, 27, 23, .45); border-radius: 2px;
+  background: rgba(255, 251, 240, .55); font: 600 12px/1.4 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--sang); }
+.prochaine-coin b { display: block; font: 700 18px/1.3 var(--corps); letter-spacing: 0; text-transform: none; color: var(--encre); }
+.message-coin .prochaine-coin { margin-top: 18px; }
+
+/* ---- Croisés en jouant, connus de réputation (E21) ---- */
+
+.groupe-coin + .groupe-coin { margin-top: 10px; }
+.aide-groupe { margin: -6px 0 12px; font-size: 15px; font-style: italic; color: var(--doux); }
+.personnage .rencontre, .lieu .rencontre { margin: 3px 0 0; font: italic 500 15px/1.3 var(--corps); color: var(--sang); }
+.lieu .rencontre { margin: 0 0 4px; }
+
+/* ---- Lire la table (E26) : le bandeau du combat de la TV, en petit, puis ses mots ---- */
+
+.bandeau-exemple {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 6px; margin: 0 0 16px; padding: 10px; border-radius: 2px;
+  background: linear-gradient(#1c130c, #120c07); box-shadow: inset 0 0 0 1px rgba(224, 181, 98, .35), 0 6px 14px rgba(43, 29, 18, .35);
+  color: #efe3c8; font-family: var(--titre);
+}
+.be-tour, .be-strat { display: grid; place-content: center; padding: 0 6px; text-align: center; font: 700 20px/1 var(--titre); }
+.be-tour small, .be-strat small { display: block; margin-bottom: 3px; font: 600 9px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: #c9b48f; }
+.be-strat { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; }
+.be-heros {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px 6px; padding: 6px 9px; border: 1px solid rgba(224, 181, 98, .3); border-radius: 2px;
+  background: rgba(255, 255, 255, .04);
+}
+.be-heros b { font: 600 15px/1.1 var(--titre); }
+.be-heros em { flex-basis: 100%; font: italic 400 13px/1.1 var(--corps); color: #c9b48f; text-align: center; }
+.be-pastille { width: 11px; height: 11px; border-radius: 50%; background: var(--teinte); box-shadow: 0 0 0 1px rgba(0, 0, 0, .5); }
+.be-heros.actif { background: var(--parchemin) url("../img/kit/parchemin-clair.jpg") center / cover; border-color: var(--rouge); box-shadow: inset 0 0 0 1px var(--rouge); color: var(--encre); }
+.be-heros.actif em { color: var(--doux); }
+.be-heros.ennemis b { color: #f2a99f; }
+.be-heros.coma { opacity: .7; }
+.be-heros.coma b { text-decoration: line-through; text-decoration-color: var(--rouge); }
+.be-carton { display: inline-grid; place-items: center; width: 15px; height: 18px; border-radius: 2px; font: 700 10px/1 var(--titre); }
+.be-carton.jaune { background: #e8c547; color: #3a2d06; }
+.be-carton.rouge { background: #b3261e; color: #fbeee0; }
+.be-jeton { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: #4f7a2e; color: #f2f7e6; font: 700 14px/1 var(--corps); }
+.lexique { margin: 0; }
+.lexique dt { margin-top: 10px; font: 700 12px/1.3 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--sang); }
+.lexique dd { margin: 2px 0 0; font-size: 17px; line-height: 1.4; }
+
+/* ---- L'aide-mémoire du kit, sous les règles de la table (E22) ---- */
+
+.aide-memoire-coin { margin-top: 18px; scroll-margin-top: 104px; }
+.aide-memoire-coin dl { margin: 0; }
+.aide-memoire-coin dl > div { padding: 10px 0 8px; border-top: 1px solid var(--filet); }
+.aide-memoire-coin dt { font: 700 12px/1.3 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--sang); }
+.aide-memoire-coin dd { margin: 4px 0 0; }
+.aide-memoire-coin dd p { margin: 0 0 4px; font-size: 17px; line-height: 1.4; }
+.vers-aide { margin: 16px 0 0; font-style: italic; color: var(--doux); }
+.vers-aide a, .compagnon .joueur a { color: var(--sang); }
+
+/* ---- La compagnie (E22) : les héros de la tablée, comme sur leur carton à la TV ---- */
+
+.compagnie-coin { display: grid; gap: 14px; }
+.compagnon { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 14px; align-items: start; align-content: start; padding-bottom: 14px; border-bottom: 1px solid var(--filet); }
+.compagnon.moi { padding: 10px; border: 1px solid rgba(142, 27, 23, .4); background: rgba(255, 251, 240, .5); }
+.compagnon h3 { margin: 2px 0 0; font-size: 19px; line-height: 1.2; }
+.compagnon .vous { display: inline-block; margin-left: 4px; padding: 1px 7px; border: 1px solid var(--sang); border-radius: 2px; font: 700 10px/1.4 var(--titre); letter-spacing: .14em;
+  text-transform: uppercase; color: var(--sang); vertical-align: 3px; }
+.compagnon .role { margin: 2px 0 0; font: 600 12px/1.35 var(--titre); letter-spacing: .08em; text-transform: uppercase; color: var(--doux); }
+.compagnon .joueur { margin: 4px 0 0; }
+.compagnon .suite { grid-column: 1 / -1; }
+.stats-compagnon { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 0; border: 1px solid var(--filet); background: rgba(139, 98, 40, .08); }
+.stats-compagnon div { display: grid; justify-items: center; padding: 5px 2px 4px; }
+.stats-compagnon div + div { border-left: 1px solid var(--filet); }
+.stats-compagnon dt { order: 2; max-width: 100%; font: 700 9px/1.2 var(--titre); letter-spacing: .02em; text-transform: uppercase; color: var(--doux); }
+.stats-compagnon dd { order: 1; margin: 0; font: 700 19px/1.1 var(--titre); font-variant-numeric: lining-nums; }
+.compagnon .themes { margin: 8px 0 0; font: italic 500 15px/1.3 var(--corps); color: var(--sang); }
+.compagnon .apparence { margin: 6px 0 0; font-size: 16px; line-height: 1.38; }
+@media (min-width: 600px) {
+  .compagnie-coin { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; }
+  .aide-memoire-coin { scroll-margin-top: 70px; }
+}
+
+/* ---- L'aperçu du MJ (« Voir comme Léa », js/joueurs/apercu.js) : un bandeau qui dit que rien ne s'écrit ---- */
+
+.bandeau-apercu { padding: 10px 16px; background: #3a1210; border-bottom: 1px solid rgba(224, 181, 98, .45); color: #f4e4c8; font-size: 16px; line-height: 1.35; }
+.bandeau-apercu p { max-width: 860px; margin: 0 auto; }
+.bandeau-apercu p + p { margin-top: 4px; }
+.bandeau-apercu b { color: var(--or-vif); font-weight: 600; }
+.bandeau-apercu .aide { font-style: italic; color: #d9c6a3; }
+
+/* ---- Au doigt : 44 px pour ce qu'on touche dans le carnet et l'échoppe (E15) ---- */
+
+@media (pointer: coarse) {
+  .onglets-coin a, .onglets-coin button { display: flex; align-items: center; justify-content: center; min-height: 44px; }
+  .sommaire a { padding-top: 11px; padding-bottom: 11px; }
+  .quantite-coin button { height: 44px; }
+  .retour-coin, .lien-coin, .vers-boutiques a { display: inline-flex; align-items: center; min-height: 44px; }
+  /* Les liens dans le texte (« l'aide-mémoire du kit », « votre fiche ») : plus hauts à toucher, sans bouger les lignes. */
+  .vers-aide a, .compagnon .joueur a { padding: 11px 0; }
+}
+
+/* Le menu : une feuille de parchemin sous la barre du haut, sur toute la largeur d'un téléphone, en coin d'un écran plus large. */
+
+.menu-coin-fond { position: fixed; inset: 0; z-index: 19; background: rgba(8, 4, 2, .55); }
+/* Menu ouvert : les dés flottants (bouton « Lancer un test », bandeau et dés 3D des jets, volume) passent sous le voile. */
+html body.menu-coin-ouvert .bouton-jet, html body.menu-coin-ouvert .volume-coin, html body.menu-coin-ouvert .jets-tv, html body.menu-coin-ouvert .des-3d { z-index: 18; }
+.menu-coin {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 21; max-height: calc(100vh - var(--haut-entete)); max-height: calc(100dvh - var(--haut-entete)); overflow-y: auto;
+  padding: 6px 20px 18px; color: var(--encre); background: #f6eedb url("../img/kit/parchemin-clair.jpg") center / 100% 100%;
+  border-bottom: 2px solid var(--or-sombre); box-shadow: 0 18px 30px rgba(0, 0, 0, .55);
+}
+.menu-coin section { padding-top: 12px; }
+.menu-coin h2 { margin: 0 0 4px; font: 600 11px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--or-sombre); }
+.menu-coin ul { list-style: none; margin: 0; padding: 0; }
+.menu-coin li + li { border-top: 1px solid var(--filet); }
+.menu-coin a { display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 9px 0 8px; min-height: 44px; text-decoration: none; color: var(--encre); }
+.menu-coin a b { font: 600 15px/1.15 var(--titre); letter-spacing: .06em; text-transform: uppercase; }
+.menu-coin a span { font: italic 400 16px/1.2 var(--corps); color: var(--doux); }
+.menu-coin a:hover b, .menu-coin a:focus-visible b { color: var(--sang); }
+@media (min-width: 740px) {
+  .menu-coin { left: auto; right: 16px; width: 380px; border: 1px solid var(--or-sombre); border-top: 0; }
+}
+
+/* Les pages du carnet : une page d'accueil courte, des tuiles vers les autres pages, un titre plus discret sur ces dernières. */
+
+.titre-page { text-align: left; padding: 0 8px; }
+.titre-page h1 { font-size: clamp(24px, 6.4vw, 34px); }
+.titre-page .chapo { margin: 8px 0 0; max-width: 40em; }
+.retour-carnet { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; font: 600 12px/1 var(--titre); letter-spacing: .16em; text-transform: uppercase; text-decoration: none; color: var(--sang); }
+.retour-carnet::before { content: ""; width: 8px; height: 8px; border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); }
+.vers-suite { margin: 14px 0 0; text-align: center; }
+.vers-suite a { display: inline-flex; align-items: center; min-height: 44px; font: 600 13px/1.3 var(--titre); letter-spacing: .1em; text-transform: uppercase; }
+
+.tuiles-carnet { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tuiles-carnet a {
+  display: flex; flex-direction: column; gap: 5px; height: 100%; min-height: 88px; padding: 14px 14px 12px; text-decoration: none; color: var(--encre);
+  border: 1px solid rgba(107, 79, 42, .6); border-left: 4px solid var(--sang); background: rgba(255, 250, 238, .55);
+}
+.tuiles-carnet b { font: 700 14px/1.2 var(--titre); letter-spacing: .08em; text-transform: uppercase; }
+.tuiles-carnet span { font: italic 400 16px/1.25 var(--corps); color: var(--doux); }
+.tuiles-carnet a:hover, .tuiles-carnet a:focus-visible { background: rgba(255, 250, 238, .9); border-left-color: var(--or-sombre); }
+@media (min-width: 740px) {
+  .tuiles-carnet { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Les blocs repliables de la fiche du héros : un titre à toucher, le contenu dessous. */
+
+.repli-fiche { border-top: 1px solid var(--filet); }
+.repli-fiche:last-of-type { border-bottom: 1px solid var(--filet); }
+.repli-fiche > summary {
+  display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 2px; cursor: pointer; list-style: none;
+  font: 700 13px/1.2 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--sang);
+}
+.repli-fiche > summary::-webkit-details-marker { display: none; }
+.repli-fiche > summary small { margin-left: auto; font: 600 14px/1 var(--titre); letter-spacing: .04em; color: var(--doux); }
+.repli-fiche > summary::after { content: ""; flex: none; width: 8px; height: 8px; margin-left: 4px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform .15s; }
+.repli-fiche > summary small + ::after, .repli-fiche > summary:has(small)::after { margin-left: 4px; }
+.repli-fiche[open] > summary::after { transform: rotate(-135deg); }
+.repli-fiche > summary:not(:has(small))::after { margin-left: auto; }
+.repli-fiche > :not(summary) { padding-bottom: 12px; }
+.repli-fiche .sac-coin > h4, .repli-fiche .histoire-coin > h4 { display: none; }
+
+/* ---- Cibles de 44 px quel que soit le pointeur (la recette en trouvait de 23 à 38 px, y compris sur un écran tactile que le
+   navigateur ne dit pas « grossier ») : retours, liens dans le texte, mots de la fiche. ---- */
+.retour-carnet, .retour-coin, .lien-coin, .vers-boutiques a { min-height: 44px; }
+.retour-coin { display: inline-flex; align-items: center; }
+.vers-aide a, .compagnon .joueur a { display: inline-flex; align-items: center; min-height: 44px; padding: 0; }

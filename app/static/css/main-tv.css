@@ -1,0 +1,31 @@
+/* La question « La reprendre ? » (js/mj/main-tv.js) sur la télécommande, qui n'a pas la feuille de l'atelier : le même
+   parchemin sombre que les dialogues de l'atelier, ses boutons à la hauteur d'un pouce. */
+.dialogue {
+  width: min(520px, calc(100vw - 32px));
+  padding: 24px 22px 18px;
+  border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon);
+  background: var(--bois);
+  color: var(--texte);
+  font: 18px/1.45 var(--corps);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .7);
+}
+.dialogue::backdrop { background: rgba(8, 5, 3, .72); }
+.dialogue h2 { margin: 0 0 14px; font: 700 22px var(--titre); color: var(--parchemin); }
+.dialogue p { margin: 0 0 12px; }
+.dialogue .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; margin-top: 18px; }
+.dialogue .actions button {
+  min-height: 48px;
+  min-width: 44px;
+  margin: 6px 0 0 10px;
+  padding: 0 18px;
+  border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon);
+  background: var(--bois-2);
+  color: var(--texte);
+  font: 600 16px var(--titre);
+  letter-spacing: .04em;
+}
+.dialogue .actions button.principal { border-color: var(--bronze); background: var(--sang); color: var(--parchemin); }
+/* « par : Léa » au témoin de la TV, quand l'autre MJ y a la main. */
+.temoin-tc .par-tv { flex: none; padding: 0 8px; font: italic 500 15px/1.2 var(--corps); color: var(--bronze-clair); white-space: nowrap; }

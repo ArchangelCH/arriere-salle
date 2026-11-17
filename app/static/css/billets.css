@@ -1,0 +1,67 @@
+/* Les billets secrets à découper : posée sur fiche.css (polices, encre, barre d'outils). Deux billets par rangée sur
+   une A4. Chaque billet a trois parts : le prénom (dehors), le texte au parchemin, le rabat qui se replie sur le texte.
+   Le texte et le rabat ont toujours la même hauteur : replié, le rabat le couvre en entier. */
+
+.mode-emploi { max-width: 210mm; margin: -6px auto 14px; font-style: italic; color: #b7a585; }
+
+.feuille-billets .page { height: auto; min-height: 297mm; padding: 10mm; overflow: visible; font-size: 10.5pt; }
+.feuille-billets .aucun { margin: 2em 0; font-style: italic; color: var(--pale); }
+.feuille-billets .aucun a { color: var(--sang); }
+.tete-billets { margin: 0 0 4mm; font: 700 .72em/1 "Cinzel", serif; letter-spacing: .24em; text-transform: uppercase; color: var(--pale); }
+
+.grille-billets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5mm 6mm; align-items: start; }
+/* Un billet long prend toute la largeur : son texte y est moins haut, et il ne tient pas à lui seul une page. */
+.billet-papier.large { grid-column: 1 / -1; }
+/* La mesure des billets (billets-page.js) : une page A4 de 190 mm utiles, hors de l'écran. */
+.mesure-billets { position: absolute; left: -10000px; top: 0; width: 190mm; font-size: 10.5pt; line-height: 1.3; visibility: hidden; }
+
+.billet-papier {
+  display: grid;
+  grid-template-rows: auto 1fr 1fr;
+  border: 1px dashed #8a7a62;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  background: #fffdf8;
+}
+
+/* Dehors : le prénom, à lire sans ouvrir. */
+.dehors { display: flex; align-items: center; gap: 3mm; min-height: 15mm; padding: 2.5mm 4mm; border-bottom: 1px solid var(--filet); }
+.sceau { flex: none; width: 3.2mm; height: 3.2mm; background: var(--sang); transform: rotate(45deg); }
+.pour { flex: 1; min-width: 0; margin: 0; display: flex; align-items: baseline; gap: 2.5mm; }
+.pour span { font: 700 .7em/1 "Cinzel", serif; letter-spacing: .26em; text-transform: uppercase; color: var(--sang); }
+.pour b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 1.55em/1.1 "Cinzel Decorative", "Cinzel", serif; color: var(--encre); }
+.pour .a-remplir { flex: 1; height: 1.2em; border-bottom: 1px solid var(--encre); }
+.qui { flex: none; margin: 0; text-align: right; font-style: italic; line-height: 1.15; color: var(--pale); }
+.qui small { display: block; font-size: .78em; letter-spacing: .02em; }
+
+/* Dedans : le texte au parchemin. */
+.dedans, .rabat {
+  min-height: 36mm;
+  background: #f1e3c2 url("../img/kit/parchemin-clair.jpg") center / cover;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.dedans { display: flex; flex-direction: column; justify-content: center; gap: 1.6mm; padding: 4mm 5mm; }
+.dedans h2 { margin: 0; padding: 0; border: 0; font: 700 .74em/1.25 "Cinzel", serif; letter-spacing: .2em; text-transform: uppercase; color: var(--sang); }
+.dedans .texte { margin: 0; white-space: pre-line; font: italic 400 var(--taille-texte, 1.2em)/1.32 "EB Garamond", Georgia, serif; color: var(--encre); }
+.dedans .aussi { margin: 0; font-size: .85em; font-style: italic; color: var(--pale); }
+
+/* Le rabat : la ligne de pli en pointillé, une consigne pâle, un parchemin plus sombre qui masque le texte par transparence. */
+.rabat { position: relative; display: flex; align-items: center; justify-content: center; border-top: 1px dotted #6b5a45; filter: brightness(.94); }
+.rabat::before { content: "pli"; position: absolute; top: -.62em; right: 3mm; padding: 0 1.2mm; background: #fffdf8; font: italic .72em/1.2 "EB Garamond", Georgia, serif; color: var(--pale); }
+.rabat p { margin: 0; font: italic .82em/1.2 "EB Garamond", Georgia, serif; color: rgba(107, 90, 69, .55); }
+
+/* Un téléphone ou une petite tablette : à l'écran, les billets se rangent en une colonne à la largeur de l'écran (rien ne
+   défile de côté) ; la feuille imprimée garde ses deux colonnes et son A4. */
+@media screen and (max-width: 860px) {
+  .feuille-billets .page { width: auto; height: auto; min-height: 0; padding: 14px 12px; }
+  .feuille-billets .grille-billets { grid-template-columns: minmax(0, 1fr); }
+  .mode-emploi { margin: 0 0 12px; }
+}
+
+@page { size: A4; margin: 10mm; }
+@media print {
+  .mode-emploi { display: none; }
+  .feuille-billets .page { width: auto; height: auto; min-height: 0; padding: 0; }
+  .billet-papier { background: #fff; }
+}

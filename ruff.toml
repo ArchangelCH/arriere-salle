@@ -1,0 +1,14 @@
+# Réglages minimaux : on repère les vraies erreurs (imports inutiles, noms indéfinis, variables jamais lues), sans
+# reformater le code existant. À lancer : ruff check app tests outils docker
+line-length = 140
+target-version = "py312"
+extend-exclude = ["app/static", "data"]
+
+[lint]
+select = ["F", "E9"]
+
+[lint.per-file-ignores]
+# main.py ne fait que charger les modules de api/ dans l'ordre : ses imports sont voulus.
+"app/main.py" = ["F401"]
+# Les essais font « import main » d'abord, pour charger l'appli dans l'ordre avant d'importer les modules de api/.
+"tests/*" = ["F401"]

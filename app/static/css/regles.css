@@ -1,0 +1,95 @@
+/* ---- Règles maison : l'onglet (js/regles/regles.js) et la fenêtre rapide, touche R (js/regles/rapide.js) ---- */
+
+.registre-regles .titre-page { margin-bottom: 26px; }
+.rm-ajout { margin: 0 0 26px; padding: 16px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: var(--bois); }
+.rm-ajout-ligne { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
+.rm-ajout-ligne input[type="text"] { flex: 1 1 320px; min-width: 0; }
+.rm-ajout input[type="text"], .rm-ajout textarea, .regles-rapide input[type="search"] {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon);
+  background: var(--bois-2);
+  color: var(--texte);
+  font: 18px/1.4 var(--corps);
+}
+.rm-ajout textarea { min-height: 64px; resize: vertical; }
+.rm-ajout input:focus, .rm-ajout textarea:focus, .regles-rapide input[type="search"]:focus { border-color: var(--bronze); outline: none; box-shadow: 0 0 0 3px rgba(194, 155, 92, .18); }
+.rm-ajout .segments { flex: none; }
+.rm-ajout-pied { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
+.rm-ajout-pied .aide { margin: 0; font-size: 14px; color: var(--texte-pale); }
+
+.rm-groupe { margin-bottom: 30px; }
+.rm-groupe h2 { display: flex; align-items: baseline; gap: 10px; margin: 0 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--filet); font: 700 15px/1.2 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--texte-doux); }
+.rm-groupe h2 .compte { font: 400 15px var(--corps); letter-spacing: 0; text-transform: none; color: var(--texte-pale); }
+
+.rm-regle { margin-bottom: 12px; padding: 14px 20px; border: 1px solid var(--filet-fort); border-left: 3px solid #8a9d62; border-radius: var(--rayon); background: var(--bois); }
+.rm-regle[data-statut="a-trancher"] { border-left-color: var(--bronze-clair); }
+.rm-regle mark { background: rgba(179, 38, 30, .38); color: var(--parchemin); padding: 0 2px; border-radius: 2px; }
+.rm-tete { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.rm-tete h3, .rm-compacte h4 { margin: 0; font: 700 19px/1.25 var(--titre); letter-spacing: .02em; color: var(--parchemin); overflow-wrap: anywhere; }
+.rm-statut { flex: none; padding: 4px 6px; border: 1px solid #8a9d62; border-radius: 2px; font: 700 10px/1 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: #b9c98f; }
+.rm-regle[data-statut="a-trancher"] .rm-statut { border-color: rgba(224, 181, 98, .6); color: var(--bronze-clair); }
+.rm-texte { margin: 0 0 8px; font-size: 18px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rm-texte.rm-sans-texte { font-style: italic; color: var(--texte-pale); }
+.rm-contexte { margin: 0 0 8px; padding: 6px 12px; border-left: 2px solid rgba(179, 38, 30, .5); background: rgba(23, 12, 10, .55); }
+.rm-contexte p { margin: 2px 0 0; font-size: 16px; font-style: italic; color: var(--texte-doux); white-space: pre-wrap; overflow-wrap: anywhere; }
+.rm-etiquette { font: 700 10px/1 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: #e39b8f; }
+.rm-meta { margin: 0 0 10px; font-size: 15px; font-style: italic; color: var(--texte-pale); }
+.rm-meta a { color: var(--bronze-clair); }
+.rm-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.rm-actions button { min-height: 0; padding: 6px 12px; font-size: 12px; }
+.rm-actions .lien-danger { margin-left: auto; padding: 4px 0; font-size: 11px; }
+.rm-arrivee { animation: rm-arrivee 1.6s ease-out; }
+@keyframes rm-arrivee { from { box-shadow: 0 0 0 2px var(--bronze-clair); } to { box-shadow: 0 0 0 2px transparent; } }
+@media (prefers-reduced-motion: reduce) { .rm-arrivee { animation: none; } }
+
+.rm-en-edition { border-color: var(--bronze); }
+.rm-edition [hidden] { display: none; }
+.rm-consigne { margin: 0 0 14px; padding: 8px 12px; border: 1px dashed rgba(224, 181, 98, .5); border-radius: var(--rayon); font-size: 16px; font-style: italic; color: var(--bronze-clair); }
+.rm-champ-contexte textarea { border-color: rgba(179, 38, 30, .45); background: #170c0a; }
+.rm-champ-contexte { color: #e39b8f; }
+.rm-reglages { display: grid; grid-template-columns: auto minmax(150px, 190px) minmax(180px, 1fr); gap: 14px; align-items: start; }
+.rm-reglages .segments { display: flex; }
+.rm-reglages .segments button { white-space: nowrap; }
+.rm-edition .actions { justify-content: flex-end; margin-bottom: 0; }
+
+/* La fenêtre rapide : la recherche en haut, les règles trouvées dessous, qui défilent seules. */
+.regles-rapide { width: min(680px, calc(100vw - 32px)); }
+.regles-rapide .kicker { margin-bottom: 6px; }
+.regles-rapide h2 { margin-bottom: 12px; }
+.regles-rapide .champ input[type="text"], .regles-rapide .champ textarea { font-size: 18px; }
+.rm-resultats { max-height: min(52vh, 460px); overflow-y: auto; margin: 12px 0 4px; padding-right: 4px; scrollbar-color: var(--bois-3) transparent; }
+.rm-resultats > .vide { margin: 6px 0; }
+.rm-groupe-rapide h3 { margin: 10px 0 6px; font: 700 11px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--texte-pale); }
+.rm-compacte { margin-bottom: 8px; padding: 10px 14px; }
+.rm-compacte h4 { margin-bottom: 4px; font-size: 17px; }
+.rm-compacte .rm-texte { margin-bottom: 4px; font-size: 17px; }
+.rm-compacte .rm-meta { margin: 0; font-size: 14px; }
+/* Touche R : l'aide-mémoire du kit après les règles en vigueur, les questions à trancher repliées en dernier. */
+.rm-regle[data-statut="kit"] { border-left-color: rgba(244, 234, 212, .4); }
+.rm-a-trancher > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; color: var(--texte-pale); }
+.rm-a-trancher > summary::-webkit-details-marker { display: none; }
+.rm-a-trancher > summary::before { content: ""; flex: none; margin-top: 4px; border: 4px solid transparent; border-left: 5px solid currentColor; }
+.rm-a-trancher[open] > summary::before { margin-top: 8px; border: 4px solid transparent; border-top: 5px solid currentColor; }
+.rm-a-trancher > summary:hover { color: var(--texte); }
+.rm-a-trancher > summary h3 { color: inherit; }
+.rm-groupe-rapide h3 .compte { margin-left: 6px; font: 400 13px var(--corps); letter-spacing: 0; color: var(--texte-pale); }
+.regles-rapide .aide { margin: 8px 0 14px; font-size: 14px; color: var(--texte-pale); }
+.regles-rapide .rm-registre { margin-right: auto; }
+.regles-rapide .rm-nouvelle .aide { margin: 4px 0 12px; }
+.regles-rapide .rm-journal { margin: 2px 0 8px; }
+.regles-rapide [hidden] { display: none; }
+
+@media (max-width: 820px) {
+  .rm-regle { padding: 12px 14px; }
+  .rm-reglages { grid-template-columns: 1fr 1fr; }
+  .rm-reglages > .champ:first-child { grid-column: 1 / -1; }
+  .rm-ajout-pied { flex-wrap: wrap; }
+}
+@media (max-width: 520px) {
+  .rm-reglages { grid-template-columns: 1fr; }
+  .rm-tete { flex-wrap: wrap; }
+  .regles-rapide { padding: 22px 18px 16px; }
+}

@@ -1,0 +1,99 @@
+/* La boîte « Demandes des joueurs » (js/demandes/boite.js) : la pastille de l'en-tête, la page #/demandes, et le bloc
+   « Le coin des joueurs » de l'onglet Table (js/demandes/reglages.js). */
+
+/* ---- La pastille : un mot et un chiffre, de la même largeur quel que soit le compte (l'en-tête ne se range pas de
+   nouveau) ; rouge quand quelque chose attend. ---- */
+.pastille-demandes {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 12px;
+  border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon);
+  color: var(--texte-doux);
+  font: 600 12px/1 var(--titre);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.pastille-demandes[hidden] { display: none; }
+.pastille-demandes:hover { border-color: var(--bronze-clair); color: var(--texte); }
+.compte-demandes {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--bois-3);
+  color: var(--texte-pale);
+  font: 700 11px/20px var(--titre);
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: 0;
+  text-align: center;
+}
+.pastille-demandes[data-compte="oui"] { border-color: var(--sang-vif); color: var(--parchemin); }
+.pastille-demandes[data-compte="oui"] .compte-demandes { background: var(--sang-vif); color: #fbeee0; }
+/* Coin en pause : un filet pointillé le rappelle sur toutes les pages. */
+.pastille-demandes[data-pause="oui"] { border-style: dashed; }
+body[data-page="demandes"] .pastille-demandes { background: var(--bois-3); border-color: var(--bronze-clair); color: var(--parchemin); }
+@media (max-width: 1250px) {
+  .pastille-demandes { padding: 6px 6px 6px 9px; letter-spacing: .06em; gap: 6px; }
+}
+/* L'iPad en portrait, l'iPhone déplié : la pastille ne paraît que si quelque chose attend (ou si le coin est en pause),
+   pour laisser sa place au témoin de la TV. La boîte reste ouverte depuis l'onglet Table. */
+@media (max-width: 1100px) {
+  .pastille-demandes[data-compte="non"]:not([data-pause="oui"]) { display: none; }
+}
+/* Le téléphone : le chiffre seul. */
+@media (max-width: 760px) {
+  .pastille-demandes { padding: 4px; }
+  .pastille-demandes .libelle { display: none; }
+}
+@media (pointer: coarse) {
+  .entete-atelier .pastille-demandes { min-height: 44px; min-width: 44px; justify-content: center; }
+}
+
+/* ---- La page ---- */
+.boite-demandes .etat-coin:empty { display: none; }
+.coin-en-pause { margin: 0 0 22px; padding: 12px 16px; border: 1px dashed var(--sang-vif); border-radius: var(--rayon); background: rgba(179, 38, 30, .1); }
+.coin-en-pause button { margin-left: 10px; }
+.outils-boite { margin: 0 0 18px; }
+.outils-boite:has(> [hidden]:only-child) { display: none; }
+.boite-demandes h2 { margin: 0 0 14px; font: 700 13px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--bronze); }
+.boite-demandes h2 .compte { display: inline-block; min-width: 22px; margin-left: 6px; padding: 3px 7px; border-radius: 11px; background: var(--sang-vif); color: #fbeee0; font-size: 11px; letter-spacing: 0; text-align: center; }
+.a-traiter { margin-bottom: 40px; }
+.joueur-demandes { margin: 0 0 24px; }
+.joueur-demandes h3 { margin: 0 0 10px; font: 700 20px/1.1 var(--titre); color: var(--parchemin); }
+.demandes-mj { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.demande-mj { max-width: 760px; padding: 14px 16px; border: 1px solid var(--filet-fort); border-left: 3px solid var(--sang-vif); border-radius: var(--rayon); background: var(--bois-2); }
+.demande-mj.commande, .demande-mj.aventurier { border-left-color: var(--bronze); }
+.demande-mj.en-route { border-left-color: var(--texte-pale); opacity: .85; }
+.demande-mj.perimee { border-left-color: var(--texte-pale); opacity: .7; }
+.demande-mj p { margin: 0 0 8px; }
+.demande-mj .quoi { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.demande-mj .quoi b { font: 700 12px/1.2 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--bronze-clair); }
+.demande-mj .quand { color: var(--texte-pale); font-size: 15px; font-style: italic; }
+.texte-joueur { margin: 4px 0 12px; padding: 10px 14px; border-left: 2px solid var(--filet-fort); background: rgba(0, 0, 0, .18); color: var(--texte); font-size: 18px; line-height: 1.45; overflow-wrap: anywhere; }
+.corps-demande { display: grid; gap: 4px; margin: 0 0 10px; }
+.corps-demande div { display: flex; gap: 10px; }
+.corps-demande dt { color: var(--texte-pale); }
+.corps-demande dd { margin: 0; }
+.reponse-mj .champ { margin-bottom: 10px; }
+.reponse-mj textarea { min-height: 52px; }
+.demande-mj .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.erreur-demande { margin: 10px 0 0; padding: 8px 10px; border-left: 3px solid var(--sang-vif); background: rgba(179, 38, 30, .12); }
+
+.historique-mj { list-style: none; margin: 0 0 18px; padding: 0; max-width: 760px; }
+.historique-mj li { padding: 10px 0; border-top: 1px solid var(--filet); }
+.historique-mj li:first-child { border-top: 0; }
+.historique-mj p { margin: 0 0 4px; }
+.historique-mj .extrait { color: var(--texte-doux); font-style: italic; overflow-wrap: anywhere; }
+.historique-mj .mot-mj { color: var(--texte-doux); }
+.historique-mj .resultat.echec { color: #f2b3a8; }
+.historique-mj button { margin-top: 4px; }
+.reglages-boite { margin-top: 10px; }
+
+/* ---- Le bloc de l'onglet Table ---- */
+.bloc-coin-joueurs h3 { margin: 18px 0 10px; font: 700 12px/1 var(--titre); letter-spacing: .18em; text-transform: uppercase; color: var(--bronze); }
+.choix-pause [data-pause="oui"][aria-pressed="true"], .choix-telegram [data-telegram="non"][aria-pressed="true"] { border-color: var(--sang-vif); box-shadow: inset 0 -2px 0 var(--sang-vif); }

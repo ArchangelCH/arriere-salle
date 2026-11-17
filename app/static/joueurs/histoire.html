@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>L'histoire de mon héros · {{campagne.nom}}</title>
+  <meta name="description" content="Étoffer l'histoire de son héros entre les séances : son passé, ce qui le pousse, ceux qu'il connaît. Le MJ lit chaque passage avant qu'il entre sur la fiche.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="preload" href="/static/fonts/Cinzel-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/EBGaramond-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/css/carnet.css">
+  <link rel="stylesheet" href="/static/css/compte-coin.css">
+  <link rel="stylesheet" href="/static/css/demandes-coin.css">
+  <link rel="stylesheet" href="/static/css/histoire-coin.css">
+  <link rel="stylesheet" href="/static/css/aide-coin.css">
+  <link rel="stylesheet" href="/static/css/confie-coin.css">
+</head>
+<body class="coin-histoire">
+  <header class="tete-coin">
+    <span class="marque"><span class="losange" aria-hidden="true"></span><span>{{campagne.nom}}</span><small>le coin des joueurs</small></span>
+    <nav class="onglets-coin" aria-label="Le coin des joueurs">
+      <a href="/carnet#carnet" data-icone="carnet" aria-current="true"><span class="long">Carnet</span><span class="court">Carnet</span></a>
+      <a href="/carnet#boutiques" data-icone="boutiques"><span class="long">Boutiques</span><span class="court">Boutiques</span></a>
+      <button type="button" data-icone="menu" data-menu data-vue="menu"><span class="long">Menu</span><span class="court">Menu</span></button>
+      <a href="/table" data-icone="table"><span class="long">Table</span><span class="court">Table</span></a>
+      <a href="/" data-icone="heros"><span class="long">Héros</span><span class="court">Héros</span></a>
+    </nav>
+  </header>
+  <main id="page"><p class="chargement">Ouverture de votre histoire…</p></main>
+  <div id="confie-mj" class="zone-confie" hidden></div>
+  <footer class="pied-coin"><a href="/guide">Le guide du coin</a><a href="/compte">Changer mon mot de passe</a><button type="button" data-deconnexion>Se déconnecter</button></footer>
+  <script type="module" src="/static/js/joueurs/menu-coin.js"></script>
+  <script type="module" src="/static/js/joueurs/histoire.js"></script>
+  <script type="module" src="/static/js/joueurs/histoire-confie.js"></script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+/* Les boutiques du MJ (js/boutiques/boutiques.js). La mise en page vient du carnet de PNJ (.carnet, .carnet-liste,
+   .carnet-fiche) ; ici, la liste, la fiche, les articles par catégorie et le dialogue de vente. */
+
+body[data-page="boutiques"] { overflow: hidden; }
+
+/* ---- La liste ---- */
+
+.liste-boutiques { list-style: none; margin: 0; padding: 6px; overflow-y: auto; flex: 1; scrollbar-color: var(--bois-3) transparent; }
+.liste-boutiques button {
+  width: 100%; justify-content: flex-start; gap: 10px; padding: 8px 10px; min-height: 52px; border-color: transparent; background: none;
+  font: 500 16px/1.2 var(--corps); letter-spacing: 0; text-transform: none; text-align: left;
+}
+.liste-boutiques button:hover { background: var(--bois-2); }
+.liste-boutiques button[aria-current="true"] { background: var(--bois-3); border-color: var(--bronze); }
+.liste-boutiques .texte { display: grid; flex: 1; min-width: 0; }
+.liste-boutiques .nom { color: var(--parchemin); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.liste-boutiques .meta { font-size: 14px; font-style: italic; color: var(--texte-pale); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.liste-boutiques .vide { display: grid; gap: 8px; padding: 22px 12px; }
+.liste-boutiques .vide .aide { margin: 0; }
+.a-la-tv { flex: none; padding: 3px 6px; border: 1px solid var(--bronze); border-radius: 2px; font: 700 10px/1 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--bronze-clair); }
+/* Les marques « à la TV » et « joueurs » passent sous le nom : le marchand et le lieu gardent toute la ligne. */
+.liste-boutiques button { flex-wrap: wrap; row-gap: 5px; }
+.liste-boutiques .texte { flex-basis: 100%; }
+.liste-boutiques .a-la-tv { margin-right: -4px; }
+
+/* ---- La fiche ---- */
+
+.tete-boutique { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 28px; align-items: start; padding-bottom: 14px; }
+.nom-boutique {
+  width: 100%; margin-bottom: 14px; padding: 4px 0; border: 0; border-bottom: 1px solid var(--filet-fort); background: none;
+  color: var(--parchemin); font: 700 30px/1.15 var(--titre); letter-spacing: .01em;
+}
+.nom-boutique:focus { outline: none; border-bottom-color: var(--bronze-clair); }
+.grille-boutique { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 170px; gap: 0 12px; }
+.grille-boutique .champ { margin-bottom: 8px; }
+.avec-unite { display: flex; align-items: center; gap: 6px; }
+.avec-unite span { font: 400 16px var(--corps); letter-spacing: 0; text-transform: none; color: var(--texte-doux); }
+.identite-boutique .liens { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; font-size: 15px; }
+.identite-boutique .liens:empty { display: none; }
+.identite-boutique .liens i { color: var(--texte-pale); }
+.table-boutique { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: var(--bois); }
+.table-boutique .sur-tv { margin: 0; font-size: 15px; color: var(--texte-doux); }
+/* Les rayons d'une boutique trop grande pour un écran (E07) : celui de la TV marqué, puis « Rayon suivant ». */
+.rayons-tv-mj { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.rayons-tv-mj .lbl { margin-right: 4px; font: 600 10px/1.2 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--texte-pale); }
+.rayons-tv-mj button[data-rayon]:not(.rayon-suivant) { min-height: 32px; padding: 4px 10px; font: 500 15px/1.2 var(--corps); letter-spacing: 0; text-transform: none; text-align: left; }
+.rayons-tv-mj .rayon-suivant { margin-left: auto; }
+.table-boutique .rayons-aide { margin: 0; }
+.notes-boutique { margin-bottom: 22px; }
+.notes-boutique textarea { min-height: 52px; }
+
+/* ---- Les articles, par catégorie (comme sur la TV) ---- */
+
+.barre-articles { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding-top: 16px; border-top: 1px solid var(--filet); }
+.barre-articles h2 { margin: 0; font: 700 13px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--bronze); }
+.barre-articles .actions { margin: 0; }
+.rayons-mj { display: grid; gap: 22px; margin-top: 14px; }
+.rayons-mj > .vide { margin: 8px 0; }
+.tete-rayon { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--filet-fort); }
+.tete-rayon h3 { margin: 0; font: 700 17px/1.2 var(--titre); letter-spacing: .04em; color: var(--parchemin); }
+.tete-rayon .compte { font: italic 400 14px var(--corps); color: var(--texte-pale); }
+.tete-rayon .lien { font-size: 15px; }
+.pousse { flex: 1; }
+button.mini { min-height: 26px; padding: 3px 8px; font-size: 10px; }
+.articles-mj { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.article-mj { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--filet); border-radius: var(--rayon); background: var(--bois); }
+.article-mj.de-pres { border-color: var(--bronze-clair); box-shadow: inset 3px 0 0 var(--bronze-clair); }
+.article-mj.cache { border-style: dashed; background: transparent; }
+.article-mj.cache .nom-article { color: var(--texte-doux); }
+.article-mj.epuise .nom-article, .article-mj.epuise .prix-article input { text-decoration: line-through; text-decoration-color: var(--sang-vif); }
+.ligne-article { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ligne-article input[type="text"], .ligne-article input[type="number"], .outils-article input[type="text"] {
+  min-width: 0; padding: 6px 9px; border: 1px solid var(--filet-fort); border-radius: var(--rayon);
+  background: #120d0a; color: var(--texte); font: 400 16px/1.3 var(--corps);
+}
+.ligne-article input:focus, .outils-article input:focus { border-color: var(--bronze); outline: none; box-shadow: 0 0 0 3px rgba(194, 155, 92, .18); }
+.ligne-article .nom-article { flex: 1 1 220px; font: 600 17px/1.3 var(--corps); color: var(--parchemin); }
+.prix-article, .stock-article { display: flex; align-items: center; gap: 5px; margin: 0; }
+.prix-article input { width: 9.5em; }
+.prix-article span { font: 400 15px var(--corps); color: var(--texte-doux); }
+.stock-article span { font: 600 10px/1 var(--titre); letter-spacing: .1em; text-transform: uppercase; color: var(--texte-pale); }
+.stock-article input { width: 7.5em; }
+.prix-table { margin: -2px 0 0; font: italic 400 14px var(--corps); color: var(--bronze-clair); }
+.prix-table[hidden] { display: none; }
+.ligne-article.seconde input { flex: 1 1 240px; font-size: 15px; }
+.ligne-article.seconde .note-mj { border-color: rgba(179, 38, 30, .4); background: #170c0a; }
+.outils-article { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+/* Le dessin de l'article sur les étagères de la TV (boutiques/objets.js) : sa vignette, et le choix qui le force. */
+.vignette-article { flex: none; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border: 1px solid var(--filet); border-radius: var(--rayon); background: radial-gradient(circle at 50% 40%, rgba(244, 234, 212, .16), rgba(244, 234, 212, .04)); }
+.vignette-article svg { width: 38px; height: 38px; }
+.dessin-article { display: inline-flex; align-items: center; gap: 6px; font: italic 400 14px var(--corps); color: var(--texte-doux); }
+.dessin-article select { max-width: 210px; padding: 3px 6px; font: 400 14px var(--corps); }
+.outils-article .categorie-article { width: 13em; font-size: 15px; }
+.outils-article .case { margin: 0; font-size: 15px; }
+.outils-article .lien { font-size: 15px; }
+/* « Retirer » à l'écart de « Dupliquer » ; seul sur sa ligne quand elle déborde, il reste au bout, à droite. */
+.outils-article .mini[data-action="dupliquer"] { margin-right: 14px; }
+.outils-article .mini.danger { margin-left: auto; }
+
+/* ---- Vendre à… ---- */
+
+.vente-boutique .titre-acheteurs { margin: 4px 0 8px; font: 600 11px/1.2 var(--titre); letter-spacing: .1em; text-transform: uppercase; color: var(--texte-doux); }
+.acheteurs { list-style: none; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+.acheteurs button { width: 100%; min-height: 52px; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
+.acheteurs .nom { font: 600 15px/1.2 var(--titre); letter-spacing: .03em; text-transform: none; color: var(--parchemin); }
+.acheteurs .bourse { font: italic 400 14px var(--corps); letter-spacing: 0; text-transform: none; color: var(--texte-doux); }
+.vente-boutique .refus { margin: 0 0 12px; padding: 8px 12px; border-left: 3px solid var(--sang-vif); background: rgba(179, 38, 30, .12); color: #f2b3a8; }
+.vente-boutique .refus[hidden] { display: none; }
+
+@media (max-width: 1100px) {
+  .tete-boutique { grid-template-columns: 1fr; }
+  .table-boutique { display: flex; flex-wrap: wrap; align-items: center; }
+  .table-boutique .sur-tv, .table-boutique .rayons-tv-mj, .table-boutique .rayons-aide { flex-basis: 100%; }
+}
+@media (max-width: 900px) {
+  body[data-page="boutiques"] { overflow: auto; }
+  .liste-boutiques { max-height: 50vh; }
+  .grille-boutique { grid-template-columns: 1fr 1fr; }
+}

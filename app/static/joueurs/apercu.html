@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Voir comme un joueur · L'Arrière-salle</title>
+  <meta name="description" content="Le carnet de la compagnie et les boutiques, tels qu'un joueur les voit depuis son lien, en lecture seule.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="preload" href="/static/fonts/Cinzel-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/EBGaramond-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/css/carnet.css">
+  <link rel="stylesheet" href="/static/css/documents.css">
+  <link rel="stylesheet" href="/static/css/sanctuaire-coin.css">
+  <link rel="stylesheet" href="/static/css/activites-coin.css">
+</head>
+<body class="coin-carnet apercu-mj">
+  <aside class="bandeau-apercu" role="status"><p>Aperçu du MJ</p></aside>
+  <header class="tete-coin">
+    <span class="marque"><span class="losange" aria-hidden="true"></span><span>{{campagne.nom}}</span><small>aperçu du MJ</small></span>
+    <nav class="onglets-coin" aria-label="Le coin des joueurs">
+      <a href="#carnet" data-vue="accueil">Accueil</a>
+      <a href="#personnages" data-vue="personnages">Personnages</a>
+      <a href="#lieux" data-vue="lieux">Lieux</a>
+      <a href="#contrats" data-vue="contrats">Contrats</a>
+      <a href="#documents" data-vue="documents">Documents</a>
+      <a href="#compagnie" data-vue="compagnie">Compagnie</a>
+      <a href="#regles" data-vue="regles">Règles</a>
+      <a href="#sanctuaire" data-vue="sanctuaire">Sanctuaire</a>
+      <a href="#activites" data-vue="activites">Activités</a>
+      <a href="#precedemment" data-vue="precedemment">Séances</a>
+      <a href="#boutiques" data-vue="boutiques">Boutiques</a>
+      <a href="/#/bible">Bible</a>
+    </nav>
+  </header>
+  <main id="page"><p class="chargement">Ouverture de l'aperçu…</p></main>
+  <script type="module" src="/static/js/joueurs/apercu.js"></script>
+</body>
+</html>

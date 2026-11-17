@@ -1,0 +1,63 @@
+/* « Mon héros » sur la page Table du coin (js/joueurs/etat-coin.js) : la Santé, la Psy et la posture que le joueur règle
+   lui-même, dans une barre sous l'en-tête, au-dessus du plan et de son bandeau de combat. Après table-coin.css. */
+
+.etat-coin {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 6px 12px 8px;
+  padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right));
+  background: linear-gradient(#20140b, #170f08); border-bottom: 1px solid rgba(224, 181, 98, .4); color: var(--parchemin, #f4ead4);
+  font: 17px/1.2 var(--corps, "EB Garamond", Georgia, serif); font-variant-numeric: lining-nums;
+}
+.etat-coin[hidden] { display: none; }
+.etat-coin[data-combat="oui"] { box-shadow: inset 3px 0 0 #b3261e; }
+.etat-coin p { margin: 0; }
+.qui-etat { flex: 1 0 100%; display: flex; align-items: center; gap: 10px; font: 700 12px/1.2 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .1em; text-transform: uppercase; color: #d9c6a3; }
+.nom-etat { font: 700 11px/1.2 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .1em; text-transform: uppercase; color: #d9c6a3; }
+.jeton-etat { padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(159, 199, 122, .7); background: rgba(63, 143, 74, .18); color: #cfe3b8; letter-spacing: .06em; }
+.jeton-etat[data-jeton="desavantage"] { border-color: rgba(214, 120, 104, .7); background: rgba(179, 38, 30, .2); color: #f0c4b8; }
+
+.jauges-etat { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.jauge-etat { display: flex; align-items: center; gap: 6px; }
+.jauge-etat .nom-etat { min-width: 42px; }
+.jauge-etat output { min-width: 58px; text-align: center; font-size: 22px; }
+.jauge-etat output b { font-weight: 700; color: #fff3d6; }
+.jauge-etat output small { font-size: 15px; color: #b8a585; }
+.jauge-etat[data-alerte="oui"] output b { color: #f0a090; }
+.etat-coin button {
+  min-width: 44px; min-height: 44px; padding: 0 10px; border: 1px solid rgba(224, 181, 98, .55); border-radius: 6px;
+  background: rgba(40, 26, 14, .9); color: #f4ead4; font: 600 16px/1 var(--corps, "EB Garamond", Georgia, serif); cursor: pointer;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.jauge-etat button { font-size: 24px; font-variant-numeric: lining-nums; }
+.etat-coin button:active { background: rgba(70, 46, 22, .95); }
+.etat-coin button:focus-visible { outline: 2px solid var(--or-vif, #f0cb78); outline-offset: 2px; }
+.etat-coin button[disabled] { opacity: .4; cursor: default; }
+
+.postures-etat { display: flex; align-items: center; gap: 6px; }
+.postures-etat .nom-etat { margin-right: 2px; }
+.postures-etat button[aria-pressed="true"] { background: var(--or-vif, #f0cb78); border-color: #fff3d6; color: #1a110a; }
+
+.don-etat { flex: 1 0 100%; font-size: 14px; font-style: italic; color: #d9b9a0; }
+.mot-etat { flex: 1 0 100%; font-size: 15px; color: #f0c4b8; }
+.mot-etat[role="status"] { color: #d9c6a3; font-style: italic; }
+
+/* Au téléphone : les deux compteurs sur une ligne, les postures sur la suivante, toute la largeur. */
+@media (max-width: 560px) {
+  .etat-coin { gap: 6px 8px; padding-top: 5px; }
+  /* Chaque compteur en colonne étroite (son nom au-dessus) : Santé et Psy tiennent côte à côte. */
+  .jauges-etat { flex: 1 0 100%; flex-wrap: nowrap; justify-content: space-between; gap: 10px; }
+  .jauge-etat { flex: 1 1 0; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 2px 4px; }
+  .jauge-etat .nom-etat { grid-column: 1 / -1; min-width: 0; }
+  .jauge-etat output { min-width: 0; font-size: 20px; }
+  /* Le nom du héros laisse sa place, sauf s'il porte un jeton (avantage ou désavantage) à montrer. */
+  .qui-etat:not(:has(.jeton-etat)) { display: none; }
+  .postures-etat { flex: 1 0 100%; }
+  .postures-etat button { flex: 1 1 0; padding: 0 4px; }
+  .postures-etat .nom-etat { display: none; }
+}
+/* Téléphone couché : une seule ligne, sans le nom du héros, pour laisser la hauteur au plan. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .etat-coin { flex-wrap: nowrap; padding-top: 4px; padding-bottom: 4px; }
+  .qui-etat { flex: 0 0 auto; }
+  .jauges-etat { flex: 0 1 auto; flex-wrap: nowrap; }
+  .postures-etat .nom-etat, .don-etat { display: none; }
+}

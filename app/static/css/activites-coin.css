@@ -1,0 +1,94 @@
+/* Les activités entre les séances dans le carnet des joueurs (js/joueurs/activites-vue.js, activites-coin.js) : chaque
+   activité est une notice du registre, sa caractéristique écrite en marge dans sa couleur (Physique au sang, Social à
+   l'or, Mental à l'encre) ; le jet se lit comme un sceau de cire frappé du chiffre du dé, l'issue en capitales à côté.
+   Pensé d'abord pour le téléphone : une colonne, des cibles de 44 px ; deux colonnes de notices dès qu'il y a la place.
+   Les couleurs sont celles du carnet (carnet.css). */
+
+.activites-coin { display: grid; gap: 14px; }
+.activites-coin > *, .activites-liste > * { min-width: 0; }
+.periode-activites { margin: 0; text-align: center; font: italic 500 19px/1.35 var(--corps); color: var(--encre); }
+.periode-activites .lbl, .echec-activite .lbl, .apprend-activite .lbl, .apprend-passe .lbl {
+  display: block; margin-bottom: 3px; font: 700 11px/1.2 var(--titre); font-style: normal; letter-spacing: .2em; text-transform: uppercase; color: var(--or-sombre); }
+.invite-activites { margin: 0; text-align: center; color: var(--doux); }
+.echec-activite { margin: 0; padding: 8px 12px; border-left: 3px solid var(--rouge); background: rgba(179, 38, 30, .08); font-size: 16px; }
+.echec-activite .lbl { color: var(--rouge); }
+.refus-activites { margin: 0; }
+
+/* Les notices : la caractéristique en marge, couchée dans sa couleur. */
+.activites-liste { display: grid; gap: 12px; }
+.activite-coin { --carac: var(--sang); display: grid; grid-template-columns: 26px minmax(0, 1fr); border: 1px solid var(--filet);
+  background: rgba(255, 251, 240, .5); scroll-margin-top: 104px; }
+.activite-coin.carac-social { --carac: var(--or-sombre); }
+.activite-coin.carac-mental { --carac: #34485e; }
+.activite-coin.complete { opacity: .7; }
+.marge-activite { margin: 0; display: flex; align-items: center; justify-content: center; background: var(--carac); color: #fbeee0;
+  writing-mode: vertical-rl; transform: rotate(180deg); font: 700 11px/1 var(--titre); letter-spacing: .28em; text-transform: uppercase; }
+.corps-activite { display: grid; gap: 8px; padding: 12px 14px 14px; }
+.corps-activite h3 { margin: 0; font: 700 18px/1.2 var(--titre); color: var(--encre); overflow-wrap: anywhere; }
+.rubrique-activite { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; margin: 0; font-size: 16px; color: var(--carac); font-weight: 600; }
+.places-activite { font-weight: 400; font-style: italic; color: var(--doux); }
+.texte-activite p { margin: 0 0 6px; }
+.texte-activite p:last-child { margin-bottom: 0; }
+.chances-activite { margin: 0; font-size: 16px; color: var(--doux); }
+.chances-activite b { font: 700 18px/1 var(--titre); color: var(--encre); font-variant-numeric: lining-nums; }
+.chances-activite small { font-style: italic; }
+/* Le carton du héros, compté dans ses chances et dans son jet : « Carton rouge en Physique : −30 % ». */
+.ajustements-activite { margin: 2px 0 0; font-size: 15px; font-style: italic; color: var(--rouge); }
+.gestes-activite { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0; }
+.gestes-activite .aide-sac { flex: 1 1 12em; }
+.choisir-activite { display: grid; gap: 8px; padding: 10px 0 0; border-top: 1px dotted rgba(107, 79, 42, .45); }
+.choisir-activite label { display: grid; gap: 5px; font: 700 11px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--doux); }
+.choisir-activite label small { font: italic 400 14px var(--corps); letter-spacing: 0; text-transform: none; }
+.choisir-activite textarea { width: 100%; min-height: 64px; padding: 8px 10px; border: 1px solid rgba(107, 79, 42, .55); border-radius: 2px;
+  background: rgba(255, 251, 240, .85); font: 400 17px/1.35 var(--corps); letter-spacing: 0; text-transform: none; color: var(--encre); resize: vertical; }
+.choisir-activite textarea:focus { outline: none; border-color: var(--sang); box-shadow: 0 0 0 2px rgba(142, 27, 23, .18); }
+
+/* L'activité de la période : la feuille épinglée, le sceau du dé, le récit, l'or. */
+.mon-activite { display: grid; gap: 10px; padding: 16px 16px 18px; border: 1px solid rgba(107, 79, 42, .55); border-top: 4px double var(--or-sombre);
+  background: rgba(255, 251, 240, .72); box-shadow: 0 3px 10px rgba(43, 29, 18, .18); }
+.mon-activite .kicker { margin: 0; }
+.mon-activite h3 { margin: 0; font: 700 21px/1.2 var(--titre); overflow-wrap: anywhere; }
+.roule-activite { margin: 0; font-style: italic; color: var(--doux); }
+.jet-activite { --teinte: #4d6a2c; display: flex; align-items: center; gap: 14px; }
+.jet-activite.echec { --teinte: var(--rouge); }
+.de-activite { flex: none; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #b8433b, var(--sang) 60%, #5e110e); color: #fbeee0;
+  box-shadow: 0 2px 5px rgba(43, 29, 18, .45), inset 0 0 0 3px rgba(251, 238, 224, .22); font: 700 26px/1 var(--titre); font-variant-numeric: lining-nums; }
+.jet-activite.critique .de-activite { box-shadow: 0 0 0 3px #fbf3e2, 0 0 0 5px var(--teinte), 0 3px 8px rgba(43, 29, 18, .45); }
+.jet-activite p { display: grid; gap: 2px; margin: 0; }
+.issue-activite { font: 700 15px/1.2 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--teinte); }
+.visee-activite { font-size: 16px; color: var(--doux); font-variant-numeric: lining-nums; }
+.jet-activite.annonce .de-activite { animation: sceau-frappe .5s cubic-bezier(.2, .9, .3, 1.3) both; }
+@keyframes sceau-frappe { from { transform: scale(1.6) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .jet-activite.annonce .de-activite { animation: none; } }
+.recit-activite { margin: 0; padding: 4px 0 4px 14px; border-left: 2px solid rgba(107, 79, 42, .45); font-style: italic; overflow-wrap: anywhere; }
+.recit-activite p { margin: 0 0 6px; }
+.recit-activite p:last-child { margin-bottom: 0; }
+.or-activite { margin: 0; font: 600 18px/1.3 var(--corps); color: var(--encre); }
+.or-activite.attente { font-weight: 400; font-style: italic; color: var(--doux); }
+.apprend-activite { padding: 8px 12px; border-left: 3px solid var(--or-sombre); background: rgba(224, 181, 98, .14); overflow-wrap: anywhere; }
+.apprend-activite p { margin: 0 0 6px; }
+.apprend-activite p:last-child { margin-bottom: 0; }
+.mon-activite .mot-du-mj { margin: 0; }
+
+/* Les activités passées. */
+.passees-activites .geste-sac p { margin: 0; }
+.passees-activites .geste-sac p:first-child { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; }
+.passees-activites .quoi { font-weight: 600; }
+.passees-activites .statut { font: 600 11px/1.6 var(--titre); letter-spacing: .1em; text-transform: uppercase; color: var(--doux); }
+.periode-passee { font-size: 15px; font-style: italic; color: var(--doux); }
+.apprend-passe { margin-top: 4px !important; }
+.passees-activites .mot-du-mj { margin: 6px 0 0; }
+
+@media (min-width: 700px) {
+  .activites-liste { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+}
+@media (max-width: 739px) {
+  .activite-coin { scroll-margin-top: 70px; }
+}
+
+/* Sur l'accueil du carnet : l'activité de la période en bref, le dé et ce qu'il a donné. */
+.mon-activite.compacte h3 { margin: 0 0 8px; font-size: 17px; }
+.mon-activite.compacte .kicker { margin-bottom: 2px; }
+.section-resume-activites .mon-activite + .mon-activite { margin-top: 12px; }
+.mon-activite.carte { margin: 10px 0 0; padding: 12px 0 0; border: 0; border-top: 1px dashed var(--filet); background: none; box-shadow: none; }

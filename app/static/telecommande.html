@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Télécommande · L'Arrière-salle</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#140f0b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Télécommande">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="preload" href="/static/fonts/Cinzel-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/EBGaramond-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/css/telecommande.css">
+  <link rel="stylesheet" href="/static/css/combat.css">
+  <link rel="stylesheet" href="/static/css/salle.css">
+  <link rel="stylesheet" href="/static/css/telecommande-compact.css">
+</head>
+<body>
+  <header class="tete">
+    <p class="marque"><span class="losange" aria-hidden="true"></span>Télécommande</p>
+    <p class="liaison" data-etat="attente"><i aria-hidden="true"></i><span>Connexion…</span></p>
+    <p class="seance-du-jour"></p>
+    <p class="annonce-tete" role="status" aria-live="polite" hidden></p>
+    <p class="temoin-tc" aria-live="polite" hidden></p>
+  </header>
+
+  <main class="panneaux">
+    <section class="panneau" id="panneau-tv" data-panneau="tv" role="tabpanel" aria-labelledby="onglet-tv">
+      <h2 class="titre-panneau">La TV</h2>
+      <div data-zone="tv"><p class="calme">Lecture de la table…</p></div>
+    </section>
+
+    <section class="panneau" id="panneau-combat" data-panneau="combat" role="tabpanel" aria-labelledby="onglet-combat">
+      <h2 class="titre-panneau">Combat</h2>
+      <div data-zone="combat"><p class="calme">Lecture du combat…</p></div>
+    </section>
+
+    <section class="panneau" id="panneau-musique" data-panneau="musique" role="tabpanel" aria-labelledby="onglet-musique">
+      <h2 class="titre-panneau">Musique</h2>
+      <div data-zone="musique"><p class="calme">Lecture de la musique…</p></div>
+    </section>
+
+    <section class="panneau" id="panneau-journal" data-panneau="journal" role="tabpanel" aria-labelledby="onglet-journal">
+      <h2 class="titre-panneau">Journal</h2>
+      <p class="pour-seance" data-zone="journal-seance"></p>
+      <form class="noter" autocomplete="off">
+        <label class="lecteur-seul" for="note">Ligne à noter au journal</label>
+        <textarea id="note" rows="3" maxlength="2000" enterkeyhint="send" placeholder="Ce qui vient de se passer. La dictée du clavier fait l'affaire."></textarea>
+        <button class="touche principale" type="submit">Noter au journal</button>
+      </form>
+      <div data-zone="journal"></div>
+    </section>
+  </main>
+
+  <div class="bas">
+    <div class="annonce" role="status" aria-live="polite" hidden></div>
+    <div class="main-courante" hidden></div>
+    <nav class="onglets" role="tablist" aria-label="Télécommande">
+      <button type="button" role="tab" id="onglet-tv" aria-controls="panneau-tv" data-onglet="tv">TV</button>
+      <button type="button" role="tab" id="onglet-combat" aria-controls="panneau-combat" data-onglet="combat">Combat</button>
+      <button type="button" role="tab" id="onglet-musique" aria-controls="panneau-musique" data-onglet="musique">Musique</button>
+      <button type="button" role="tab" id="onglet-journal" aria-controls="panneau-journal" data-onglet="journal">Journal</button>
+    </nav>
+  </div>
+
+  <script type="module" src="/static/js/telecommande.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+/* Le menu du sang de l'éditeur de plans (js/plan/sang-menu.js). */
+.formes-sang, .teintes-sang { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.formes-sang button, .teintes-sang button { display: inline-flex; align-items: center; gap: 6px; min-height: 0; padding: 5px 10px; font-size: 14px; }
+.teintes-sang .pastille { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .5); }
+.curseur-fraicheur { background: linear-gradient(90deg, var(--frais), var(--sec)); }
+.apercu-sang { display: none; }

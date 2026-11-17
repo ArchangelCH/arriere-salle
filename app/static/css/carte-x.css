@@ -1,0 +1,70 @@
+/* La carte X à imprimer (carte-x.html), posée sur fiche.css (polices, barre d'outils). Une carte = deux faces côte à
+   côte, pliées au milieu comme un livre : le grand X devant, la règle au dos, à l'endroit quand on la retourne.
+   Une grande carte sur une A4 couchée (A5 une fois pliée), ou deux petites sur une A4 debout (A6, à découper).
+   Toutes les mesures suivent --u, le millimètre de la grande carte. */
+
+.carte-x-page { --encre-x: #2b1d12; --sang-x: #8e1b17; }
+.carte-x-page .definitions { position: fixed; top: 0; left: 0; width: 0; height: 0; overflow: hidden; }
+
+.outils-fiche .choix-format { display: flex; gap: 14px; margin: 0; padding: 0; border: 0; }
+.outils-fiche .choix-format legend { float: left; margin-right: 6px; font: 700 11px/1.9 "Cinzel", serif; letter-spacing: .14em; text-transform: uppercase; color: #b7a585; }
+.outils-fiche label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.outils-fiche input { accent-color: #8e1b17; }
+.outils-fiche .consigne { flex: 1 0 100%; margin: 0; font-style: italic; color: #b7a585; }
+.carte-x-page.grande .petites-seulement { display: none; }
+
+/* La feuille A4, telle qu'elle sortira de l'imprimante. */
+.feuilles { display: grid; gap: 18px; justify-content: center; }
+.feuille { --mm: 1mm; position: relative; display: grid; background: #fffdf8; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); overflow: hidden; }
+.grande .feuille { --u: var(--mm); width: calc(var(--mm) * 297); height: calc(var(--mm) * 210); }
+.petites .feuille { --u: calc(var(--mm) * .7071); width: calc(var(--mm) * 210); height: calc(var(--mm) * 297); grid-template-rows: 1fr 1fr; }
+/* Le pointillé où couper les deux petites cartes. */
+.petites .feuille::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: .3mm dashed #b9a681; }
+
+.carte { position: relative; display: grid; grid-template-columns: 1fr 1fr; }
+/* Le pli, entre les deux faces : un trait discret, qui ne se voit plus une fois plié. */
+.carte::before { content: ""; position: absolute; top: calc(var(--u) * 6); bottom: calc(var(--u) * 6); left: 50%; border-left: .25mm dashed #c9b48f; }
+
+.face {
+  position: relative; display: grid; place-items: center; margin: calc(var(--u) * 7);
+  background: #f6eedb url("../img/kit/parchemin-clair.jpg") center / 100% 100%;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.eco .face { background: #fff; }
+/* Le double cadre à losanges du kit, comme le carnet de la compagnie. */
+.face .cadre { position: absolute; inset: calc(var(--u) * 4); border: calc(var(--u) * .45) solid #6b4f2a; pointer-events: none;
+  background: var(--losange-x) left top / calc(var(--u) * 6) no-repeat, var(--losange-x) right top / calc(var(--u) * 6) no-repeat,
+    var(--losange-x) left bottom / calc(var(--u) * 6) no-repeat, var(--losange-x) right bottom / calc(var(--u) * 6) no-repeat; }
+.face .cadre::after { content: ""; position: absolute; inset: calc(var(--u) * 2.2); border: calc(var(--u) * .25) solid rgba(107, 79, 42, .7); }
+.carte-x-page { --losange-x: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><polygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/><polygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/></svg>"); }
+
+/* Le recto : le grand X à l'encre, et le losange rouge de la charte dessous. */
+.grand-x { width: 82%; height: auto; margin-top: -10%; overflow: visible; }
+.grand-x .traits { fill: var(--encre-x); fill-opacity: .93; }
+.recto .losange { position: absolute; left: 50%; bottom: calc(var(--u) * 17); width: calc(var(--u) * 7); height: calc(var(--u) * 7); margin-left: calc(var(--u) * -3.5);
+  background: var(--losange-x) center / contain no-repeat; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+/* Le verso : la règle, en deux phrases. */
+.regle { max-width: 78%; text-align: center; color: var(--encre-x); }
+.regle .kicker { margin: 0 0 calc(var(--u) * 3); font: 700 calc(var(--u) * 3.6)/1.2 "Cinzel", serif; letter-spacing: .3em; text-transform: uppercase; color: var(--sang-x); }
+.regle h1 { margin: 0; font: 700 calc(var(--u) * 11)/1.05 "Cinzel", serif; letter-spacing: .02em; }
+.regle .filet { position: relative; display: block; width: 70%; height: calc(var(--u) * 5); margin: calc(var(--u) * 5) auto calc(var(--u) * 7); }
+.regle .filet::before { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: max(1px, calc(var(--u) * .35));
+  background: linear-gradient(to right, rgba(43, 29, 18, 0), rgba(43, 29, 18, .7) 30%, rgba(43, 29, 18, .7) 70%, rgba(43, 29, 18, 0)); }
+.regle .filet::after { content: ""; position: absolute; top: 50%; left: 50%; width: calc(var(--u) * 3.2); height: calc(var(--u) * 3.2);
+  margin: calc(var(--u) * -1.6) 0 0 calc(var(--u) * -1.6); background: var(--sang-x); transform: rotate(45deg);
+  box-shadow: inset 0 0 0 calc(var(--u) * .7) var(--sang-x), inset 0 0 0 calc(var(--u) * 1.2) #f4ead4; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.regle p:not(.kicker) { margin: 0 0 calc(var(--u) * 5); font: 500 calc(var(--u) * 7.4)/1.32 "EB Garamond", Georgia, serif; }
+.regle p:last-child { margin-bottom: 0; }
+
+@media print {
+  .feuilles { display: block; }
+  /* Un millimètre de moins que la feuille : l'A4 de l'imprimante est arrondie au point près, une page blanche suivrait. */
+  .feuille { box-shadow: none; break-after: page; }
+  .grande .feuille { height: calc(var(--mm) * 209); }
+  .petites .feuille { height: calc(var(--mm) * 296); }
+  .feuille:last-child { break-after: auto; }
+}
+/* À l'écran, sur un petit écran, l'aperçu se réduit : la feuille garde ses proportions. */
+@media screen and (max-width: 1160px) { .grande .feuille { --mm: calc((100vw - 32px) / 297); } }
+@media screen and (max-width: 840px) { .petites .feuille { --mm: calc((100vw - 32px) / 210); } }

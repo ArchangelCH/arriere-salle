@@ -1,0 +1,105 @@
+/* Le sanctuaire dans le carnet des joueurs (js/joueurs/sanctuaire-vue.js, sanctuaire-coin.js) : le village peint comme à
+   la TV, encadré comme une gravure collée dans le carnet, puis le registre des chantiers. Chaque fiche porte la couleur
+   de son toit en marge et son niveau en chiffre romain dans un sceau ; la cagnotte se lit en pièces et en jauge d'or.
+   Pensé d'abord pour le téléphone : une colonne, des cibles de 44 px ; deux colonnes dès qu'il y a la place. Les couleurs
+   sont celles du carnet (carnet.css). */
+
+.sanctuaire-coin { display: grid; gap: 14px; }
+/* Une grille ne rétrécit pas sous son contenu : sans cela, le village large de 720 px élargirait toute la section. */
+.sanctuaire-coin > *, .chantiers-coin > *, .projets-coin > * { min-width: 0; }
+.accroche-sanctuaire { margin: 0 auto; max-width: 34em; text-align: center; font-style: italic; color: var(--doux); }
+.chiffres-sanctuaire { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; margin: 0; font-size: 16px; color: var(--doux); }
+.chiffres-sanctuaire b { font: 700 18px/1 var(--titre); color: var(--sang); font-variant-numeric: lining-nums; }
+
+/* Le village : la gravure, cadre double ; sur un téléphone il glisse de côté et s'ouvre sur l'auberge. */
+.village-coin { margin: 4px 0 0; padding: 6px; border: 1px solid rgba(107, 79, 42, .55); background: #2e4420;
+  box-shadow: inset 0 0 0 3px #f4ead4, inset 0 0 0 4px rgba(107, 79, 42, .55), 0 3px 10px rgba(43, 29, 18, .25); }
+.village-defile { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.village-defile:focus-visible { outline: 2px solid var(--or); outline-offset: -2px; }
+.village-defile .sc-village { display: block; width: 100%; min-width: 720px; height: auto; aspect-ratio: 16 / 10; }
+.village-defile [data-batiment] { cursor: pointer; }
+.village-coin figcaption { padding: 7px 4px 2px; text-align: center; font: 700 12px/1.3 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: #f1e4c6; }
+.village-coin figcaption .glisser { font: italic 400 14px var(--corps); letter-spacing: 0; text-transform: none; color: #cdbb98; }
+.village-coin.sans-image { display: none; }
+@media (min-width: 760px) {
+  .village-defile .sc-village { min-width: 0; }
+  .village-coin figcaption .glisser { display: none; }
+}
+
+/* La bourse, au-dessus des chantiers. */
+.bourse-sanctuaire { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid var(--filet); border-left: 4px solid var(--or-sombre);
+  background: rgba(255, 251, 240, .55); }
+.bourse-sanctuaire .vide { margin: 0; }
+.bourse-sanctuaire .refus-coin, .bourse-sanctuaire .pause-sac, .bourse-sanctuaire .engage-sac { margin: 0; }
+
+/* Le registre des chantiers. */
+.chantiers-coin, .projets-coin { display: grid; gap: 14px; }
+.chantier-coin, .projet-coin { position: relative; display: grid; gap: 10px; padding: 14px 14px 14px 18px; border: 1px solid var(--filet);
+  background: rgba(255, 251, 240, .5); box-shadow: inset 5px 0 0 var(--toit, #8e3b2a); scroll-margin-top: 104px; }
+.chantier-coin.montre { animation: chantier-montre 1.6s ease-out; }
+@keyframes chantier-montre { from { background: rgba(224, 181, 98, .45); } to { background: rgba(255, 251, 240, .5); } }
+.chantier-coin > header { display: flex; align-items: center; gap: 12px; }
+.chantier-coin h3, .projet-coin h3 { margin: 0; font: 700 18px/1.2 var(--titre); color: var(--encre); overflow-wrap: anywhere; }
+.projet-coin h3 small { font: italic 400 15px var(--corps); color: var(--doux); }
+/* Le niveau dans un sceau de cire. */
+.niveau-chantier { flex: none; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #b8433b, var(--sang) 60%, #5e110e); color: #fbeee0;
+  box-shadow: 0 2px 4px rgba(43, 29, 18, .4), inset 0 0 0 2px rgba(251, 238, 224, .25); font: 700 15px/1 var(--titre); letter-spacing: .02em; }
+.a-batir .niveau-chantier { background: transparent; color: var(--doux); border: 1.5px dashed rgba(107, 79, 42, .6); box-shadow: none; }
+.etat-chantier { margin: 2px 0 0; font-size: 16px; color: var(--doux); }
+.cagnotte-chantier { display: grid; gap: 6px; }
+.cagnotte-chantier .somme { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 12px; margin: 0; }
+.cagnotte-chantier .somme b { font: 700 21px/1 var(--corps); color: var(--encre); font-variant-numeric: lining-nums; }
+.cagnotte-chantier .manque { font-size: 15px; font-style: italic; color: var(--doux); }
+.jauge-chantier { height: 10px; border: 1px solid rgba(107, 79, 42, .55); border-radius: 5px; background: rgba(107, 79, 42, .12); overflow: hidden; }
+.jauge-chantier i { display: block; height: 100%; background: linear-gradient(90deg, var(--or-sombre), var(--or) 70%, var(--or-vif)); }
+/* Le prochain niveau : l'étiquette au-dessus de son texte, qui garde toute la largeur de la fiche. */
+.prochain-chantier { display: grid; gap: 2px; margin: 0; font-size: 17px; }
+.prochain-chantier dt { font: 700 11px/1.6 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--or-sombre); }
+.prochain-chantier dd { margin: 0 0 6px; overflow-wrap: anywhere; }
+.prochain-chantier dd:last-child { margin-bottom: 0; }
+.donateurs-chantier { margin: 0; font-size: 15px; color: var(--doux); }
+.donateurs-chantier .lbl, .projet-coin .lbl { margin-right: 6px; font: 700 11px/1 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--or-sombre); }
+.donateurs-chantier b { color: var(--encre); font-weight: 600; }
+.haut-chantier { margin: 0; font-style: italic; color: var(--doux); }
+
+/* Ce que le joueur y fait : verser, proposer, retirer ce qui attend. */
+.gestes-chantier { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0; }
+.gestes-chantier .aide-sac { flex: 1 1 12em; }
+.verser-chantier, .proposer-projet { display: grid; gap: 8px; padding: 10px 12px 12px; border-top: 1px dotted rgba(107, 79, 42, .45); }
+.verser-chantier label, .proposer-projet label { display: grid; gap: 5px; font: 700 11px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--doux); }
+.proposer-projet label small { font: italic 400 14px var(--corps); letter-spacing: 0; text-transform: none; }
+.verser-chantier input { width: 8em; min-height: 44px; padding: 0 10px; border: 1px solid rgba(107, 79, 42, .55); border-radius: 2px;
+  background: rgba(255, 251, 240, .85); font: 600 20px/1 var(--titre); letter-spacing: 0; color: var(--encre); font-variant-numeric: lining-nums; }
+.proposer-projet textarea { width: 100%; min-height: 64px; padding: 8px 10px; border: 1px solid rgba(107, 79, 42, .55); border-radius: 2px;
+  background: rgba(255, 251, 240, .85); font: 400 17px/1.35 var(--corps); letter-spacing: 0; text-transform: none; color: var(--encre); resize: vertical; }
+.verser-chantier input:focus, .proposer-projet textarea:focus { outline: none; border-color: var(--sang); box-shadow: 0 0 0 2px rgba(142, 27, 23, .18); }
+.attente-chantier { list-style: none; display: grid; gap: 6px; margin: 0; padding: 0; }
+.attente-chantier li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 6px 10px;
+  border: 1px dashed rgba(138, 100, 36, .7); background: rgba(224, 181, 98, .14); font-size: 16px; }
+.attente-chantier span { font-style: italic; }
+
+/* Ce que le sanctuaire offre. */
+.bonus-sanctuaire { list-style: none; display: grid; gap: 8px; margin: 0; padding: 0; }
+.bonus-sanctuaire li { display: grid; grid-template-columns: auto 1fr; gap: 0 10px; padding: 0 0 8px; border-bottom: 1px dotted rgba(107, 79, 42, .35); }
+.bonus-sanctuaire b { font: 700 15px/1.3 var(--titre); }
+.bonus-sanctuaire small { align-self: center; font: italic 400 14px var(--corps); color: var(--doux); }
+.bonus-sanctuaire span { grid-column: 1 / -1; font-size: 16px; }
+
+/* Les projets : leurs niveaux, comme une liste de prix. */
+.description-projet { margin: 0; font-style: italic; color: var(--doux); }
+.niveaux-projet { list-style: none; display: grid; gap: 6px; margin: 0; padding: 0; }
+.niveaux-projet li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: baseline; }
+.niveaux-projet .rang { font: 700 13px/1.4 var(--titre); color: var(--sang); text-align: center; }
+.niveaux-projet .nom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 10px; border-bottom: 1px dotted rgba(107, 79, 42, .35); padding-bottom: 4px; }
+.niveaux-projet .cout { font: 600 14px/1.4 var(--titre); color: var(--sang); white-space: nowrap; font-variant-numeric: lining-nums; }
+.niveaux-projet small { flex: 1 1 100%; font-size: 15px; color: var(--doux); }
+
+.historique-sanctuaire { margin-top: 6px; }
+
+@media (min-width: 700px) {
+  .chantiers-coin, .projets-coin { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+}
+@media (max-width: 739px) {
+  .chantier-coin, .projet-coin { scroll-margin-top: 70px; }
+}

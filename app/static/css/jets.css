@@ -1,0 +1,210 @@
+/* Les jets à distance chez le MJ (js/jets/) : dans le Tableau, sous les mains levées, et sur la télécommande, au-dessus des
+   onglets. Posée par jets.js à la première écoute (après doigt.css : les cibles gardent leurs 44 px au toucher). Les issues
+   ont leurs couleurs : vert pour une réussite, rouge pâle pour un échec, or vif et rouge sang pour les critiques. */
+
+:root {
+  --jet-reussite: #9fc77a;
+  --jet-echec: #e3998c;
+  --jet-or: #f0cb78;
+  --jet-sang: #e2493f;
+}
+
+/* ---- Dans le Tableau ---- */
+.jets-tableau { margin: 10px 0 4px; padding: 9px 10px 10px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: rgba(244, 234, 212, .03); }
+.jets-tableau[hidden] { display: none; }
+.jets-tableau h3 { margin: 0 0 6px; font: 700 10px/1 var(--titre); letter-spacing: .18em; text-transform: uppercase; color: var(--bronze-clair); }
+.jets-etat, .jets-vide { margin: 4px 0 6px; font-size: 14px; font-style: italic; color: var(--texte-doux); }
+.jets-demandes { margin: 0 0 8px; padding: 0; list-style: none; }
+.jets-demandes li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-left: 3px solid var(--jet-or); background: rgba(224, 181, 98, .08); }
+.jets-demandes li + li { margin-top: 4px; }
+.jets-demandes .quoi { flex: 1 1 auto; min-width: 0; font-size: 15px; }
+.jets-demandes .quoi b { color: var(--parchemin); font-weight: 600; }
+.jets-demandes small { margin: 0 4px 0 6px; font-style: italic; color: var(--texte-doux); }
+.jets-demandes em { display: block; font-size: 13px; color: var(--jet-or); }
+.jets-demandes button { flex: none; min-height: 32px; padding: 4px 10px; font-size: 11px; }
+.jets-derniers { margin: 8px 0 0; padding: 0; list-style: none; }
+.jet-mj { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 8px; align-items: baseline; padding: 4px 0 4px 8px; border-left: 3px solid var(--filet-fort); }
+.jet-mj + .jet-mj { margin-top: 3px; }
+.jet-mj .ligne1 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; color: var(--texte); }
+.jet-mj .ligne1 b { color: var(--parchemin); font-weight: 600; }
+.jet-mj .ligne2 { grid-column: 1 / 3; font-size: 12.5px; line-height: 1.3; color: var(--texte-pale); font-variant-numeric: lining-nums; }
+.jet-mj .ligne2 .visee { color: var(--texte-doux); }
+.jet-mj .issue, .jets-tc .issue { font: 700 10.5px/1.1 var(--titre); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+.jet-mj .de, .jets-tc .de { margin-right: 5px; font: 700 18px/1 var(--titre); letter-spacing: 0; color: var(--parchemin); font-variant-numeric: lining-nums; }
+.jets-plus { margin: 6px 0 0; min-height: 28px; padding: 2px 10px; font-size: 10.5px; }
+.jets-plus[hidden], .jets-vide[hidden], .jets-etat[hidden], .jets-demandes[hidden], .jets-derniers[hidden], .jets-demander[hidden], .jets-demander .aide[hidden] { display: none; }
+.ajustement-jet { font-style: italic; color: var(--jet-echec); }
+.ajustement-jet::before { content: " · "; font-style: normal; color: var(--texte-pale); }
+:is(.jets-tableau, .jets-tc) [data-issue="reussite"] { border-left-color: var(--jet-reussite); }
+:is(.jets-tableau, .jets-tc) [data-issue="reussite"] .issue, :is(.jets-tableau, .jets-tc) .issue[data-issue="reussite"] { color: var(--jet-reussite); }
+:is(.jets-tableau, .jets-tc) [data-issue="echec"] { border-left-color: var(--jet-echec); }
+:is(.jets-tableau, .jets-tc) [data-issue="echec"] .issue, :is(.jets-tableau, .jets-tc) .issue[data-issue="echec"] { color: var(--jet-echec); }
+:is(.jets-tableau, .jets-tc) [data-issue="reussite-critique"] { border-left-color: var(--jet-or); background: rgba(240, 203, 120, .1); }
+:is(.jets-tableau, .jets-tc) [data-issue="reussite-critique"] .issue, :is(.jets-tableau, .jets-tc) .issue[data-issue="reussite-critique"] { color: var(--jet-or); }
+:is(.jets-tableau, .jets-tc) [data-issue="echec-critique"] { border-left-color: var(--jet-sang); background: rgba(179, 38, 30, .14); }
+:is(.jets-tableau, .jets-tc) [data-issue="echec-critique"] .issue, :is(.jets-tableau, .jets-tc) .issue[data-issue="echec-critique"] { color: var(--jet-sang); }
+
+.jets-demander { margin: 2px 0 6px; }
+.jets-demander .titre { margin: 0 0 6px; font: 700 10px/1 var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--texte-doux); }
+.jets-demander .qui, .jets-demander .quoi { display: flex; flex-wrap: wrap; gap: 6px; }
+.jets-demander .quoi { margin-top: 6px; align-items: center; }
+.jets-demander button { min-height: 34px; padding: 5px 10px; font-size: 12px; }
+.jets-demander .qui button { display: inline-flex; align-items: baseline; gap: 5px; text-transform: none; letter-spacing: 0; font: 600 14px/1.15 var(--corps); }
+.jets-demander .qui small { font-style: italic; font-weight: 400; font-size: 12px; color: var(--texte-doux); }
+.jets-demander .qui small:empty { display: none; }
+.jets-demander [aria-pressed="true"] { border-color: var(--jet-or); background: rgba(240, 203, 120, .2); color: var(--parchemin); box-shadow: inset 0 0 0 1px var(--jet-or); }
+.jets-demander .mod { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
+.jets-demander .mod button { min-width: 34px; padding: 4px; font-size: 16px; }
+.jets-demander .mod output { min-width: 3ch; text-align: center; font: 700 14px/1 var(--titre); }
+.jets-demander .aide { margin: 6px 0 0; font-size: 13px; font-style: italic; color: var(--texte-pale); }
+@media (pointer: coarse) {
+  .jets-demandes button, .jets-demander button, .jets-demander .mod button { min-height: 44px; min-width: 44px; }
+}
+
+/* ---- Sur la télécommande, au-dessus des onglets ---- */
+.jets-tc { margin: 0 max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left)); border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: rgba(14, 10, 8, .97); box-shadow: 0 10px 30px rgba(0, 0, 0, .6); }
+.jets-tc[hidden] { display: none; }
+.ligne-jets-tc { display: flex; align-items: center; gap: 10px; padding: 6px 6px 6px 12px; }
+.ligne-jets-tc .dernier { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; flex: 1 1 auto; min-width: 0; margin: 0; font-size: 16px; line-height: 1.25; }
+.ligne-jets-tc .dernier b { font: 700 15px/1.2 var(--titre); color: var(--parchemin); }
+.ligne-jets-tc .test { color: var(--texte); }
+.ligne-jets-tc small { font: 600 11px/1 var(--titre); color: var(--texte-pale); }
+.ligne-jets-tc .calme, .panneau-jets-tc .calme { font-style: italic; color: var(--texte-doux); }
+.ligne-jets-tc .attend { padding: 2px 6px; border-radius: 2px; background: var(--jet-or); color: #2a1d10; font: 700 10px/1.2 var(--titre); letter-spacing: .08em; text-transform: uppercase; }
+.ligne-jets-tc .touche { flex: none; min-width: 92px; min-height: 48px; }
+.panneau-jets-tc { max-height: 52vh; overflow-y: auto; overscroll-behavior: contain; padding: 4px 12px 10px; border-bottom: 1px solid var(--filet); }
+.panneau-jets-tc .titre { margin: 10px 0 6px; font: 700 11px/1 var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--texte-doux); }
+.mot-jets-tc { margin: 8px 0 0; padding: 6px 10px; border-left: 3px solid var(--jet-or); font-size: 16px; }
+.qui-tc, .quoi-tc { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; }
+.quoi-tc { margin-top: 8px; grid-template-columns: repeat(3, 1fr); }
+.qui-tc .touche { min-height: 52px; text-transform: none; letter-spacing: 0; font: 600 16px/1.15 var(--corps); }
+.qui-tc small { font-style: italic; font-weight: 400; font-size: 13px; color: var(--texte-doux); }
+.qui-tc [aria-pressed="true"] { border-color: var(--jet-or); background: rgba(240, 203, 120, .22); color: var(--parchemin); box-shadow: inset 0 0 0 1px var(--jet-or); }
+.quoi-tc .touche { min-height: 52px; }
+.quoi-tc .touche:disabled { opacity: .45; }
+.mod-tc { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.mod-tc > span { flex: 1 1 auto; font: 700 11px/1 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--texte-doux); }
+.mod-tc .touche { min-width: 52px; min-height: 48px; padding: 4px; font-size: 20px; }
+.mod-tc output { min-width: 3ch; text-align: center; font: 700 18px/1 var(--titre); }
+.attente-tc, .derniers-tc { margin: 0; padding: 0; list-style: none; }
+.attente-tc li { display: flex; align-items: center; gap: 10px; padding: 4px 0 4px 10px; border-left: 3px solid var(--jet-or); }
+.attente-tc li span { flex: 1 1 auto; font-size: 16px; }
+.attente-tc .touche { min-height: 44px; padding: 4px 12px; font-size: 12px; }
+.derniers-tc li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 8px; align-items: baseline; padding: 5px 0 5px 8px; border-left: 3px solid var(--filet-fort); font-size: 15px; }
+.derniers-tc li + li { margin-top: 4px; }
+.derniers-tc .heure { font: 600 10px/1 var(--titre); color: var(--texte-pale); }
+.derniers-tc .quoi b { color: var(--parchemin); font-weight: 600; }
+.derniers-tc .detail { grid-column: 2 / 4; font-size: 13px; color: var(--texte-doux); }
+@media (min-width: 760px) {
+  .jets-tc { width: min(560px, calc(100% - 32px)); margin: 0 auto 12px; }
+}
+.jets-tc [hidden] { display: none !important; }
+
+/* ---- Lot G : les dés libres, la réserve des dés d'aventure, les dés de mésaventure (js/jets/) ---- */
+:root {
+  --de-groupe: #f0cb78;
+  --de-mj: #c63a2c;
+}
+.pips-mj { display: inline-flex; gap: 3px; vertical-align: middle; }
+.pips-mj i { display: block; width: 10px; height: 10px; border-radius: 2px; background: var(--de-groupe); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .3); }
+.pips-mj.mj i { background: var(--de-mj); }
+.jets-reserve { margin: 2px 0 8px; }
+.jets-reserve[hidden], .mesaventure-mj[hidden], .effets-mj[hidden], .jet-mj .ligne3[hidden], .libres-mj[hidden] { display: none; }
+.jets-reserve .titre { margin: 0 0 6px; font: 700 10px/1 var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--texte-doux); }
+.reserves-mj { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.reserve-mj { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--texte); }
+.reserve-mj b { font: 700 20px/1 var(--corps); color: var(--parchemin); font-variant-numeric: lining-nums; }
+.reserve-mj.mj b { color: #ffb3a8; }
+.reserves-mj button { min-height: 32px; padding: 4px 10px; font-size: 11px; }
+.jets-mesaventures { margin-top: 6px; }
+.jets-mesaventures li { border-left-color: var(--de-mj); background: rgba(179, 38, 30, .1); }
+.jets-mesaventures em { color: #ffb3a8; }
+.mesaventure-mj, .effets-mj { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
+.mesaventure-mj button, .effets-mj button { min-height: 32px; padding: 4px 10px; font-size: 11px; }
+.mesaventure-mj [aria-pressed="true"], .effets-mj [aria-pressed="true"], .mesaventure-tc [aria-pressed="true"], .effets-tc [aria-pressed="true"] {
+  border-color: var(--de-mj); background: rgba(198, 58, 44, .22); color: var(--parchemin); box-shadow: inset 0 0 0 1px var(--de-mj); }
+.effets-mj > span, .effets-tc > span { flex: 1 0 100%; font-size: 13px; font-style: italic; color: var(--texte-doux); }
+.libres-mj { font-size: 13px; font-style: italic; color: var(--texte-pale); }
+.jeton-mj { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 2px; border-radius: 50%; font: 700 12px/1 var(--titre); font-style: normal; color: #fff; }
+.jeton-mj.avantage { background: #3f8f4a; }
+.jeton-mj.desavantage { background: #8e1b17; }
+.jet-mj .ligne3 { grid-column: 1 / 3; display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 2px; }
+.de-aventure-mj { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 13.5px; color: var(--texte); }
+.de-aventure-mj .face { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 3px; background: var(--de-groupe); color: #1a110a; font: 700 13px/1 var(--titre); }
+.de-aventure-mj.mesaventure .face { background: #e9a99d; }
+.de-aventure-mj b { font-weight: 600; color: var(--parchemin); }
+.de-aventure-mj small { font-style: italic; color: var(--texte-pale); }
+.de-aventure-mj.annule .face { opacity: .5; text-decoration: line-through; }
+.annuler-de { min-height: 26px; margin-left: 4px; padding: 2px 8px; font-size: 10.5px; }
+.des-mj .issue { color: var(--de-groupe); }
+@media (pointer: coarse) {
+  .reserves-mj button, .mesaventure-mj button, .effets-mj button, .annuler-de { min-height: 44px; min-width: 44px; }
+}
+
+/* Sur la télécommande */
+.reserve-tc { display: inline-flex; align-items: center; gap: 4px; font: 700 15px/1 var(--corps); color: var(--parchemin); font-variant-numeric: lining-nums; }
+.reserve-tc .pips-mj + .pips-mj, .reserve-tc .pips-mj.mj { margin-left: 6px; }
+.reserve-panneau-tc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
+.reserve-panneau-tc .touche { min-height: 48px; }
+.mesaventure-tc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.mesaventure-tc .touche { min-height: 48px; text-transform: none; letter-spacing: 0; font: 600 14px/1.15 var(--corps); }
+.effets-tc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+.effets-tc .touche { min-height: 48px; padding: 4px; text-transform: none; letter-spacing: 0; font: 600 14px/1.1 var(--corps); }
+.annonces-tc li { border-left-color: var(--de-mj); }
+.derniers-tc .des-tc { grid-column: 2 / 4; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.derniers-tc .annuler-de { min-height: 44px; }
+
+/* L'onglet Table : le bloc « Dés d'aventure » (js/jets/reserve-table.js). */
+.bloc-des-aventure .reserves-table { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 10px 0 8px; }
+.bloc-des-aventure .reserves-table[hidden], .bloc-des-aventure .gestes-des-aventure[hidden], .bloc-des-aventure .total-des-aventure[hidden] { display: none; }
+.bloc-des-aventure .reserve-mj { font-size: 16px; }
+.bloc-des-aventure .reserve-mj b { font-size: 22px; }
+.bloc-des-aventure .pips-mj i { width: 13px; height: 13px; }
+.gestes-des-aventure { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
+.bloc-des-aventure .total-des-aventure input { width: 6em; max-width: 6em; }
+
+/* ---- Les dés du MJ (jets/des-mj.js) : dans le Tableau, toujours là ; sur la télécommande, repliés sous leur titre ---- */
+.des-mj { margin: 10px 0 4px; padding: 9px 10px 10px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: rgba(244, 234, 212, .03); }
+.des-mj h3, .des-mj summary { margin: 0 0 6px; font: 700 10px/1 var(--titre); letter-spacing: .18em; text-transform: uppercase; color: var(--bronze-clair); }
+.des-mj summary { display: flex; align-items: center; min-height: 44px; margin: 0; cursor: pointer; }
+.des-mj-faces { display: flex; flex-wrap: wrap; gap: 5px; }
+.des-mj-faces button { flex: 1 0 auto; min-width: 44px; min-height: 34px; padding: 4px 6px; font-size: 12px; }
+.des-mj [aria-pressed="true"] { border-color: var(--jet-or); background: rgba(240, 203, 120, .2); color: var(--parchemin); box-shadow: inset 0 0 0 1px var(--jet-or); }
+.des-mj-reglages { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; }
+.des-mj .mod { display: inline-flex; align-items: center; gap: 4px; }
+.des-mj .mod button { min-width: 34px; min-height: 34px; padding: 4px; font-size: 16px; }
+.des-mj .mod output { min-width: 3ch; text-align: center; font: 700 14px/1 var(--titre); font-variant-numeric: lining-nums; }
+.des-mj .mod small { margin-left: 2px; font-size: 12.5px; font-style: italic; color: var(--texte-doux); }
+.des-mj-lancer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 8px; }
+.des-mj-lancer button { min-height: 38px; padding: 6px 12px; font-size: 12px; }
+.des-mj-lancer button small { margin-left: 6px; font-weight: 400; letter-spacing: 0; text-transform: none; opacity: .8; }
+.des-mj-montrer { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; font-size: 14px; color: var(--texte); cursor: pointer; }
+.des-mj-montrer input { width: 18px; height: 18px; accent-color: var(--jet-or); }
+.des-mj-erreur { margin: 8px 0 0; font-size: 14px; color: var(--jet-echec); }
+.des-mj-resultat { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 10px; align-items: baseline; margin: 10px 0 0; padding: 6px 0 6px 10px; border-left: 3px solid var(--filet-fort); }
+.des-mj-resultat.vide { display: block; font-size: 13.5px; font-style: italic; color: var(--texte-pale); }
+.des-mj-resultat .quoi { grid-column: 1 / 3; font-size: 14px; color: var(--texte); }
+.des-mj-resultat .quoi b { color: var(--parchemin); font-weight: 600; }
+.des-mj-resultat .de { font: 700 26px/1.1 var(--titre); color: var(--parchemin); font-variant-numeric: lining-nums; }
+.des-mj-resultat .detail { font: 700 11px/1.2 var(--titre); letter-spacing: .08em; text-transform: uppercase; }
+.des-mj-resultat .detail small { font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--texte-doux); }
+.des-mj-resultat .ou { grid-column: 1 / 3; font-size: 12.5px; font-style: italic; color: var(--texte-pale); }
+.des-mj-resultat[data-issue="reussite"] { border-left-color: var(--jet-reussite); }
+.des-mj-resultat[data-issue="reussite"] .detail { color: var(--jet-reussite); }
+.des-mj-resultat[data-issue="echec"] { border-left-color: var(--jet-echec); }
+.des-mj-resultat[data-issue="echec"] .detail { color: var(--jet-echec); }
+.des-mj-resultat[data-issue="reussite-critique"] { border-left-color: var(--jet-or); background: rgba(240, 203, 120, .1); }
+.des-mj-resultat[data-issue="reussite-critique"] .detail { color: var(--jet-or); }
+.des-mj-resultat[data-issue="echec-critique"] { border-left-color: var(--jet-sang); background: rgba(179, 38, 30, .14); }
+.des-mj-resultat[data-issue="echec-critique"] .detail { color: var(--jet-sang); }
+/* Les dés d'un adversaire, sur sa ligne du combat compact. */
+.des-adversaire { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 0; }
+.des-adversaire button { min-height: 30px; padding: 3px 10px; font-size: 11px; }
+@media (pointer: coarse) {
+  .des-mj-faces button, .des-mj .mod button, .des-mj-lancer button, .des-adversaire button { min-height: 44px; min-width: 44px; }
+  .des-mj-montrer { min-height: 44px; }
+}
+/* Sur la télécommande : au bas de l'onglet Combat, des touches de pouce. */
+.des-mj-tc { margin: 18px 0 8px; padding: 12px; }
+.des-mj-tc button { min-height: 48px; min-width: 48px; font-size: 14px; }
+.des-mj-tc .des-mj-montrer { min-height: 48px; font-size: 16px; }

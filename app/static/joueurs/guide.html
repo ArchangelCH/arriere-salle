@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Le guide du coin · {{campagne.nom}}</title>
+  <meta name="description" content="Ce que les joueurs peuvent faire dans le coin : se connecter, les onglets, ce que le MJ valide, la table, le portrait, l'histoire du héros et ce que seul le MJ lira.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="preload" href="/static/fonts/Cinzel-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/EBGaramond-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/css/carnet.css">
+  <link rel="stylesheet" href="/static/css/compte-coin.css">
+  <link rel="stylesheet" href="/static/css/guide-coin.css">
+</head>
+<body class="coin-guide">
+  <header class="tete-coin">
+    <span class="marque"><span class="losange" aria-hidden="true"></span><span>{{campagne.nom}}</span><small>le coin des joueurs</small></span>
+    <nav class="onglets-coin" aria-label="Le coin des joueurs">
+      <a href="/carnet#carnet" data-icone="carnet"><span class="long">Carnet</span><span class="court">Carnet</span></a>
+      <a href="/carnet#boutiques" data-icone="boutiques"><span class="long">Boutiques</span><span class="court">Boutiques</span></a>
+      <button type="button" data-icone="menu" data-menu data-vue="menu" aria-current="true"><span class="long">Menu</span><span class="court">Menu</span></button>
+      <a href="/table" data-icone="table"><span class="long">Table</span><span class="court">Table</span></a>
+      <a href="/" data-icone="heros"><span class="long">Héros</span><span class="court">Héros</span></a>
+    </nav>
+  </header>
+  <main id="page">
+    <article class="feuille-coin guide-coin">
+      <header class="titre-carnet">
+        <p class="kicker">Le coin des joueurs</p>
+        <h1>Le guide du coin</h1>
+        <span class="filet" aria-hidden="true"></span>
+      </header>
+
+      <p class="ouverture">Après le Sanctuaire, vous avez demandé à garder la main sur vos héros quand la table est rangée : tenir son sac, bouger son pion, écrire son histoire, jouer de chez soi. C'est fait. Le coin des joueurs est devenu votre poste à vous, ouvert de partout, et chaque geste que vous y faites arrive directement chez le MJ, là où il prépare la suite.</p>
+      <p>Ce guide fait le tour de ce qui a changé. Le téléphone et la tablette sont permis, aussi pendant la partie autour de la table.</p>
+
+      <nav class="sommaire" aria-label="Sommaire du guide">
+        <h2>Sommaire</h2>
+        <ol>
+          <li><a href="#connexion"><span>Se connecter</span><span class="points" aria-hidden="true"></span></a></li>
+          <li><a href="#onglets"><span>Les cinq onglets</span><span class="points" aria-hidden="true"></span></a></li>
+          <li><a href="#validation"><span>Ce que le MJ valide</span><span class="points" aria-hidden="true"></span></a></li>
+          <li><a href="#carnet"><span>Le carnet</span><span class="points" aria-hidden="true"></span></a></li>
+          <li><a href="#boutiques"><span>Les boutiques</span><span class="points" aria-hidden="true"></span></a></li>
+          <li><a href="#bible"><span>La bible</span><span class="points" aria-hidden="true"></span></a></li>
+          <li><a href="#table"><span>La table</span><span class="points" aria-hidden="true"></span></a></li>
+          <li><a href="#heros"><span>Votre héros</span><span class="points" aria-hidden="true"></span></a></li>
+          <li><a href="#partie"><span>Pendant la partie</span><span class="points" aria-hidden="true"></span></a></li>
+          <li><a href="#bon-a-savoir"><span>Bon à savoir</span><span class="points" aria-hidden="true"></span></a></li>
+        </ol>
+      </nav>
+
+      <section id="connexion" class="partie-guide">
+        <h2>Se connecter</h2>
+        <p>Les liens personnels ne servent plus. On entre maintenant avec un identifiant et un mot de passe, depuis n'importe quel appareil.</p>
+        <ol class="etapes">
+          <li>Le MJ vous donne votre <strong>identifiant</strong> et un <strong>mot de passe provisoire</strong> : trois mots et deux chiffres. Il se dicte sans souci, les majuscules, les accents et les tirets n'y comptent pas.</li>
+          <li>Sur la page <span class="libelle">« Se connecter »</span>, entrez l'identifiant et ce provisoire. Il ne sert qu'une fois, et vaut 7 jours.</li>
+          <li>Vous arrivez sur <span class="libelle">« Choisir mon mot de passe »</span>. Au moins 8 caractères, différent de votre identifiant. Une courte phrase se retient mieux qu'un mot compliqué.</li>
+          <li>C'est tout. L'appareil reste connecté six mois.</li>
+        </ol>
+        <h3>Changer ou retrouver son mot de passe</h3>
+        <ul class="liste-guide">
+          <li>Pour en changer : le lien <span class="libelle">« Changer mon mot de passe »</span>, en bas des pages Carnet et Héros. Vos autres appareils sont alors déconnectés.</li>
+          <li>Oublié ? Demandez un nouveau provisoire au MJ. Tous vos appareils sont déconnectés et l'ancien mot de passe ne vaut plus.</li>
+          <li>Après trop d'essais manqués, la porte se ferme un quart d'heure. Patientez, puis réessayez.</li>
+        </ul>
+      </section>
+
+      <section id="onglets" class="partie-guide">
+        <h2>Les cinq onglets</h2>
+        <p>Sur un téléphone, ils prennent leur nom court et une icône.</p>
+        <div class="onglets-guide">
+          <div><b>Carnet</b><span>L'accueil : le dernier « Précédemment », votre héros et son sac, vos billets, un mot au MJ.</span></div>
+          <div><b>Échoppe</b><span>Les boutiques ouvertes entre les séances.</span></div>
+          <div><b>Menu</b><span>Le reste du carnet (personnages, lieux, contrats et rumeurs, documents, compagnie, règles, sanctuaire, activités, séances d'avant), la bible et ce guide.</span></div>
+          <div><b>Table</b><span>Tout ce que montre la TV, votre pion, et les jets de la tablée.</span></div>
+          <div><b>Héros</b><span>Votre portrait, et l'accès à votre histoire.</span></div>
+        </div>
+        <p class="note">Le MJ ouvre et ferme certaines parties selon le moment : la table pendant la partie, le carnet et les boutiques entre les séances, les activités quand il en propose. Une page fermée le dit simplement.</p>
+      </section>
+
+      <section id="validation" class="partie-guide">
+        <h2>Ce qui part tout de suite, ce que le MJ valide</h2>
+        <p>Tout ce que vous faites dans le coin devient une demande. Certaines s'appliquent aussitôt, d'autres attendent l'accord du MJ. Dans les deux cas, vous suivez leur sort dans <span class="libelle">« Mes demandes »</span>, en bas du carnet.</p>
+        <div class="deux-colonnes">
+          <div>
+            <span class="cachet-guide vite">Tout de suite</span>
+            <ul>
+              <li>Ajouter, renommer ou retirer une ligne de votre sac</li>
+              <li>Donner un objet à un compagnon</li>
+              <li>Prendre un de vos portraits</li>
+              <li>Lancer un test, ou des dés</li>
+              <li>Le dé d'une activité de la semaine</li>
+              <li>Bouger votre pion, si le MJ a laissé les pions libres</li>
+              <li>Lever la main</li>
+              <li>Ce que vous confiez au MJ seul</li>
+            </ul>
+          </div>
+          <div>
+            <span class="cachet-guide mj">Le MJ valide</span>
+            <ul>
+              <li>Donner de l'or à un compagnon</li>
+              <li>Une commande à l'échoppe</li>
+              <li>Verser de l'or au sanctuaire, proposer un projet</li>
+              <li>L'or gagné pendant une activité</li>
+              <li>Votre histoire, passage par passage</li>
+              <li>Votre propre image comme portrait</li>
+              <li>Bouger votre pion, si les pions sont « à valider »</li>
+            </ul>
+          </div>
+        </div>
+        <p>Tant que le MJ n'a pas répondu, <span class="libelle">« Retirer »</span> reprend votre demande. Ce qui part tout de suite, le MJ peut l'annuler après coup s'il le faut.</p>
+      </section>
+
+      <section id="carnet" class="partie-guide">
+        <h2>Le carnet</h2>
+        <p>La mémoire de la compagnie. Son accueil ne garde que l'essentiel : le dernier <span class="libelle">« Précédemment »</span>, votre héros, vos billets et un mot au MJ. Le reste est rangé dans des pages : touchez <span class="libelle">« Menu »</span>, ou l'une des tuiles <span class="libelle">« Dans le carnet »</span>, pour les personnages, les lieux, les contrats et rumeurs, les documents, la compagnie, les règles de la table, le sanctuaire, les activités et les séances d'avant. Sur les pages longues, le champ <span class="libelle">« Chercher dans cette page »</span> retrouve un nom, un métier ou un lieu.</p>
+        <h3>Votre héros et son sac</h3>
+        <p>Dans <span class="libelle">« Mon héros »</span>, votre fiche telle que le MJ la tient : la Santé, la Psy, la défense et la posture se lisent tout de suite. Les compétences, les armes, les dons, <span class="libelle">« Le sac »</span>, l'histoire et les conseils se déplient d'un toucher sur leur titre ; ce que vous avez ouvert reste ouvert pendant votre visite.</p>
+        <ul class="liste-guide">
+          <li>Pour ajouter : <span class="libelle">« Ajouter à l'équipement… »</span> ou <span class="libelle">« Un objet personnel… »</span> (trois au plus), puis <span class="libelle">« Ajouter »</span>.</li>
+          <li>Plusieurs fois le même objet : chaque ligne d'équipement porte sa quantité, entre <span class="libelle">« − »</span> et <span class="libelle">« + »</span>. Un toucher en ajoute ou en retire un ; au dernier, la page vous demande avant de retirer la ligne. Ajouter un objet que vous avez déjà augmente sa quantité au lieu d'ouvrir une ligne, et vous pouvez écrire « Flèches x12 » d'un coup. Les trois objets personnels ne se comptent pas.</li>
+          <li>Touchez une ligne pour <span class="libelle">« Renommer »</span>, <span class="libelle">« Donner à… »</span> un compagnon, ou <span class="libelle">« Retirer »</span>. Si vous en avez plusieurs, choisissez <span class="libelle">« En donner 1 »</span> ou <span class="libelle">« Tout donner »</span>.</li>
+          <li><span class="libelle">« Donner de l'or »</span> : à qui, combien, puis <span class="libelle">« Proposer au MJ »</span>. Cet or est « engagé » jusqu'à sa réponse : vous ne pouvez plus le dépenser ailleurs.</li>
+        </ul>
+        <h3>Le sanctuaire</h3>
+        <p>Quand le MJ l'a rendu visible : les chantiers en cours, ce que le refuge offre, et qui a versé quoi. <span class="libelle">« Verser de l'or »</span> et <span class="libelle">« Proposer ce projet »</span> partent au MJ, qui tranche.</p>
+        <h3>Entre les séances</h3>
+        <p>Quand le MJ propose des activités : votre héros peut toutes les faire, chacune une fois par période. Chaque activité affiche vos chances de réussite. Décrivez en quelques mots comment votre héros s'y prend, puis <span class="libelle">« Lancer le dé »</span>. Le dé tombe aussitôt et le récit s'affiche. L'or gagné, ou perdu, attend l'accord du MJ.</p>
+        <h3>Un mot au MJ</h3>
+        <p>Quelques lignes, envoyées directement (800 signes au plus). Vous voyez quand il les a lues, et sa réponse s'affiche dessous. Cela marche même carnet fermé.</p>
+        <h3>Mes billets</h3>
+        <p>Le MJ peut vous glisser un billet ou un document, à vous seul. Un avis apparaît en haut : <span class="libelle">« Lire »</span> ou <span class="libelle">« Plus tard »</span>. Dès que vous l'ouvrez, le MJ sait que vous l'avez lu. Vos billets restent rangés dans le carnet.</p>
+      </section>
+
+      <section id="boutiques" class="partie-guide">
+        <h2>Les boutiques</h2>
+        <p>Les boutiques que le MJ ouvre entre les séances. <span class="libelle">« Ajouter »</span> sous un objet, réglez la quantité, puis <span class="libelle">« Envoyer au MJ »</span>. Votre bourse ne change qu'au moment où le MJ vous vend la commande, et les objets arrivent alors dans votre sac.</p>
+        <ul class="liste-guide">
+          <li>Une seule commande en attente par marchand ; <span class="libelle">« Retirer ma commande »</span> tant qu'il n'a pas répondu.</li>
+          <li>Le total ne peut pas dépasser votre bourse.</li>
+        </ul>
+      </section>
+
+      <section id="bible" class="partie-guide">
+        <h2>La bible</h2>
+        <p>Le canon de la série : chapitres, synthèses et arbitrages par saison, références, fiches d'épisode. Un champ de recherche vous mène au bon passage. Lecture seule ; le MJ peut la fermer.</p>
+      </section>
+
+      <section id="table" class="partie-guide">
+        <h2>La table</h2>
+        <p>Pendant la partie, le MJ ouvre la table : le plan que montre la TV paraît sur votre écran, votre héros entouré d'un anneau doré. Un doigt déplace la vue, deux doigts zooment, un double toucher recentre sur vous. Sur la carte du monde, on navigue seulement.</p>
+        <p>Le reste de ce que montre la TV s'affiche aussi, comme à la table : une image, un document, une boutique, la tablée et ses fiches, la planche à contrats, le sanctuaire, le « Précédemment ». Le carton d'un personnage, une rumeur, les horloges et les dés d'aventure se posent par-dessus le plan, sans vous empêcher de le déplacer.</p>
+        <h3>Les jets de la tablée</h3>
+        <p>Quand un joueur lance un test ou des dés, ou quand le MJ montre les siens, les dés roulent sur votre écran et s'arrêtent sur le résultat, puis le bandeau l'annonce, comme à la TV. Si votre appareil demande de réduire les animations, le bandeau paraît seul.</p>
+        <h3>Le son</h3>
+        <p>Chaque test a son jingle. Le bouton rond au haut-parleur, en bas à gauche de la page Table, ouvre la jauge de volume, de 0 à 100 % ; à zéro, le son est coupé. Le réglage reste sur votre appareil. Un navigateur ne joue aucun son avant un premier toucher : touchez la page une fois pour l'activer.</p>
+        <h3>Bouger votre pion</h3>
+        <ol class="etapes">
+          <li>Touchez votre pion, ou <span class="libelle">« Bouger mon pion »</span>. Les cases que vous pouvez atteindre s'éclairent.</li>
+          <li>Touchez une case éclairée. Au-delà de 5 cases, ou pour une case en pointillés, le coin vous demande confirmation.</li>
+          <li>Selon le choix du MJ, le pion part aussitôt, ou un pion fantôme attend son accord (<span class="libelle">« Le MJ valide… »</span>). Si les pions sont figés, demandez-lui de vive voix.</li>
+        </ol>
+        <ul class="liste-guide">
+          <li>Les cases dorées sont sûres. Celles en pointillés sont une tentative : une porte fermée à ouvrir en chemin, ou un pas dans le noir. Votre pion attend la réponse avant de partir.</li>
+          <li>Une porte fermée s'ouvre quand votre héros la franchit, et la pièce derrière se révèle. Fermée à clé, elle l'arrête.</li>
+          <li>Dans le noir, un seul pas à la fois, depuis une case voisine. Votre héros découvre ce qui l'entoure ; un mur peut l'arrêter.</li>
+          <li>Les portes et le noir, seulement si le MJ l'a permis. Sinon, les cases déjà révélées et les portes ouvertes.</li>
+          <li>Les ennemis bloquent le passage, et ce qui l'encombre aussi : un rocher, un arbre, une clôture, une table. Vos compagnons, non. Une fenêtre ne se franchit jamais.</li>
+          <li>Dehors, l'eau profonde et la falaise arrêtent votre héros. Un pont, un ponton, une passerelle ou une barque se traversent.</li>
+          <li>En combat, seulement à votre tour. La distance se compte depuis votre case de début de tour.</li>
+        </ul>
+      </section>
+
+      <section id="heros" class="partie-guide">
+        <h2>Votre héros</h2>
+        <h3>Le portrait</h3>
+        <p><span class="libelle">« Changer de portrait »</span>, dans l'onglet Héros ou dans votre fiche du carnet :</p>
+        <ul class="liste-guide">
+          <li><span class="libelle">« Ses portraits »</span> : touchez une vignette, puis <span class="libelle">« Prendre ce portrait »</span>. C'est immédiat, la TV le montre aussi.</li>
+          <li><span class="libelle">« Ma propre image »</span> : choisissez une photo ou un dessin, cadrez-le au doigt, puis <span class="libelle">« Envoyer au MJ »</span>. Il l'accepte ou non. JPEG, PNG ou WebP, 8 Mo au plus. La position GPS et les autres informations cachées de la photo sont retirées.</li>
+        </ul>
+        <h3>Son histoire</h3>
+        <p><span class="libelle">« Étoffer mon histoire »</span> ouvre les passages de votre fiche : qui vous étiez avant, pourquoi l'aventure, votre allure, vos liens avec le groupe, vos contacts, dettes et ennemis. Tout s'enregistre seul en brouillon. Quand un passage vous plaît, <span class="libelle">« Envoyer au MJ »</span>. Il l'accepte, le retouche ou le refuse, passage par passage, et vous voyez ce qu'il a changé.</p>
+        <h3>Pour le MJ seulement</h3>
+        <p>Tout en bas de la même page, un passage à part que seul le MJ lira : ni la tablée, ni la TV, ni les autres joueurs, ni votre fiche imprimée. Un secret, une peur, une envie pour la suite, une limite à respecter. <span class="libelle">« Envoyer au MJ »</span> le dépose aussitôt sur votre fiche, sans validation. Vous le relisez quand vous voulez, vous voyez quand il l'a lu, et vous pouvez le compléter ou le remplacer : la nouvelle version prend la place de l'ancienne.</p>
+        <h3>L'aide à l'écriture</h3>
+        <p>Sous chaque passage, sauf celui pour le MJ seulement, deux boutons. <span class="libelle">« Proposer »</span> vous donne une suite, une variante ou une idée. <span class="libelle">« Relire »</span> repère les contradictions, les liens possibles avec la série et ce qu'il vaudrait mieux voir avec le MJ. <span class="libelle">« Préciser »</span> vous laisse poser votre question.</p>
+        <p>Rien n'est écrit sur votre fiche ni envoyé au MJ sans vous : vous insérez, remplacez ou ignorez. Le nombre d'aides du mois est affiché sous le titre de la page.</p>
+      </section>
+
+      <section id="partie" class="partie-guide">
+        <h2>Pendant la partie</h2>
+        <p>Deux boutons flottent en bas des pages Carnet et Table.</p>
+        <h3>Je veux agir</h3>
+        <p>Un toucher lève la main : le MJ voit votre prénom s'allumer. Il vous donne la parole (<span class="libelle">« À vous ! »</span>) ou baisse votre main. Sans réponse, elle retombe seule au bout de cinq minutes.</p>
+        <h3>Montrer un endroit au MJ</h3>
+        <p>Sur la page Table, quand la TV montre un plan ou une carte, le bouton en forme de repère passe en mode pointeur. Touchez le plan : une onde part de l'endroit, et le MJ voit un point à la couleur de votre héros, avec votre prénom, sur son propre plan. Glissez le doigt pour le promener ; il s'éteint seul quand vous le levez. Le mode prend les touchers du plan : touchez de nouveau le bouton pour déplacer la vue comme avant. Le zoom reste aux boutons « + » et « − ».</p>
+        <p>Le MJ, lui, vous montre aussi son pointeur (un point doré) et sa règle, avec la distance : ils paraissent sur votre plan en direct, sans rien à faire. Vous ne pouvez que les voir.</p>
+        <h3>Lancer un test</h3>
+        <p>Quand la table est ouverte. Choisissez la caractéristique (Physique, Social ou Mental), ajoutez un modificateur seulement si le MJ vous en donne un, choisissez la compétence qui aide, puis touchez <span class="libelle">« Lancer »</span>. Le résultat s'affiche chez vous, à la TV et chez le MJ.</p>
+        <dl class="chiffres-guide">
+          <dt>−10</dt><dd>un carton jaune sur la caractéristique</dd>
+          <dt>−30</dt><dd>un carton rouge</dd>
+          <dt>01 à 05</dt><dd>réussite critique</dd>
+          <dt>96 à 100</dt><dd>échec critique</dd>
+        </dl>
+        <p>En posture offensive, vous jouez plus gros : la réussite critique va de 01 à 10 et l'échec critique de 91 à 100. La feuille de test vous le rappelle avant de lancer.</p>
+        <p>Le bonus de la posture focus n'est jamais compté au téléphone : le MJ s'en charge à la table. Quand c'est lui qui demande un test, le bouton devient doré et la feuille s'ouvre seule.</p>
+        <h3>Des dés</h3>
+        <p>Dans la même feuille, le volet <span class="libelle">« Des dés »</span>. Les dégâts de vos armes y sont prêts : touchez l'arme, et ses dés partent aussitôt. Pour le reste, choisissez le dé, du D4 au D100, combien en jeter, un bonus si le MJ en donne un, puis <span class="libelle">« Lancer »</span>. Les dés roulent chez le MJ, jamais sur votre téléphone : le total s'affiche chez vous, à la TV et chez lui.</p>
+        <h3>Les dés d'aventure</h3>
+        <p>Quand le MJ joue avec, la feuille de test montre la réserve du groupe et la sienne, et la TV les garde dans un coin. Cochez <span class="libelle">« Ajouter un dé d'aventure »</span> avant de toucher la compétence : il roule avec le D100, puis passe chez le MJ, où il devient un dé de mésaventure. S'il n'en reste plus au groupe, le test part sans, et la feuille vous le dit. Le MJ peut aussi l'annuler : le dé revient alors au groupe.</p>
+        <dl class="chiffres-guide">
+          <dt>1-2</dt><dd>Mouvement</dd>
+          <dt>3-4</dt><dd>Posture</dd>
+          <dt>5-6</dt><dd>In extremis</dd>
+        </dl>
+        <p>L'effet s'annonce, et c'est le MJ qui dit ce qu'il change. Quand il vous impose un dé de mésaventure, la feuille vous le dit avant que vous lanciez ; il roule avec votre test suivant, puis revient au groupe. Avec un désavantage, c'est le MJ qui choisit l'effet.</p>
+        <h3>Votre avantage</h3>
+        <p>Quand votre héros porte un jeton d'avantage, la page Table l'affiche à côté de son nom. Il sert une fois, de deux façons, en combat comme hors combat.</p>
+        <dl class="chiffres-guide">
+          <dt>+10</dt><dd>cochez <span class="libelle">« Utiliser mon avantage »</span> avant de lancer un test</dd>
+          <dt>ou</dt><dd>une fois le dé d'aventure (ou de mésaventure) lancé, changez son effet sous le résultat</dd>
+        </dl>
+        <p>Dans les deux cas, le jeton est dépensé. L'effet d'un dé ne se choisit jamais avant le lancer.</p>
+        <h3>Mon héros : Santé, Psy et posture</h3>
+        <p>En haut de la page Table, quand la table est ouverte. Les boutons <span class="libelle">« − »</span> et <span class="libelle">« + »</span> règlent votre Santé et votre Psy : touchez autant de fois qu'il y a de points, tout part en une fois. Choisissez aussi votre posture, offensive, défensive ou focus. C'est appliqué tout de suite, pendant un combat comme en dehors ; le MJ le voit et peut corriger.</p>
+        <p>La Santé ne remonte pas au-dessus de son maximum, ni au-delà de ce que vous avez payé faute de Psy pour un don : ces points-là ne reviennent qu'après un repos complet.</p>
+      </section>
+
+      <section id="bon-a-savoir" class="partie-guide">
+        <h2>Bon à savoir</h2>
+        <ul class="liste-guide">
+          <li><strong>Carnet fermé</strong> : le sac, les boutiques, le sanctuaire, les activités et votre histoire attendent sa réouverture. Un mot au MJ, les billets, le portrait et la main levée restent disponibles.</li>
+          <li><strong>Coin en pause</strong> : tout se lit, rien ne s'écrit. Un texte en cours n'est gardé que tant que la page reste ouverte.</li>
+          <li><strong>Photos d'iPhone</strong> : le format HEIC est refusé. Choisissez la photo dans la photothèque, ou réglez Appareil photo, Formats, sur « Le plus compatible ».</li>
+          <li><strong>Trois pages ouvertes au plus</strong> par joueur pour recevoir les réponses en direct. Au-delà, fermez-en une.</li>
+          <li><strong>Le MJ voit qui est en ligne</strong>, c'est-à-dire qui a une page du coin ouverte.</li>
+          <li>Avant que le MJ accueille votre héros, l'onglet Héros montre le créateur. Après, la fiche vit chez le MJ : une retouche se demande à lui.</li>
+        </ul>
+      </section>
+
+      <p class="signature">Bonne route, et à la prochaine table.</p>
+    </article>
+  </main>
+  <footer class="pied-coin"><a href="/">Retour au coin</a></footer>
+  <script type="module" src="/static/js/joueurs/menu-coin.js"></script>
+</body>
+</html>

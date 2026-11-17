@@ -1,0 +1,6 @@
+# L'atelier : tout ce que le coin des joueurs demande (requirements-joueurs.txt), plus l'envoi de fichiers, les appels au
+# modèle de langue et l'API du fournisseur.
+-r requirements-joueurs.txt
+python-multipart==0.0.32
+httpx==0.28.1
+anthropic==1.11.0

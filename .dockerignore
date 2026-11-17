@@ -1,0 +1,10 @@
+data/
+.git/
+.env
+secrets/
+**/__pycache__/
+.pytest_cache/
+tests/
+outils/
+app/static/essai.html
+app/static/tv/

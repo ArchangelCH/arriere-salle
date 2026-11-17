@@ -1,0 +1,12 @@
+/* La question posée avant d'envoyer le carton d'un PNJ qui nomme un inconnu (js/pnj/carton-pnj.js), au style des avis de
+   Séances. */
+.dialogue-carton { width: min(520px, calc(100vw - 32px)); border-left: 3px solid var(--sang-vif); }
+.dialogue-carton > form > p { margin: 0 0 12px; color: var(--texte-doux); }
+.noms-inconnus { list-style: none; display: grid; gap: 8px; margin: 0 0 14px; padding: 0; }
+.noms-inconnus li { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 17px; line-height: 1.3; }
+.noms-inconnus li b { font-weight: 600; color: var(--parchemin); }
+.noms-inconnus li i { color: var(--texte-pale); }
+.noms-inconnus li button { flex: none; min-height: 0; padding: 4px 10px; font-size: 11px; }
+.noms-inconnus .fait, .noms-inconnus .carnet { flex: none; font: 600 11px/1 var(--titre); letter-spacing: .12em; text-transform: uppercase; }
+.noms-inconnus .fait { color: var(--bronze-clair); }
+.noms-inconnus .carnet { color: var(--texte-pale); cursor: help; }

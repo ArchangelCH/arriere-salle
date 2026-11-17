@@ -1,0 +1,18 @@
+{
+  "checkpoint": "DreamShaperXL_Lightning.safetensors",
+  "vae": null,
+  "lora": null,
+  "pas": 6,
+  "cfg": 2.0,
+  "cfg_portrait": 3.5,
+  "apg_portrait": {"eta": 0.0, "norm_threshold": 5.0, "momentum": 0.0},
+  "sampler": "dpmpp_sde",
+  "scheduler": "karras",
+  "decodage": "simple",
+  "prefixe": "painterly heroic fantasy illustration, detailed environment concept art, rich warm colors, dramatic cinematic lighting, medieval fantasy world",
+  "suffixe": "highly detailed, atmospheric depth, masterful composition",
+  "negatif": "text, letters, writing, watermark, signature, artist name, logo, frame, border, blurry, lowres, jpeg artifacts, deformed, disfigured, extra limbs, modern buildings, cars, photograph, 3d render",
+  "prefixe_portrait": "fantasy character illustration, digital oil painting, visible brushstrokes, painterly concept art, medieval fantasy world, characterful unidealized face",
+  "suffixe_portrait": "highly detailed, painterly background",
+  "negatif_portrait": "text, letters, writing, watermark, signature, artist name, logo, frame, border, blurry, lowres, jpeg artifacts, deformed, disfigured, extra limbs, modern buildings, cars, photograph, 3d render, multiple people, crowd, deformed hands, extra fingers, cropped head, cross-eyed, photorealistic, glamour shot, supermodel, airbrushed skin"
+}

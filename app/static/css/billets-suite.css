@@ -1,0 +1,93 @@
+/* Séances : les billets secrets (Préparer, Jouer) et la séance préparée à la clôture de la précédente (les marques
+   « proposé », le bandeau en tête de Préparer, « Préparer la suivante » dans Clore). */
+
+/* Préparer : un billet par carte, comme une scène du déroulé. */
+.billets-seance { margin-top: 6px; }
+.billets-seance h2 .compte, .billets-jeu h2 .compte { margin-left: 6px; font: italic 400 14px/1 var(--corps); letter-spacing: 0; text-transform: none; color: var(--texte-pale); }
+.billets-seance > .aide { margin: -4px 0 10px; font-size: 14.5px; }
+.billets { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 8px; }
+.billet { display: grid; gap: 6px; padding: 9px 10px 8px; border: 1px solid var(--filet); border-left: 3px solid var(--bronze); border-radius: var(--rayon); background: rgba(0, 0, 0, .14); }
+.billet.remis { opacity: .62; }
+.billet input[type="text"], .billet textarea, .billet select {
+  width: 100%; padding: 6px 8px; border: 1px solid var(--filet); border-radius: var(--rayon); background: #120d0a; font-size: 15px; line-height: 1.3;
+}
+.billet input[type="text"] { font: 600 13px/1.3 var(--titre); letter-spacing: .06em; }
+.billet input[type="text"]::placeholder { font: italic 400 15px/1.3 var(--corps); letter-spacing: 0; }
+.billet textarea { display: block; resize: none; min-height: 0; font-style: italic; color: var(--parchemin); }
+.billet .aide { margin: 0; font-size: 14px; color: #f2b3a8; }
+
+/* Pour qui : les héros de la tablée en pastilles à cocher, avec le prénom du joueur. */
+.pour-billet { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.pour-billet .libelle { margin-right: 2px; font: 600 10px/1 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--texte-pale); }
+.destinataire { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px 3px 8px; border: 1px solid var(--filet); border-radius: 999px; font-size: 15px; line-height: 1.3; color: var(--texte-doux); cursor: pointer; }
+.destinataire input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+.destinataire .pastille { margin: 0; opacity: .35; }
+.destinataire i { font-size: 13.5px; color: var(--texte-pale); }
+.destinataire:hover { border-color: var(--bronze); }
+.destinataire:has(input:checked) { border-color: var(--bronze-clair); background: var(--bois-3); color: var(--parchemin); box-shadow: inset 0 -2px 0 var(--bronze-clair); }
+.destinataire:has(input:checked) .pastille { opacity: 1; }
+.destinataire:has(input:checked) i { color: var(--texte-doux); }
+.destinataire:has(input:focus-visible) { outline: 2px solid var(--bronze-clair); outline-offset: 2px; }
+
+.pied-billet { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.scene-billet { display: flex; flex: 1 1 240px; align-items: center; gap: 8px; min-width: 0; font: 600 10px/1 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--texte-pale); }
+.scene-billet select { flex: 1; min-width: 0; padding: 5px 8px; font: 400 14.5px/1.3 var(--corps); letter-spacing: 0; text-transform: none; color: var(--texte-doux); }
+.pied-billet .fait { font: 600 10px/1 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--bronze-clair); }
+.pied-billet .lien-danger { margin-left: auto; }
+
+/* Jouer : sous la scène en cours, ses billets, discrets, à cocher une fois remis. */
+.deroule-jeu .billets-scene { list-style: none; margin: 6px 0 0 86px; padding: 0; display: grid; }
+.deroule-jeu .billets-scene li { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 5px 0; border: 0; border-top: 1px dashed var(--filet-fort); border-radius: 0; }
+.billets-scene .case, .billets-jeu .case { min-width: 0; margin: 0; font-size: 15.5px; }
+.billets-scene b, .billets-jeu b { font-weight: 600; color: var(--bronze-clair); }
+.billets-scene i, .billets-jeu i { color: var(--texte-doux); }
+.billets-scene small, .billets-jeu small { display: block; font-size: 14px; font-style: italic; color: var(--texte-pale); }
+.billets-scene .etat, .billets-jeu .etat { flex: none; font: 600 10px/1 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--texte-pale); }
+.billets-scene li.remis, .billets-jeu li.remis { opacity: .55; }
+.billets-scene li.remis b, .billets-jeu li.remis b { color: var(--texte-doux); text-decoration: line-through; text-decoration-color: var(--filet-fort); }
+.billets-jeu ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.billets-jeu li { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--filet); }
+
+/* La séance préparée à la clôture de la précédente : le bandeau, la date à confirmer. */
+.suite-preparee { margin: 0 0 22px; padding: 14px 18px 12px; border: 1px dashed var(--filet-fort); border-left: 3px solid var(--bronze-clair); border-radius: var(--rayon); background: var(--bois); }
+.suite-preparee .kicker { color: var(--bronze-clair); }
+.suite-preparee p:not(.kicker) { margin: 0 0 8px; font-size: 16px; color: var(--texte-doux); }
+.suite-preparee .aide { font-size: 15px; }
+.date-proposee { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.date-proposee > span { font: 600 11px/1.4 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--texte-doux); }
+.date-proposee button { min-height: 0; padding: 4px 10px; font-size: 11px; }
+.suite-preparee .actions { align-items: flex-start; margin: 4px 0 0; }
+.regles-suite { flex: 1 1 280px; }
+.regles-suite summary { cursor: pointer; padding: 7px 0; font: 600 11px/1.3 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--bronze); }
+.regles-suite ul { margin: 4px 0 4px; padding-left: 18px; font-size: 15px; line-height: 1.4; color: var(--texte-doux); }
+
+/* Une scène proposée : en pointillé, sa raison en tête, et Garder ou Retirer. */
+.scene.proposee { border-style: dashed; border-color: var(--filet-fort); background: rgba(224, 181, 98, .04); }
+.marque-proposee { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0 0 6px; font-size: 15px; }
+.etiquette { font: 700 10px/1 var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--bronze-clair); }
+.marque-proposee i, .proposes li i { color: var(--texte-pale); }
+.marque-proposee .boutons, .proposes .boutons { display: inline-flex; align-items: baseline; gap: 10px; margin-left: auto; }
+.marque-proposee button:not(.lien-danger), .proposes button:not(.lien-danger) { min-height: 0; padding: 3px 9px; font-size: 11px; }
+
+/* Sous la main : les lignes proposées, sous les puces de ce qui est gardé. */
+.proposes { margin: 0 0 8px; padding: 6px 10px 4px; border: 1px dashed var(--filet-fort); border-radius: var(--rayon); }
+.tete-proposes { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 2px; }
+.proposes ul { list-style: none; margin: 0; padding: 0; display: grid; }
+.proposes li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 4px 0; border-top: 1px solid var(--filet); font-size: 15px; line-height: 1.3; }
+.proposes li a { min-width: 0; color: var(--texte); text-decoration: none; }
+.proposes li a:hover { color: var(--parchemin); text-decoration: underline; text-decoration-color: var(--bronze); }
+.proposes li i { font-size: 14px; }
+
+/* Clore : « Préparer la suivante », sous « Pour le carnet des joueurs ». */
+.suite-clore { margin-top: 18px; padding-top: 4px; border-top: 1px solid var(--filet); }
+.suite-clore .aide { font-size: 15px; }
+
+@media (pointer: coarse) {
+  .destinataire { min-height: 44px; padding: 6px 14px 6px 10px; }
+  .marque-proposee button:not(.lien-danger), .proposes button:not(.lien-danger), .date-proposee button { min-height: 44px; padding: 8px 14px; }
+  .marque-proposee .lien-danger, .proposes .lien-danger, .billet .lien-danger { min-height: 44px; padding: 8px 6px; }
+  .billets-scene .case, .billets-jeu .case { min-height: 44px; align-items: center; }
+}
+@media (max-width: 1250px) {
+  .deroule-jeu .billets-scene { margin-left: 0; }
+}

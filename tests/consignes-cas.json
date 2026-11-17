@@ -1,0 +1,63 @@
+{
+  "cas": [
+    {
+      "nom": "carte blanche seule sur sa ligne",
+      "chapitres": ["Intro.\n\n[[carte blanche : la scène de l'auberge, pluie]]\n\nSuite."],
+      "attendu": [{"genre": "rediger", "indications": "la scène de l'auberge, pluie", "cle": "rediger|la scène de l'auberge, pluie", "rang": 1, "bloc": true, "numero": 1}]
+    },
+    {
+      "nom": "pistes dans une phrase",
+      "chapitres": ["Ils arrivent à [[pistes : un nom de village]] au soir."],
+      "attendu": [{"genre": "pistes", "indications": "un nom de village", "cle": "pistes|un nom de village", "rang": 1, "bloc": false, "numero": 1}]
+    },
+    {
+      "nom": "majuscule, accent et espace insécable",
+      "chapitres": ["[[Vérifier : Toma est-il Paladin ?]]"],
+      "attendu": [{"genre": "verifier", "indications": "Toma est-il Paladin ?", "cle": "verifier|Toma est-il Paladin ?", "rang": 1, "bloc": true, "numero": 1}]
+    },
+    {
+      "nom": "sans genre",
+      "chapitres": ["[[une consigne sans genre]]"],
+      "attendu": [{"genre": "rediger", "indications": "une consigne sans genre", "cle": "rediger|une consigne sans genre", "rang": 1, "bloc": true, "numero": 1}]
+    },
+    {
+      "nom": "un mot inconnu avant les deux-points reste dans l'indication",
+      "chapitres": ["[[Note : ceci n'est pas un genre]]"],
+      "attendu": [{"genre": "rediger", "indications": "Note : ceci n'est pas un genre", "cle": "rediger|Note : ceci n'est pas un genre", "rang": 1, "bloc": true, "numero": 1}]
+    },
+    {
+      "nom": "sur plusieurs lignes",
+      "chapitres": ["Avant.\n[[pnj : le chasseur,\n  froid, la cinquantaine]]\nAprès."],
+      "attendu": [{"genre": "pnj", "indications": "le chasseur,\n  froid, la cinquantaine", "cle": "pnj|le chasseur, froid, la cinquantaine", "rang": 1, "bloc": true, "numero": 1}]
+    },
+    {
+      "nom": "deux consignes identiques prennent deux rangs",
+      "chapitres": ["[[pistes : un nom]] et [[pistes :  un   nom ]]"],
+      "attendu": [
+        {"genre": "pistes", "indications": "un nom", "cle": "pistes|un nom", "rang": 1, "bloc": false, "numero": 1},
+        {"genre": "pistes", "indications": "un   nom", "cle": "pistes|un nom", "rang": 2, "bloc": false, "numero": 1}
+      ]
+    },
+    {
+      "nom": "indication vide, genre avec espaces",
+      "chapitres": ["[[combat :]]\n[[ Carte  blanche : x ]]"],
+      "attendu": [
+        {"genre": "combat", "indications": "", "cle": "combat|", "rang": 1, "bloc": true, "numero": 1},
+        {"genre": "rediger", "indications": "x", "cle": "rediger|x", "rang": 1, "bloc": true, "numero": 1}
+      ]
+    },
+    {
+      "nom": "alias et rang d'un chapitre à l'autre",
+      "chapitres": ["texte [[rencontre : trois loups]]\nsuite", "Plus loin.\n\n[[combat : trois loups]]"],
+      "attendu": [
+        {"genre": "combat", "indications": "trois loups", "cle": "combat|trois loups", "rang": 1, "bloc": false, "numero": 1},
+        {"genre": "combat", "indications": "trois loups", "cle": "combat|trois loups", "rang": 2, "bloc": true, "numero": 2}
+      ]
+    },
+    {
+      "nom": "crochets simples et lien ignorés",
+      "chapitres": ["Un [lien](#/pnj/mirele) et [x] ne sont pas des consignes."],
+      "attendu": []
+    }
+  ]
+}

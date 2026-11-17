@@ -1,0 +1,20 @@
+/* « Confié au MJ » (js/aventuriers/confie-mj.js) : dans la page « Pour le MJ » de la fiche d'un aventurier, ce que son
+   joueur a écrit pour le MJ seul. Une lettre ouverte sur la table du MJ : le texte du joueur à l'encre claire, cerné de la
+   cire qui le scellait ; « nouveau » à la couleur du sang tant qu'il n'est pas lu, sur la page comme dans le rail. */
+
+.confie-au-mj { margin: 0 0 20px; padding: 14px 18px 12px; border: 1px solid var(--filet-fort); border-left: 4px solid var(--sang);
+  border-radius: var(--rayon); background: rgba(142, 27, 23, .08); }
+.confie-au-mj h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 4px; font: 700 13px/1.3 var(--titre);
+  letter-spacing: .2em; text-transform: uppercase; color: var(--bronze-clair); }
+.confie-au-mj .quand-confie { margin: 0 0 10px; font-size: 15px; font-style: italic; color: var(--texte-doux); }
+.confie-au-mj .texte-confie { padding: 8px 0 4px 14px; border-left: 2px solid rgba(214, 180, 118, .3); color: var(--parchemin);
+  font: 400 18px/1.5 var(--corps); }
+.confie-au-mj .texte-confie p { margin: 0 0 8px; overflow-wrap: anywhere; }
+.confie-au-mj .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 10px 0 0; }
+.confie-au-mj .actions .aide { flex: 1 1 220px; margin: 0; }
+.confie-au-mj > .aide:last-child { margin-bottom: 0; }
+
+/* « nouveau » : sur le titre de la section, et dans le rail de l'éditeur, visible même quand le rail se resserre. */
+.nouveau-confie { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 9px; background: var(--sang-vif);
+  color: #fbeee0; font: 700 10px/1.3 var(--titre); letter-spacing: .12em; text-transform: uppercase; }
+.rail .nouveau-confie { margin-left: 8px; }

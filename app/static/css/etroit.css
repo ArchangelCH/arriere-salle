@@ -1,0 +1,95 @@
+/* Les pages à l'étroit : l'iPad Tableau ouvert (la page tombe à 1 016 px), l'iPad en portrait, l'iPhone déplié. Le nom
+   d'un héros passe au-dessus de ses jauges dès que sa ligne manque de place, la colonne des séances se replie quand le
+   Tableau pousse la page, et la barre des éditeurs passe sur deux lignes au lieu de couper ses boutons. */
+
+/* ---- Le nom du héros au-dessus de sa Santé (La compagnie, le combat) ---- */
+.cp-liste, .bloc-combat { container-type: inline-size; }
+@container (max-width: 560px) {
+  .ligne-heros { grid-template-columns: minmax(0, 1fr) 58px 96px 58px; }
+  .ligne-heros .qui { grid-column: 1 / -1; }
+  .ligne-heros .qui b { max-width: none; }
+  .ligne-heros .psy-combat { grid-column: auto; }
+  /* Pendant un combat : la Santé, la Psy, puis « Suivre dans le combat » au bout de la ligne. */
+  .cp-heros.au-combat { grid-template-columns: auto auto minmax(0, 1fr); }
+  .cp-heros .cp-suivre { grid-column: auto; justify-self: end; }
+}
+
+/* ---- Tableau ouvert sous 1 400 px : la page cède 360 px au Tableau ---- */
+@media (min-width: 1100px) and (max-width: 1400px) {
+  /* La colonne des séances se replie en un rail : « La campagne » sur la tranche, puis les numéros des séances. Le nom
+     de chacune reste lu par les lecteurs d'écran. */
+  body.tableau-ouvert .seances { grid-template-columns: 64px minmax(0, 1fr); }
+  body.tableau-ouvert .liste-seances header { display: none; }
+  body.tableau-ouvert .liste-seances nav { padding: 10px 6px; }
+  body.tableau-ouvert .liste-seances a { justify-content: center; min-height: 48px; padding: 6px 0; }
+  body.tableau-ouvert .liste-seances .texte, body.tableau-ouvert .liste-seances .lien-campagne .meta {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  body.tableau-ouvert .liste-seances .lien-campagne { align-items: center; margin-bottom: 10px; padding: 12px 0; }
+  body.tableau-ouvert .liste-seances .lien-campagne .nom {
+    writing-mode: vertical-rl; transform: rotate(180deg); font: 700 11px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--bronze);
+  }
+  body.tableau-ouvert .liste-seances .lien-campagne[aria-current="true"] .nom { color: var(--parchemin); }
+  body.tableau-ouvert .seances-corps { padding-left: 26px; padding-right: 26px; }
+  /* La tête de la séance : ses boutons passent sous le titre plutôt que d'écraser le choix du scénario. */
+  body.tableau-ouvert .tete-seance .titre { min-width: 540px; }
+  /* La fiche d'un PNJ : la liste se resserre, le nom garde toute sa ligne (la région des noms passe dessous). */
+  body.tableau-ouvert .carnet { grid-template-columns: 260px minmax(0, 1fr); }
+  body.tableau-ouvert .carnet-fiche { padding-left: 24px; padding-right: 24px; }
+  body.tableau-ouvert .ligne-nom { flex-wrap: wrap; }
+  body.tableau-ouvert .ligne-nom .nom { flex-basis: 100%; }
+}
+
+/* ---- La barre des éditeurs de carte et de plan, à l'étroit : deux lignes. En haut, le nom de la carte ou du plan et
+   ce qui touche la TV (Montrer, Suivre, Accueil) ; dessous, le rendu, la vue, Annuler, Rétablir et Exporter. Sous
+   1 100 px, au doigt jusqu'à 1 200 px (ses boutons de 44 px prennent plus de place), et Tableau ouvert. Au téléphone,
+   la TV passe sur sa propre ligne, sous le nom, avant les outils. ---- */
+@media (min-width: 821px) and (max-width: 1100px), (pointer: coarse) and (min-width: 821px) and (max-width: 1200px) {
+  .editeur { grid-template-rows: auto minmax(0, 1fr); }
+}
+@media (max-width: 1100px), (pointer: coarse) and (max-width: 1200px) {
+  .barre-carte { flex-wrap: wrap; row-gap: 6px; padding-top: 6px; padding-bottom: 6px; }
+  .barre-carte::after { content: ""; order: 1; flex-basis: 100%; height: 0; }
+  .barre-carte > .segments, .barre-carte > .icone-seule, .barre-carte > .menu-exporter { order: 2; }
+  .barre-carte .nom-carte { max-width: none; }
+  .barre-carte .espace { display: none; }
+  .barre-carte .table-ctrl { margin-left: auto; }
+}
+@media (min-width: 1100px) {
+  body.tableau-ouvert .barre-carte::after { content: ""; order: 1; flex-basis: 100%; height: 0; }
+  body.tableau-ouvert .barre-carte > .segments, body.tableau-ouvert .barre-carte > .icone-seule, body.tableau-ouvert .barre-carte > .menu-exporter { order: 2; }
+  body.tableau-ouvert .barre-carte .nom-carte { max-width: none; }
+  body.tableau-ouvert .barre-carte .espace { display: none; }
+  body.tableau-ouvert .barre-carte .table-ctrl { margin-left: auto; }
+}
+
+/* La colonne des outils des éditeurs défile quand l'écran est bas (l'iPhone déplié, 626 px) : aucun outil hors
+   d'atteinte, le Feu, le Texte ou le Pointeur compris. */
+.editeur .outils { min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.editeur .outils::-webkit-scrollbar { display: none; }
+
+/* Le téléphone (moins de 641 px) : l'éditeur défile avec la page. Le plan ou la carte garde une vraie hauteur, le
+   panneau de l'outil vient dessous. La barre des étapes devient une bande au pied du plan : le nom dessus (et
+   « retouchée » à gauche), puis les boutons sur une seule rangée tant qu'ils tiennent à 44 px (sept à 390 px). */
+@media (max-width: 640px) {
+  body[data-page="cartes"]:has(.editeur) { overflow: auto; }
+  /* Annuler, Rétablir et Exporter remontent sur la ligne du nom : la barre perd une rangée avant la carte. */
+  .barre-carte > .icone-seule, .barre-carte > .menu-exporter { order: 0; }
+  .barre-carte > .icone-seule[data-action="annuler"] { margin-left: auto; }
+  .barre-carte > .segments button { padding-left: 8px; padding-right: 8px; letter-spacing: .04em; }
+  .editeur { height: auto; grid-template-rows: auto minmax(340px, 64vh) auto; }
+  .editeur .panneau { max-height: none; overflow: visible; }
+  .scene .etapes-plan { left: 0; right: 0; bottom: 0; flex-wrap: wrap; justify-content: flex-end; gap: 2px 3px; max-width: none; padding: 3px 4px 4px; border-width: 1px 0 0; border-radius: 0; }
+  .etapes-plan .lbl { display: none; }
+  .etapes-plan .nom-etape { flex: 1 0 100%; max-width: none; margin: 0; padding: 0 4px; line-height: 1.35; text-align: right; }
+  .etapes-plan .modifiee { position: absolute; top: 4px; left: 8px; margin: 0; }
+  .etapes-plan:has(.modifiee) .nom-etape { padding-left: 90px; }
+  .scene .etapes-plan button { flex: 1 1 0; min-width: 44px; max-width: 60px; padding: 0; }
+}
+
+/* ---- Le nom d'un PNJ ou d'un aventurier : sur une ligne à lui quand l'écran est étroit (le champ tombait à 3 px entre
+   l'origine, le dé et « Enregistré »). ---- */
+@media (max-width: 900px) {
+  .identite .ligne-nom { flex-wrap: wrap; row-gap: 6px; }
+  .identite .ligne-nom .nom { flex: 1 0 100%; }
+}

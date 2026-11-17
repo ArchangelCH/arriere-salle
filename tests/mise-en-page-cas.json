@@ -1,0 +1,146 @@
+{
+ "empreintes": [
+  {
+   "texte": "",
+   "attendu": "0-811c9dc5"
+  },
+  {
+   "texte": "a",
+   "attendu": "1-e40c292c"
+  },
+  {
+   "texte": "Ils entrent.",
+   "attendu": "12-9007a7f7"
+  },
+  {
+   "texte": "Toma pousse la porte de l'auberge.\n\n> « Qui va là ? »\n",
+   "attendu": "57-4ce264ed"
+  },
+  {
+   "texte": "[[carte blanche : une serveuse]]\n",
+   "attendu": "33-1ed45ceb"
+  },
+  {
+   "texte": "Œuvre, cœur, naïf : l’été à Clairefonds… 12 pièces d'or",
+   "attendu": "66-513125d5"
+  },
+  {
+   "texte": "## Scène 1\r\n\tTabulation et  espace insécable",
+   "attendu": "47-957bfdfe"
+  },
+  {
+   "texte": "龍 et 🜂 hors du plan de base : 𝔄",
+   "attendu": "39-91ccf668"
+  }
+ ],
+ "passages": [
+  {
+   "nom": "rien ne change",
+   "avant": "Un.\n\nDeux.\n",
+   "apres": "Un.\n\nDeux.\n",
+   "attendu": [
+    {
+     "egal": true,
+     "texte": "Un.\n\nDeux.\n"
+    }
+   ]
+  },
+  {
+   "nom": "un paragraphe corrigé au milieu",
+   "avant": "Un.\n\nDeu.\n\nTrois.",
+   "apres": "Un.\n\nDeux.\n\nTrois.",
+   "attendu": [
+    {
+     "egal": true,
+     "texte": "Un.\n\n"
+    },
+    {
+     "avant": "Deu.\n",
+     "apres": "Deux.\n"
+    },
+    {
+     "egal": true,
+     "texte": "\nTrois."
+    }
+   ]
+  },
+  {
+   "nom": "deux paragraphes corrigés que sépare une ligne vide restent deux passages",
+   "avant": "Un.\n\nDeu.\n\nTroi.\n\nQuatre.",
+   "apres": "Un.\n\nDeux.\n\nTrois.\n\nQuatre.",
+   "attendu": [
+    {
+     "egal": true,
+     "texte": "Un.\n\n"
+    },
+    {
+     "avant": "Deu.\n",
+     "apres": "Deux.\n"
+    },
+    {
+     "egal": true,
+     "texte": "\n"
+    },
+    {
+     "avant": "Troi.\n",
+     "apres": "Trois.\n"
+    },
+    {
+     "egal": true,
+     "texte": "\nQuatre."
+    }
+   ]
+  },
+  {
+   "nom": "deux changements que sépare un paragraphe restent deux passages",
+   "avant": "Un\n\nDeux.\n\nTroi.",
+   "apres": "Un.\n\nDeux.\n\nTrois.",
+   "attendu": [
+    {
+     "avant": "Un\n",
+     "apres": "Un.\n"
+    },
+    {
+     "egal": true,
+     "texte": "\nDeux.\n\n"
+    },
+    {
+     "avant": "Troi.",
+     "apres": "Trois."
+    }
+   ]
+  },
+  {
+   "nom": "un intertitre ajouté",
+   "avant": "La taverne\nIls entrent.\n",
+   "apres": "## La taverne\n\nIls entrent.\n",
+   "attendu": [
+    {
+     "avant": "La taverne\n",
+     "apres": "## La taverne\n\n"
+    },
+    {
+     "egal": true,
+     "texte": "Ils entrent.\n"
+    }
+   ]
+  },
+  {
+   "nom": "tout change",
+   "avant": "a",
+   "apres": "b",
+   "attendu": [
+    {
+     "avant": "a",
+     "apres": "b"
+    }
+   ]
+  },
+  {
+   "nom": "texte vide",
+   "avant": "",
+   "apres": "",
+   "attendu": []
+  }
+ ]
+}

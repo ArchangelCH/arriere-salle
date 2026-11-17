@@ -1,0 +1,125 @@
+/* Affiches de la planche à contrats : partagées par l'atelier et la TV. Toutes les tailles en em, pour grandir d'un bloc.
+   La TV a un Chromium 79 : pas d'inset, et l'affiche est une grille d'une colonne, dont le gap lui est connu (celui d'une
+   flexbox ne l'est pas). */
+
+@font-face { font-family: "Grenze Gotisch"; src: url("../fonts/GrenzeGotisch-VF.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Zeyada"; src: url("../fonts/Zeyada.woff2") format("woff2"); font-display: swap; }
+
+.affiche {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  align-items: stretch;
+  gap: .55em;
+  width: 17em;
+  margin: 0;
+  padding: 2.3em 1.5em 1.5em;
+  border: 0;
+  background: none;
+  color: #2b1d12;
+  font: 400 1em/1.3 "EB Garamond", Georgia, serif;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  transform: rotate(var(--r, 0deg));
+  filter: drop-shadow(0 .45em .7em rgba(0, 0, 0, .6));
+}
+button.affiche { justify-content: flex-start; min-height: 0; cursor: pointer; }
+button.affiche:hover, button.affiche[aria-pressed="true"] { background: none; color: #2b1d12; box-shadow: none; border: 0; }
+/* Le papier : bords irréguliers, taché, un peu gondolé */
+.affiche::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 20% 85%, rgba(120, 80, 36, .22), transparent 45%),
+    radial-gradient(ellipse at 85% 10%, rgba(120, 80, 36, .16), transparent 40%),
+    #efe1c1 url("../img/parchemin.jpg") center / 260% auto;
+  box-shadow: inset 0 0 2.2em rgba(110, 72, 34, .38);
+  clip-path: polygon(0% 1.2%, 7% 0%, 16% .9%, 31% .2%, 44% 1.1%, 58% .1%, 73% .8%, 88% 0%, 100% 1%, 99.3% 14%, 100% 31%, 99.2% 52%, 100% 70%, 99.4% 86%, 100% 99%, 86% 100%, 70% 99.2%, 52% 100%, 37% 99.1%, 21% 100%, 6% 99.3%, 0% 100%, .7% 83%, 0% 64%, .8% 45%, .1% 27%, .6% 11%);
+}
+.affiche .clou {
+  position: absolute;
+  top: .7em;
+  left: calc(50% - .45em);
+  width: .9em;
+  height: .9em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #b8b3aa 0 12%, #5d5850 38%, #26231f 72%);
+  box-shadow: 0 .12em .2em rgba(0, 0, 0, .6);
+}
+.affiche .type { font: 700 .72em/1 "Cinzel", serif; letter-spacing: .3em; text-transform: uppercase; color: #8e1b17; text-align: center; }
+.affiche .titre { font: 700 1.75em/1.02 "Grenze Gotisch", "Cinzel", serif; text-align: center; color: #1f140b; }
+.affiche .texte { font-size: 1.08em; }
+.affiche .prime { font: 700 .92em/1.25 "Cinzel", serif; letter-spacing: .03em; color: #6e1511; }
+.affiche .contact { font-style: italic; color: #4a3522; }
+.affiche .mention {
+  justify-self: start;
+  margin-top: .15em;
+  font: 400 1.75em/1 "Zeyada", cursive;
+  color: #1d2450;
+  transform: rotate(-4deg);
+  transform-origin: left center;
+}
+
+/* Un avis officiel : titre en capitales décorées, sceau de cire, signature */
+.affiche.genre-avis { text-align: center; }
+.affiche.genre-avis .titre { font: 700 1.3em/1.1 "Cinzel Decorative", "Cinzel", serif; letter-spacing: .02em; }
+.affiche.genre-avis .texte { text-align: left; hyphens: manual; }
+.affiche.genre-avis .contact { text-align: right; font-size: .95em; padding-right: 4.3em; min-height: 3em; }
+.affiche .sceau {
+  position: absolute;
+  right: 1em;
+  bottom: .9em;
+  width: 2.8em;
+  height: 2.8em;
+  border-radius: 48% 52% 46% 54%;
+  background: radial-gradient(circle at 40% 35%, #c2362c, #8e1b17 55%, #5e0f0c);
+  box-shadow: 0 .1em .25em rgba(0, 0, 0, .45), inset 0 0 0 .32em rgba(255, 255, 255, .08);
+}
+.affiche .sceau::after {
+  content: "";
+  position: absolute;
+  top: .85em;
+  right: .85em;
+  bottom: .85em;
+  left: .85em;
+  transform: rotate(45deg);
+  border: .14em solid rgba(255, 214, 190, .55);
+}
+
+/* Délavée par la pluie : l'encre a coulé, le papier a jauni */
+.affiche.delave { color: rgba(58, 40, 22, .5); }
+.affiche.delave::before {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 .55em, rgba(255, 250, 235, .08) .55em .7em),
+    radial-gradient(ellipse at 62% 28%, rgba(96, 64, 30, .34), transparent 50%),
+    radial-gradient(ellipse at 18% 70%, rgba(110, 76, 38, .3), transparent 42%),
+    linear-gradient(rgba(140, 100, 50, .18), rgba(140, 100, 50, .18)),
+    #dcc79b url("../img/parchemin.jpg") center / 260% auto;
+  filter: saturate(.55) sepia(.2);
+}
+.affiche.delave .titre, .affiche.delave .prime { opacity: .6; }
+.affiche.delave .texte, .affiche.delave .contact { filter: blur(.02em); }
+
+/* Prise par les héros : un coup de tampon */
+.affiche .tampon {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  padding: .05em .45em;
+  border: .16em double rgba(142, 27, 23, .85);
+  color: rgba(142, 27, 23, .85);
+  font: 900 2.3em/1 "Cinzel", serif;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%) rotate(-16deg);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}

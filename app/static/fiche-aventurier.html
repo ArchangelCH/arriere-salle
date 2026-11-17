@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fiche d'aventurier · L'Arrière-salle</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/fiche-aventurier.css">
+</head>
+<body>
+  <div class="outils-fiche">
+    <a class="retour" href="/#/aventuriers">Retour aux aventuriers</a>
+    <button type="button" data-action="imprimer">Imprimer</button>
+    <a class="bouton-pdf" data-action="pdf" href="/fiche-aventurier.pdf" download>Télécharger le PDF</a>
+    <label><input type="checkbox" data-opt="verso" checked> Verso : histoire et carnet</label>
+    <label><input type="checkbox" data-opt="eco"> Économique, sans parchemin</label>
+    <p class="taille" aria-live="polite"></p>
+  </div>
+  <main class="feuilles" id="feuilles"><p class="chargement">Préparation de la fiche…</p></main>
+  <script type="module" src="/static/js/aventuriers/fiche.js"></script>
+</body>
+</html>

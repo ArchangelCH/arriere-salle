@@ -1,0 +1,11 @@
+/* La page « introuvable » du coin des joueurs (joueurs/introuvable.html) : les deux retours, assez hauts pour le doigt. */
+
+.retours-coin { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0 0; }
+.retours-coin .bouton {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 20px;
+  border: 1px solid rgba(224, 181, 98, .6); border-radius: 3px; background: transparent; color: #e0b562;
+  font: 700 13px/1 "Cinzel", Georgia, serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none;
+}
+.retours-coin .bouton.principal { background: #e0b562; border-color: #e0b562; color: #1a110a; }
+.retours-coin .bouton:hover { filter: brightness(1.12); }
+.retours-coin .bouton:focus-visible { outline: 2px solid #f0cb78; outline-offset: 3px; }

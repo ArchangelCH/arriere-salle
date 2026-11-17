@@ -1,0 +1,137 @@
+/* Ce que voit la TV, côté atelier : le témoin de l'en-tête (js/ecran-tv/temoin-tv.js), le bouton « Montrer à la TV » des fiches
+   (js/ecran-tv/bouton-tv.js) et la question de la TV noire. Feuille liée par js/ecran-tv/etat-tv.js. */
+
+/* Le témoin, à côté de Tableau : largeur fixe, la barre des onglets ne se range pas de nouveau à chaque envoi. */
+.temoin-tv {
+  position: relative; flex: none; display: flex; align-items: stretch; width: 236px; height: 28px;
+  border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: rgba(0, 0, 0, .18);
+}
+.temoin-tv[hidden] { display: none; }
+.temoin-cadre { flex: 1; min-width: 0; display: flex; align-items: center; padding: 1px 9px 0 10px; color: var(--texte); text-decoration: none; }
+a.temoin-cadre[href]:hover .temoin-nom { color: var(--bronze-clair); }
+/* Le mot « TV » posé sur le filet du haut, comme l'étiquette d'un petit écran. */
+.temoin-mot {
+  position: absolute; top: -7px; left: 7px; padding: 0 4px; border-radius: 2px; background: #19120d;
+  font: 700 9px/12px var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--bronze-clair); white-space: nowrap;
+}
+.temoin-nom { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: italic 400 15.5px/1.15 var(--corps); color: var(--parchemin); }
+.temoin-retirer {
+  flex: none; min-height: 0; margin: 3px 3px 3px 0; padding: 0 8px; border: 0; border-left: 1px solid var(--filet); border-radius: 0; background: transparent;
+  font: 600 10.5px/1 var(--titre); letter-spacing: .12em; color: var(--texte-doux);
+}
+.temoin-retirer:hover { border-color: var(--filet); background: rgba(224, 181, 98, .12); color: var(--parchemin); }
+.temoin-retirer[hidden] { display: none; }
+.temoin-tv[data-etat="lecture"] .temoin-nom, .temoin-tv[data-etat="accueil"] .temoin-nom { color: var(--texte-doux); }
+/* Un plan dont rien n'est révélé : les joueurs voient du noir. */
+.temoin-tv[data-etat="noire"] { border-color: rgba(179, 38, 30, .85); box-shadow: inset 3px 0 0 var(--sang-vif); }
+.temoin-tv[data-etat="noire"] .temoin-mot { background: var(--sang); color: var(--parchemin); }
+/* L'ordre du combat est à la TV : l'étiquette le dit, d'un rouge clair. */
+.temoin-tv[data-combat="oui"] .temoin-mot { color: #f2b3a8; }
+.temoin-tv[data-combat="oui"][data-etat="noire"] .temoin-mot { color: var(--parchemin); }
+/* Aucun écran branché : dit sans alarmer, en pointillé et en gris. */
+.temoin-tv[data-ecrans="aucun"] { border-style: dashed; background: transparent; }
+.temoin-tv[data-ecrans="aucun"] .temoin-mot, .temoin-tv[data-ecrans="aucun"] .temoin-nom { color: var(--texte-pale); }
+@media (max-width: 1400px) { .temoin-tv { width: 196px; } }
+@media (max-width: 1000px) { .temoin-tv { width: 160px; } .temoin-nom { font-size: 14.5px; } }
+/* Au téléphone, le mot TV et « Retirer » seulement : le nom reste dans l'infobulle et pour les lecteurs d'écran. Plié
+   (moins de 600 px), le mot seul, pour laisser sa place au menu des onglets ; la télécommande a son propre témoin. */
+@media (max-width: 760px) {
+  .temoin-tv { width: auto; }
+  .temoin-mot { position: static; padding: 0; background: none; font-size: 10.5px; }
+  .temoin-tv[data-etat="noire"] .temoin-mot { padding: 2px 4px; background: var(--sang); }
+  .temoin-nom { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+@media (max-width: 600px) {
+  .temoin-retirer { display: none; }
+  .temoin-cadre { padding: 1px 8px 0; }
+}
+
+/* Le bouton de la TV d'une fiche (bouton-tv.js) : « Montrer à la TV », puis liseré or et « À la TV ». */
+.bouton-tv { gap: 8px; white-space: nowrap; }
+.bouton-tv.montree, .bouton-tv.montree[aria-pressed="true"] {
+  background: var(--bois-3); border-color: var(--bronze-clair); color: var(--parchemin);
+  box-shadow: 0 0 0 1px rgba(224, 181, 98, .35), inset 0 0 0 1px rgba(224, 181, 98, .2);
+}
+.bouton-tv.montree:hover { background: #3d2f24; border-color: var(--bronze-clair); }
+.bouton-tv .tv-etat {
+  flex: none; padding: 3px 6px 2px; border-radius: 2px; background: var(--bronze-clair); color: var(--encre);
+  font: 700 9.5px/1 var(--titre); letter-spacing: .14em; text-transform: uppercase;
+}
+/* Dans la barre des éditeurs, sous 1250 px : « À la TV » seul (l'infobulle et le nom accessible disent « Retirer »). */
+@media (max-width: 1250px) { .barre-carte .bouton-tv.montree .tv-geste { display: none; } }
+/* Un petit bouton de liste (un habitué au comptoir) : le même état, en plus court. */
+.bouton-tv.petit .tv-etat { padding: 2px 4px 1px; font-size: 8.5px; }
+/* Le bouton TV d'une illustration (illustrations.js), sous la vignette ; « À la TV » posé sur l'image tant qu'elle y est. */
+.galerie figcaption button.montree { background: var(--bois-3); color: var(--parchemin); box-shadow: inset 0 0 0 1px var(--bronze-clair); }
+.galerie figure.tv-ici { position: relative; border-color: var(--bronze-clair); }
+.galerie figure.tv-ici::before {
+  content: "À la TV"; position: absolute; top: 6px; left: 6px; z-index: 1; padding: 3px 6px 2px; border-radius: 2px;
+  background: var(--bronze-clair); color: var(--encre); font: 700 9.5px/1 var(--titre); letter-spacing: .14em; text-transform: uppercase;
+}
+
+/* Le cadre collant : posé en tête de la fiche qui défile, il ne prend aucune place ; le bouton y tient en haut à droite
+   (la page lui garde sa place, .place-tv) et y reste quand la fiche défile. */
+.tv-colle { position: sticky; top: 0; z-index: 7; height: 0; }
+.tv-colle .bouton-tv { position: absolute; top: var(--tv-haut, 0px); right: var(--tv-droite, 0px); width: var(--tv-largeur, auto); }
+.tv-colle .bouton-tv.montree { box-shadow: 0 0 0 1px rgba(224, 181, 98, .35), 0 8px 22px rgba(0, 0, 0, .55); }
+.tv-colle .bouton-tv:not(.montree) { box-shadow: 0 8px 22px rgba(0, 0, 0, .45); }
+.place-tv { height: 34px; }
+
+/* Le carnet de PNJ : le bouton tient le haut de la colonne de droite de la tête de fiche. */
+body[data-page="pnj"] .carnet-fiche { --tv-largeur: 220px; }
+/* Une boutique : le haut du cadre de la TV, dans son filet (bordure et marge de .table-boutique). */
+.fiche-boutique { --tv-haut: 15px; --tv-droite: 15px; --tv-largeur: 208px; }
+
+/* Sans colonne à droite (fenêtre étroite, iPad), le cadre devient une petite barre en tête de la fiche, toujours collée. */
+@media (max-width: 1400px) {
+  body[data-page="pnj"] .carnet-fiche .tv-colle { height: auto; display: flex; justify-content: flex-end; margin: -12px 0 10px; }
+  body[data-page="pnj"] .carnet-fiche .tv-colle .bouton-tv { position: static; width: auto; }
+  body[data-page="pnj"] .carnet-fiche .place-tv { display: none; }
+}
+/* Étroit, la page entière défile : le cadre se colle sous l'en-tête plutôt que dessous. */
+@media (max-width: 900px) {
+  body[data-page="pnj"] .carnet-fiche .tv-colle, .fiche-boutique .tv-colle { top: var(--haut-entete); }
+}
+@media (max-width: 1100px) {
+  .fiche-boutique .tv-colle { height: auto; display: flex; justify-content: flex-end; margin: -12px 0 10px; }
+  .fiche-boutique .tv-colle .bouton-tv { position: static; width: auto; }
+  .fiche-boutique .place-tv { display: none; }
+}
+
+/* L'auberge : ce que montre la TV, en bandeau collé en haut de la colonne, au-dessus de la planche et des rumeurs. Les
+   marges négatives rejoignent les bords de .auberge-corps (marge intérieure 30 px 32 px). */
+.auberge-corps > .etat-table.bandeau-tv {
+  position: sticky; top: -30px; z-index: 6; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+  min-width: 0; margin: -30px -32px 22px; padding: 8px 32px; border: 0; border-bottom: 1px solid var(--filet-fort); border-radius: 0;
+  background: rgba(24, 18, 13, .96); box-shadow: 0 8px 18px rgba(0, 0, 0, .35);
+}
+.bandeau-tv p { flex: 1 1 320px; min-width: 0; margin: 0; color: var(--texte-doux); }
+.bandeau-tv .kicker { display: inline-block; margin: 0 6px 0 0; font: 700 10px/1 var(--titre); letter-spacing: .2em; color: var(--bronze-clair); }
+.bandeau-tv .actions { flex: none; flex-wrap: nowrap; margin: 0; }
+@media (max-width: 900px) {
+  .auberge-corps > .etat-table.bandeau-tv { top: var(--haut-entete); margin: -22px -16px 18px; padding: 8px 16px; }
+}
+
+/* La question de la TV noire (tv-noire.js) : ses trois boutons tiennent sur une ligne. */
+.dialogue-tv-noire { width: min(690px, calc(100vw - 32px)); }
+.dialogue-tv-noire .kicker { margin-bottom: 4px; }
+.dialogue-tv-noire p:not(.kicker) { margin: 0 0 10px; }
+
+/* La vue des joueurs dans les éditeurs de carte et de plan : un bandeau discret sur la scène, tant qu'elle est active. */
+.editeur:has([data-mode="joueurs"][aria-pressed="true"]) .scene::after {
+  content: "Vue des joueurs"; position: absolute; top: 12px; left: 12px; z-index: 3; pointer-events: none;
+  padding: 5px 11px 4px; border: 1px solid var(--bronze); border-radius: var(--rayon); background: rgba(20, 15, 11, .84);
+  font: 700 10.5px/1 var(--titre); letter-spacing: .18em; text-transform: uppercase; color: var(--bronze-clair);
+}
+
+/* L'onglet Table : un plan dont rien n'est révélé, et l'adresse de la TV qui passe à la ligne plutôt que de déborder. */
+.liste-simple .rien-revele { margin-left: 6px; font-size: 14px; color: #e39b8f; white-space: nowrap; }
+.table-etat .adresse code { max-width: 100%; overflow-wrap: anywhere; }
+
+/* Onglet Table : le nom de l'auberge que lisent les joueurs (js/auberge/nom-auberge.js). */
+.ligne-nom-auberge { display: flex; gap: 8px; margin: 0 0 12px; }
+.ligne-nom-auberge input { flex: 1; min-width: 0; }
+.exemples-auberge { font-style: italic; }
+
+/* « par : Léa » dans l'onglet Table, quand l'autre MJ a la main sur la TV (lot MJ-4, mj/main-tv.js). */
+.par-tv { font-style: italic; color: var(--bronze-clair); white-space: nowrap; }

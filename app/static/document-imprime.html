@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Document à imprimer · L'Arrière-salle</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/fiche.css">
+  <link rel="stylesheet" href="/static/css/documents.css">
+  <link rel="stylesheet" href="/static/css/document-imprime.css">
+  <style id="format-page">@page { size: A5 portrait; margin: 0; }</style>
+</head>
+<body class="documents-imprimes format-a5">
+  <div class="outils-fiche">
+    <a class="retour" href="/#/documents">Retour aux documents</a>
+    <span class="choix-format" role="radiogroup" aria-label="Format">
+      <label><input type="radio" name="format" value="a5" checked> A5</label>
+      <label><input type="radio" name="format" value="a4"> A4</label>
+    </span>
+    <label class="choix-fond"><input type="checkbox" name="fond" checked> Fond parchemin</label>
+    <button type="button" data-action="imprimer">Imprimer</button>
+    <p class="taille" aria-live="polite"></p>
+  </div>
+  <div class="avertissement" hidden></div>
+  <main id="feuilles"><p class="chargement">Préparation du document…</p></main>
+  <script type="module" src="/static/js/documents/imprime.js"></script>
+</body>
+</html>

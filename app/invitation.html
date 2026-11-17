@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>L'Arrière-salle</title>
+<style>
+@font-face { font-family: "Cinzel"; src: url("/static/fonts/Cinzel-VF.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: "EB Garamond"; src: url("/static/fonts/EBGaramond-VF.woff2") format("woff2"); font-weight: 400 800; font-display: swap; }
+:root {
+  --nuit: #140f0b; --bois: #1e1611; --bois-3: #33271e;
+  --filet: rgba(214, 180, 118, .16); --filet-fort: rgba(214, 180, 118, .34);
+  --texte: #ecdfc4; --texte-doux: #b7a585; --bronze: #c29b5c; --bronze-clair: #e0b562; --sang-vif: #b3261e;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  display: grid; place-items: center; padding: 16px;
+  background: radial-gradient(ellipse at 50% 30%, var(--bois) 0%, var(--nuit) 70%);
+  color: var(--texte); font: 19px/1.45 "EB Garamond", Garamond, Georgia, serif;
+}
+main {
+  width: 100%; max-width: 380px; padding: 32px 28px 28px;
+  background: var(--bois); border: 1px solid var(--filet-fort); border-radius: 3px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .55);
+}
+h1 {
+  margin: 0 0 4px; text-align: center; font: 600 26px/1.2 "Cinzel", Georgia, serif;
+  letter-spacing: .06em; color: var(--bronze-clair);
+}
+p.sous-titre { margin: 0 0 20px; text-align: center; color: var(--texte-doux); font-style: italic; }
+p.aide { margin: 6px 0 0; color: var(--texte-doux); font-size: 16px; }
+label { display: block; margin-bottom: 6px; color: var(--texte-doux); font-size: 16px; }
+input + label, p.aide + label { margin-top: 14px; }
+input[type=password], input[type=text] {
+  width: 100%; padding: 10px 12px; font: inherit; color: var(--texte);
+  background: var(--nuit); border: 1px solid var(--filet-fort); border-radius: 3px;
+}
+input:focus { outline: 2px solid var(--bronze); outline-offset: 1px; }
+.cache { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+button {
+  width: 100%; margin-top: 18px; padding: 10px; cursor: pointer;
+  font: 600 16px/1.2 "Cinzel", Georgia, serif; letter-spacing: .08em;
+  color: var(--nuit); background: var(--bronze); border: 0; border-radius: 3px;
+}
+button:hover, button:focus-visible { background: var(--bronze-clair); }
+button:disabled { opacity: .6; cursor: wait; }
+.message { min-height: 1.4em; margin: 12px 0 0; color: #e8a49c; font-size: 16px; text-align: center; }
+.message:empty { display: none; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>L'Arrière-salle</h1>
+  <p class="sous-titre" id="accueil">Un instant…</p>
+  <form id="formulaire" hidden>
+    <div id="choix-identifiant">
+      <label for="identifiant">Votre identifiant</label>
+      <input id="identifiant" type="text" name="identifiant" maxlength="32" autocomplete="username" autocapitalize="none"
+             autocorrect="off" spellcheck="false">
+      <p class="aide">De 3 à 32 caractères : lettres, chiffres, point, tiret ou trait bas, sans espace.</p>
+    </div>
+    <input id="identifiant-connu" class="cache" type="text" autocomplete="username" tabindex="-1" aria-hidden="true">
+    <label for="mdp">Mot de passe</label>
+    <input id="mdp" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+    <label for="confirmation">Encore une fois</label>
+    <input id="confirmation" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+    <button type="submit">Entrer dans l'atelier</button>
+  </form>
+  <p class="message" role="alert" id="message"></p>
+</main>
+<script>
+// La clé du lien vient du fragment (#cle=…), que le navigateur n'envoie jamais avec l'adresse : elle n'entre dans
+// aucun journal. Elle quitte aussitôt la barre d'adresse (historique, capture d'écran) et ne part que dans le corps
+// des deux requêtes de cette page.
+(() => {
+  const cle = new URLSearchParams(location.hash.slice(1)).get("cle") || "";
+  if (location.hash) history.replaceState(null, "", location.pathname);
+  const $ = (id) => document.getElementById(id);
+  const dire = (texte) => { $("message").textContent = texte; };
+  let lien = null;
+
+  async function envoyer(url, corps) {
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps) });
+    let reponse = {};
+    try { reponse = await r.json(); } catch (_) { /* sans corps */ }
+    if (!r.ok) throw new Error(reponse.detail || "Le serveur ne répond pas comme prévu.");
+    return reponse;
+  }
+
+  async function ouvrir() {
+    if (!cle) {
+      $("accueil").textContent = "Ce lien est incomplet.";
+      dire("Recopiez le lien reçu en entier, jusqu'au bout.");
+      return;
+    }
+    try {
+      lien = await envoyer("/connexion/invitation/etat", { cle });
+    } catch (err) {
+      $("accueil").textContent = "Ce lien ne s'ouvre pas.";
+      dire(err.message);
+      return;
+    }
+    const creer = lien.etat === "creer";
+    $("accueil").textContent = creer
+      ? `Bonjour ${lien.nom} ! Choisissez votre identifiant et votre mot de passe : ce lien ne sert qu'une fois.`
+      : `Bonjour ${lien.nom} ! Choisissez un nouveau mot de passe. Votre identifiant (${lien.identifiant}) ne change pas.`;
+    $("choix-identifiant").hidden = !creer;
+    $("identifiant").required = creer;
+    $("identifiant-connu").value = lien.identifiant || "";
+    $("formulaire").hidden = false;
+    (creer ? $("identifiant") : $("mdp")).focus();
+  }
+
+  $("formulaire").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    dire("");
+    if ($("mdp").value !== $("confirmation").value) {
+      dire("Les deux mots de passe ne sont pas les mêmes.");
+      return;
+    }
+    const bouton = $("formulaire").querySelector("button");
+    bouton.disabled = true;
+    try {
+      const r = await envoyer("/connexion/invitation", {
+        cle, identifiant: $("identifiant").value, mot_de_passe: $("mdp").value, confirmation: $("confirmation").value,
+      });
+      location.replace(r.suite || "/");
+    } catch (err) {
+      dire(err.message);
+      bouton.disabled = false;
+    }
+  });
+
+  ouvrir();
+})();
+</script>
+</body>
+</html>

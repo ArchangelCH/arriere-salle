@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Se connecter · {{campagne.nom}}</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/atelier.css">
+  <link rel="stylesheet" href="/static/css/compte-coin.css">
+</head>
+<body class="coin-joueurs" data-compte="connexion">
+  <header class="entete">
+    <span class="marque"><span class="losange" aria-hidden="true"></span><span>{{campagne.nom}}</span><small>le coin des joueurs</small></span>
+  </header>
+  <main id="page">
+    <section class="page-liste compte-coin">
+      <header class="titre-page">
+        <p class="kicker">Réservé à la table</p>
+        <h1>Se connecter</h1>
+        <p class="chapo">Avec votre identifiant et votre mot de passe, depuis n'importe quel appareil. La première fois, avec le mot de passe provisoire que votre MJ vous a donné.</p>
+      </header>
+      <p class="annonce-compte" role="status" hidden></p>
+      <!-- Sans le script, le formulaire part quand même par POST (et le serveur le refuse) : jamais le mot de passe dans l'adresse. -->
+      <form class="formulaire-compte" method="post" action="/api/connexion" data-connexion>
+        <label class="champ">Identifiant<input type="text" name="identifiant" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="32" required></label>
+        <label class="champ">Mot de passe<input type="password" name="mot_de_passe" autocomplete="current-password" maxlength="128" required></label>
+        <p class="refus-compte" role="alert" hidden></p>
+        <button class="principal" type="submit">Se connecter</button>
+      </form>
+      <p class="aide">Pas encore de compte, ou mot de passe oublié : demandez à votre MJ votre identifiant et un mot de passe provisoire.</p>
+      <p class="aide"><a href="/guide">Le guide du coin</a> : tout ce que vous pouvez y faire.</p>
+    </section>
+  </main>
+  <script type="module" src="/static/js/joueurs/compte.js"></script>
+</body>
+</html>

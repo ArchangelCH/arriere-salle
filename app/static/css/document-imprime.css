@@ -1,0 +1,49 @@
+/* Les documents à imprimer (/document-imprime?id=, /documents-imprimes?seance=) : posée sur fiche.css (polices, barre
+   d'outils) et documents.css (le papier). Une feuille A5 ou A4 par document, le document au milieu, à la plus grande
+   taille qui tient ; à l'impression, rien d'autre que les feuilles. */
+
+.documents-imprimes .outils-fiche { max-width: 210mm; }
+.choix-format, .choix-fond { display: inline-flex; align-items: center; gap: 10px; font-style: italic; }
+.choix-format label, .choix-fond { cursor: pointer; }
+.avertissement { max-width: 210mm; margin: 0 auto 14px; padding: 10px 14px; border: 1px solid #b8433b; border-left: 4px solid #b8433b; background: #2e1712; color: #f2c9bf; font-size: 15px; line-height: 1.35; }
+.avertissement b { color: #fbeee0; }
+
+#feuilles { display: grid; justify-items: center; gap: 28px; }
+.feuille {
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 148mm;
+  height: 210mm;
+  padding: 9mm;
+  overflow: hidden;
+  background: #fffdf8;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+  break-after: page;
+  page-break-after: always;
+}
+.format-a4 .feuille { width: 210mm; height: 297mm; padding: 12mm; }
+.feuille:last-child { break-after: auto; page-break-after: auto; }
+/* Sur la feuille, le papier se tient droit, sans ombre, et la remplit : c'est lui qu'on tend aux joueurs. Le texte
+   reste en haut, comme sur une vraie lettre ; sa taille est la plus grande qui tient (imprime.js). */
+.feuille .document { width: 100%; max-width: none; min-height: 72%; transform: none; filter: none; }
+.feuille .document.doc-parchemin { margin: .9em 0; }
+/* Imprimé sur du papier parchemin, ou pour l'encre seule : le papier dessiné s'efface, l'écriture reste. */
+.sans-fond .feuille .document::before, .sans-fond .feuille .doc-rouleau { display: none; }
+.sans-fond .feuille .document::after { display: none; }
+.feuille .titre-mj { position: absolute; top: 3mm; left: 0; right: 0; margin: 0; text-align: center; font: italic 400 10px/1 "EB Garamond", serif; color: #9a8a73; }
+.aucun-document { color: #e8dcc3; font-style: italic; }
+.aucun-document a { color: #e0b562; }
+
+@media screen and (max-width: 860px) { .feuille { box-shadow: 0 8px 24px rgba(0, 0, 0, .5); } .avertissement { margin-left: 0; margin-right: 0; } }
+
+@media print {
+  .feuille { zoom: 1 !important; }
+  html, body { background: none; }
+  body { padding: 0; }
+  .outils-fiche, .avertissement, .feuille .titre-mj { display: none; }
+  #feuilles { display: block; }
+  .feuille { margin: 0; box-shadow: none; background: none; }
+  .feuille, .feuille * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

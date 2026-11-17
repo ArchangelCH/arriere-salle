@@ -1,0 +1,9 @@
+data/
+__pycache__/
+.pytest_cache/
+app/static/essai.html
+app/static/tv/
+.env
+docker-compose.override.yml
+secrets/
+.ruff_cache/

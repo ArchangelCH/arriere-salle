@@ -1,0 +1,152 @@
+/* Les derniers filets : le dialogue maison (js/commun/dialogue.js), le témoin d'enregistrement de chaque page
+   (js/commun/temoin-enregistrement.js) et les aides à l'écriture quand le serveur n'a pas de clé d'API (js/commun/estimation.js). */
+
+/* Une question sur parchemin, à double filet d'encre et losanges aux coins, comme la carte des touches et les cartons de
+   la TV : ce qui ne se rattrape pas se lit dans l'ambiance de l'atelier. */
+.dialogue.question {
+  width: min(540px, calc(100vw - 32px));
+  padding: 26px 30px 18px;
+  overflow: visible;
+  border: 3px double var(--encre);
+  border-radius: 0;
+  background: var(--parchemin) url("../img/carte-parchemin.jpg") center / cover;
+  color: var(--encre);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .75);
+}
+.dialogue.question::before, .dialogue.question::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--sang);
+  transform: rotate(45deg);
+  box-shadow: inset 0 0 0 3.5px var(--sang), inset 0 0 0 6px var(--parchemin);
+  pointer-events: none;
+}
+.dialogue.question::before { top: -9px; left: -9px; }
+.dialogue.question::after { bottom: -9px; right: -9px; }
+.dialogue.question h2 { margin: 0 0 12px; font: 700 22px/1.15 var(--titre); letter-spacing: .02em; color: var(--encre); }
+/* Un écran bas (téléphone couché, petit iPhone) : la question défile dans son cadre, ses boutons restent atteignables.
+   Le défilement est sur le formulaire, pas sur le cadre : les losanges des coins débordent toujours. */
+@media (max-height: 700px) {
+  .dialogue.question > form { max-height: calc(100vh - 96px); max-height: calc(100dvh - 96px); overflow-y: auto; overscroll-behavior: contain; }
+}
+.dialogue.question p { margin: 0 0 12px; font: 400 17px/1.4 var(--corps); color: #3b2a1a; }
+.dialogue.question .aide { font-size: 15px; font-style: italic; color: #5b4731; }
+.dialogue.question .kicker { color: var(--sang); }
+.dialogue.question .actions { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(43, 29, 18, .3); }
+.dialogue.question button { border-color: rgba(43, 29, 18, .5); background: transparent; color: var(--encre); }
+.dialogue.question button:hover { border-color: var(--encre); background: rgba(43, 29, 18, .08); }
+.dialogue.question button.principal { border-color: var(--sang); background: var(--sang); color: #fbeee0; }
+.dialogue.question button.principal:hover { background: var(--sang-vif); }
+.dialogue.question button:focus-visible { outline: 2px solid var(--sang); outline-offset: 2px; }
+/* Le geste qui ne se rattrape pas : la main est sur « non », qui le dit d'un filet d'encre plus franc. */
+.dialogue.question.danger button[value="non"] { border-color: var(--encre); }
+.dialogue.question textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgba(43, 29, 18, .45);
+  border-radius: var(--rayon);
+  background: rgba(255, 251, 238, .7);
+  color: var(--encre);
+  font: 400 16px/1.4 var(--corps);
+  resize: vertical;
+}
+@media (pointer: coarse) { .dialogue.question .actions button { min-height: 44px; } }
+
+/* La question du carton d'un PNJ (carton-pnj.js) et celle de la TV noire (tv-noire.js), sur le même parchemin. */
+.dialogue.question .noms-inconnus li b { color: var(--encre); }
+.dialogue.question .noms-inconnus li i, .dialogue.question .noms-inconnus .carnet { color: #6b5640; }
+.dialogue.question .noms-inconnus .fait { color: var(--sang); }
+.dialogue.question .noms-inconnus li button { min-height: 0; }
+
+/* L'état de l'enregistrement, à droite du titre de chaque page, dans le même gris un cran plus clair que l'ancien (le
+   contraste passe 4,5:1 en italique de 14 px). Sous 1500 px, un mot court : « Enregistré », « Envoi… », « Hors ligne ». */
+.temoin-enregistrement {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  min-width: 0;
+  font: italic 400 14px/1.2 var(--corps);
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #a3917a;
+  white-space: nowrap;
+}
+.temoin-enregistrement[data-etat="modifie"], .temoin-enregistrement[data-etat="enregistrement"] { color: var(--bronze-clair); }
+.temoin-enregistrement[data-etat="erreur"] { color: #f2b3a8; }
+.temoin-enregistrement[hidden] { display: none; }
+.temoin-enregistrement .court { display: none; }
+.temoin-enregistrement .court small { display: block; font-size: 12px; line-height: 1.1; }
+.temoin-enregistrement .temoin-pastille { display: none; flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--sang-vif); }
+.temoin-enregistrement[data-etat="erreur"] .temoin-pastille { display: inline-block; animation: pouls 1.1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .temoin-enregistrement[data-etat="erreur"] .temoin-pastille { animation: none; } }
+@media (max-width: 1500px) {
+  .temoin-enregistrement .long { display: none; }
+  .temoin-enregistrement .court { display: inline; }
+}
+/* Tableau ouvert : la page a moins de place que l'écran ne le dit, le mot court suffit. Dans la barre d'un éditeur de
+   carte ou de plan, il garde la place du nom jusqu'à 1700 px (là où il n'y avait qu'une pastille muette). */
+body.tableau-ouvert .temoin-enregistrement .long { display: none; }
+body.tableau-ouvert .temoin-enregistrement .court { display: inline; }
+@media (max-width: 1700px) {
+  .barre-carte .temoin-enregistrement .long { display: none; }
+  .barre-carte .temoin-enregistrement .court { display: inline; }
+}
+/* Pendant une coupure, « Hors ligne » et son compte à rebours prennent la place de deux mots : le nom de la carte ou du
+   plan se resserre plutôt que de pousser « Accueil » hors de l'écran. */
+.barre-carte:has(.temoin-enregistrement[data-etat="erreur"]) .nom-carte { min-width: 0; }
+
+/* Les places du témoin, page par page : à droite du titre. Un titre qui se tape (boutique, séance) garde son filet sous
+   toute la ligne, témoin compris. */
+.titre-avec-temoin { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.titre-avec-temoin > h1, .titre-avec-temoin > h2, .titre-avec-temoin > .kicker { min-width: 0; }
+.titre-avec-temoin > input { flex: 1 1 200px; width: auto; min-width: 0; }
+.identite-boutique .titre-avec-temoin { flex-wrap: nowrap; margin-bottom: 14px; border-bottom: 1px solid var(--filet-fort); }
+.identite-boutique .titre-avec-temoin:focus-within { border-bottom-color: var(--bronze-clair); }
+.identite-boutique .titre-avec-temoin .nom-boutique { margin-bottom: 0; border-bottom: 0; }
+.tete-seance .titre-avec-temoin, .tete-rencontre .titre-avec-temoin { flex-wrap: nowrap; border-bottom: 1px solid var(--filet-fort); }
+.tete-seance .titre-avec-temoin:focus-within, .tete-rencontre .titre-avec-temoin:focus-within { border-bottom-color: var(--bronze-clair); }
+.tete-seance .titre-avec-temoin .nom-seance, .tete-rencontre .titre-avec-temoin .nom-rencontre { border-bottom: 0; }
+.fiche-auberge .titre-avec-temoin { justify-content: space-between; margin-bottom: 8px; }
+.fiche-auberge .titre-avec-temoin .kicker { margin: 0; }
+.ligne-nom .temoin-enregistrement { align-self: center; margin-left: 4px; }
+.createur-tete .avec-de .temoin-enregistrement { align-self: center; margin-left: 4px; }
+.fiche-lieu .titre-avec-temoin { flex-wrap: nowrap; margin-bottom: 10px; border-bottom: 1px solid var(--filet-fort); }
+.fiche-lieu .titre-avec-temoin:focus-within { border-bottom-color: var(--bronze-clair); }
+.fiche-lieu .titre-avec-temoin .nom-lieu { margin-bottom: 0; border-bottom: 0; }
+.barre-chapitre .temoin-enregistrement { margin-left: -4px; }
+.campagne .titre-avec-temoin h1 { margin-bottom: 12px; }
+
+/* Rédaction indisponible faute de clé d'API : les boutons qui en dépendent, atténués, le disent sous leur libellé ; une
+   ligne discrète l'annonce une fois. */
+button[data-sans-cle] { opacity: .5; }
+button[data-sans-cle]:hover { opacity: .8; }
+button[data-sans-cle]::after { content: "sans clé d'API"; font: italic 400 11px/1.1 var(--corps); letter-spacing: 0; text-transform: none; opacity: .9; white-space: nowrap; }
+button[data-sans-cle] { flex-direction: column; gap: 2px; }
+/* Le budget de rédaction du mois d'un MJ invité, atteint (js/commun/estimation.js, lot MJ-6) : comme sans clé. */
+button[data-budget-atteint] { opacity: .5; flex-direction: column; gap: 2px; }
+button[data-budget-atteint]:hover { opacity: .8; }
+button[data-budget-atteint]::after { content: "budget atteint"; font: italic 400 11px/1.1 var(--corps); letter-spacing: 0; text-transform: none; opacity: .9; white-space: nowrap; }
+.place-sans-cle:empty { display: none; }
+.sans-cle-bandeau {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  margin: 0 0 14px;
+  padding: 8px 12px;
+  border: 1px dashed var(--filet-fort);
+  border-radius: var(--rayon);
+  font: italic 400 15px/1.35 var(--corps);
+  color: var(--texte-doux);
+}
+.sans-cle-bandeau b { font: 600 11px/1 var(--titre); font-style: normal; letter-spacing: .14em; text-transform: uppercase; color: var(--bronze-clair); }
+.sans-cle-bandeau span { flex: 1 1 180px; }
+.sans-cle-bandeau b { order: 0; }
+.sans-cle-bandeau button { order: 1; margin-left: auto; }
+.sans-cle-bandeau span { order: 2; }
+.sans-cle-bandeau button { flex: none; min-height: 0; padding: 0 4px; border: 0; background: none; color: var(--texte-pale); font: 400 20px/1 var(--corps); letter-spacing: 0; }
+.sans-cle-bandeau button:hover { background: none; color: var(--texte); }

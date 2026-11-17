@@ -1,0 +1,184 @@
+/* Le créateur d'aventurier au téléphone et au doigt (js/aventuriers/createur.js), dans l'atelier comme dans le coin des
+   joueurs. Sous 700 px de haut, ou sur un téléphone en portrait, l'en-tête et le rail défilent avec la page : seule
+   reste collée une barre fine, l'étape, la suivante et l'état. Sur le bureau, « Étape suivante » reste au bas de la
+   colonne de l'étape. */
+
+.barre-fine { display: none; }
+
+.createur .suite-etapes {
+  position: sticky; bottom: -80px; z-index: 2; margin-bottom: -16px; padding-bottom: 16px;
+  background: linear-gradient(rgba(20, 15, 11, .9), #17110c 30%);
+}
+.createur .suite-etapes .principal { box-shadow: 0 4px 14px rgba(0, 0, 0, .45); }
+
+/* Santé et Psy : un pas de plus ou de moins, à côté du nombre (la réglette reste pour le geste d'ensemble). */
+.jauge-choix .pas-jauge { display: flex; align-items: center; gap: 8px; }
+.jauge-choix .pas-jauge button { width: 34px; min-height: 34px; padding: 0; font: 400 20px/1 var(--corps); }
+.reglette button { position: relative; }
+
+/* La couleur des dés, au joueur : en clair, avec les couleurs déjà prises à la tablée. */
+.couleurs-des { display: grid; gap: 6px; margin: 0; }
+.couleurs-des .lbl { color: var(--texte-doux); }
+.couleurs-des .pastilles { display: flex; flex-wrap: wrap; align-items: center; }
+/* La pastille se voit en 26 px ; le bouton qui la porte est plus grand, pour le doigt. */
+.couleurs-des button.pastille-des { width: 34px; height: 34px; min-height: 0; padding: 4px; border: 0; border-radius: 50%; background: none; box-shadow: none; }
+.couleurs-des button.pastille-des::before {
+  content: ""; display: block; width: 100%; height: 100%; box-sizing: border-box; border: 2px solid rgba(0, 0, 0, .4); border-radius: 50%; background: var(--teinte);
+}
+.couleurs-des button.pastille-des[aria-pressed="true"]::before { border-color: var(--parchemin); box-shadow: 0 0 0 2px var(--bronze-clair); }
+.couleurs-des button.pastille-des.prise::before {
+  opacity: .32; background-image: linear-gradient(135deg, transparent 44%, rgba(20, 15, 11, .95) 44%, rgba(20, 15, 11, .95) 56%, transparent 56%);
+}
+.couleurs-des input[type="color"] { width: 40px; height: 30px; margin-left: 4px; padding: 2px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: #120d0a; }
+.couleurs-des .aide { margin: 0; font-size: 14px; }
+
+/* Le badge du niveau se lit, il ne se clique pas (E26). */
+.niveau-heros { border-color: transparent; padding-left: 0; padding-right: 0; }
+
+/* L'envoi au MJ, à l'étape 10 : ce qui manque encore, étape par étape. */
+.dialogue-envoi { max-height: min(88vh, 720px); overflow-y: auto; padding-bottom: 0; }
+.dialogue-envoi h2 { margin-bottom: 12px; }
+.dialogue-envoi ul { margin: 0 0 12px; padding: 0; list-style: none; display: grid; gap: 8px; }
+.dialogue-envoi li { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 10px; font-size: 15px; line-height: 1.3; color: var(--texte-doux); }
+.dialogue-envoi li b { display: block; font-weight: 600; color: var(--parchemin); }
+.dialogue-envoi li button { min-height: 44px; padding: 4px 10px; white-space: nowrap; }
+/* Les deux réponses restent en vue, même quand la liste défile. */
+.dialogue-envoi .actions { position: sticky; bottom: 0; margin: 0 -30px; padding: 12px 30px 18px; border-top: 1px solid var(--filet); background: var(--bois); }
+.dialogue-envoi .actions button { min-height: 44px; }
+.avertis-joueur { margin: 8px 0 0; padding: 0; list-style: none; }
+.avertis-joueur li { color: var(--texte-pale); font-style: italic; }
+
+@media (max-height: 700px), (max-width: 600px) {
+  body[data-page="aventuriers"]:has(.createur) { overflow: visible; }
+  .coin-joueurs .entete { position: static; }
+  .createur { display: block; height: auto; }
+  .createur-tete { grid-template-columns: 64px minmax(0, 1fr); gap: 12px 14px; padding: 12px 16px; }
+  .createur-tete .retour { grid-column: 1 / -1; }
+  .joueur-heros, .actions-heros { grid-column: 1 / -1; justify-content: flex-start; max-width: none; flex-wrap: wrap; }
+  .coin-joueurs .actions-heros [data-action="envoyer-mj"] { display: none; }
+  /* L'état se lit dans la barre fine : à côté du nom, il ne reste que pour les lecteurs d'écran (le nom garde la ligne). */
+  .createur-tete .temoin-enregistrement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .createur-corps { display: block; }
+  .createur .rail { display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 8px 12px; border-right: 0; border-bottom: 1px solid var(--filet); }
+  .createur .rail ol, .createur .rail ul { display: flex; gap: 4px; }
+  .createur .rail-plus { margin: 0 0 0 8px !important; padding: 0 0 0 10px !important; border-top: 0 !important; border-left: 1px solid var(--filet) !important; }
+  .createur .rail button { width: auto; white-space: nowrap; }
+  .createur .rail-etapes .t, .createur .rail .compte, .createur .rail .pret { display: none; }
+  .createur .apercu { display: none; }
+  .createur .etape-zone { overflow: visible; padding: 18px 16px 40px; }
+  .createur .tete-etape h1 { font-size: 27px; }
+  .createur .tete-etape .regle { font-size: 17px; }
+  .createur .suite-etapes { position: static; margin-bottom: 0; padding-bottom: 0; background: none; }
+
+  .barre-fine {
+    position: sticky; top: var(--haut-entete); z-index: 15; display: flex; align-items: center; gap: 6px;
+    min-height: 52px; padding: 4px 10px 4px 4px; border-bottom: 1px solid var(--filet-fort);
+    background: linear-gradient(#211811, #1a130e); box-shadow: 0 6px 16px rgba(0, 0, 0, .45);
+  }
+  .coin-joueurs .barre-fine { top: 0; }
+  .barre-fine .bf-titre { flex: 1; min-width: 0; margin: 0; display: grid; gap: 2px; }
+  .barre-fine .bf-etape { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 600 12px/1.25 var(--titre); letter-spacing: .08em; text-transform: uppercase; color: var(--parchemin); }
+  .barre-fine .bf-etape b { color: var(--bronze-clair); font-weight: 700; }
+  .barre-fine .bf-etat { min-width: 0; overflow: hidden; }
+  .barre-fine .temoin-enregistrement { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .barre-fine .bf-precedente { flex: none; width: 40px; min-height: 44px; padding: 0; border-color: transparent; background: none; font: 400 30px/1 var(--corps); color: var(--bronze-clair); }
+  .barre-fine .bf-precedente:disabled { visibility: hidden; }
+  .barre-fine .bf-suite { flex: none; min-height: 44px; padding: 6px 14px; white-space: nowrap; }
+
+  /* Santé et Psy : les douze cases sur toute la largeur, les deux nombres au-dessus. */
+  .createur .partage { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 10px; }
+  .createur .partage .reglette { grid-column: 1 / -1; grid-row: 2; gap: 2px; }
+  .createur .reglette button { min-height: 52px; }
+  .createur .jauge-choix b { font-size: 40px; }
+  /* Une liste sombre aussi sous Safari, qui sinon la peint en gris clair. */
+  .createur select {
+    -webkit-appearance: none; appearance: none; padding-right: 30px;
+    background: #120d0a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23e0b562' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 10px center / 12px 8px;
+  }
+}
+
+/* Les compétences et les armes en cartes : nom et valeur en haut, le réglage en dessous, la caractéristique en entier. */
+@media (max-width: 560px) {
+  .table-comp thead, .table-armes thead { display: none; }
+  .table-comp, .table-comp tbody, .table-armes, .table-armes tbody { display: block; }
+  .table-comp tr, .table-armes tr {
+    display: grid; gap: 6px 8px; align-items: center; padding: 10px 0 12px; border-bottom: 1px solid var(--filet);
+  }
+  .table-comp td, .table-armes td { padding: 0; }
+  .table-comp tr { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "nom nom valeur" "bonus avec retirer"; }
+  .table-comp td:nth-child(1) { grid-area: nom; }
+  .table-comp td:nth-child(2) { grid-area: bonus; text-align: left; }
+  .table-comp td:nth-child(3) { grid-area: avec; }
+  .table-comp td:nth-child(4) { grid-area: valeur; text-align: right; }
+  .table-comp td:nth-child(5) { grid-area: retirer; }
+  .table-comp td:nth-child(5):empty { display: none; }
+  .table-armes tr { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; grid-template-areas: "nom nom valeur" "avec degats outils" "notes notes notes"; }
+  .table-armes td:nth-child(1) { grid-area: nom; }
+  .table-armes td:nth-child(2) { grid-area: avec; }
+  .table-armes td:nth-child(3) { grid-area: degats; }
+  .table-armes td:nth-child(4) { grid-area: notes; }
+  .table-armes td:nth-child(5) { grid-area: valeur; text-align: right; }
+  .table-armes td:nth-child(6) { grid-area: outils; }
+  .table-armes .court { max-width: none; }
+  .createur .valeur { line-height: 1.2; }
+}
+
+/* Au doigt : 44 px de haut pour tout ce qu'on touche dans le créateur et le coin des joueurs. */
+@media (pointer: coarse) {
+  .createur button:not(.lien):not(.pastille-des), .createur .bouton, .accueil-joueur button, .bandeau-accueilli .bouton { min-height: 44px; }
+  .createur .de { width: 44px; height: 44px; }
+  .createur .reglage button { width: 44px; }
+  .createur .table-comp .bonus button { width: 44px; }
+  .createur .jauge-choix .pas-jauge button { width: 44px; }
+  .createur .rapides button, .createur .nuage-themes button, .createur .puces-elements button { padding-left: 14px; padding-right: 14px; }
+  .createur .couleurs-des button.pastille-des { width: 44px; height: 44px; padding: 5px; }
+  .createur .couleurs-des input[type="color"] { width: 44px; height: 44px; }
+  .createur .table-comp input[type="text"], .createur .table-armes input[type="text"], .createur select, .createur .champ input[type="text"],
+  .createur .champ input[type="number"], .createur .liste-equipement input, .createur .objets input, .createur .themes-saisie input { min-height: 44px; }
+  .createur .bilan-heros button.lien { display: inline-flex; align-items: center; min-height: 44px; }
+  .createur .equip-quantite button, .createur .liste-equipement .retirer { min-width: 44px; min-height: 44px; }
+  .createur .liste-equipement li { flex-wrap: wrap; }
+  .createur .liste-equipement li input[type="text"] { flex: 1 1 6em; width: auto; }
+  .createur .case input { width: 22px; height: 22px; }
+  .coin-joueurs .vers-carnet a {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid rgba(224, 181, 98, .45); border-radius: var(--rayon);
+  }
+}
+
+/* La caractéristique d'une compétence en boutons P, S, M, comme les cartons ; son nom en entier à côté (E14). */
+.choix-psm { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 5px; }
+.choix-psm label { position: relative; display: block; cursor: pointer; }
+.choix-psm input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.choix-psm label span { display: grid; place-items: center; width: 30px; height: 30px; box-sizing: border-box; border: 1px dashed var(--filet-fort); border-radius: 3px;
+  font: 700 13px/1 var(--titre); color: var(--texte-pale); }
+@media (hover: hover) {
+  .choix-psm label:hover span { border-style: solid; color: var(--parchemin); }
+}
+.choix-psm input:checked + span { border: 1px solid var(--bronze-clair); background: var(--bois-3); color: var(--parchemin); box-shadow: inset 0 -2px 0 var(--bronze-clair); }
+.choix-psm input:focus-visible + span { outline: 2px solid var(--bronze-clair); outline-offset: 2px; }
+.choix-psm input:disabled, .choix-psm input:disabled + span { cursor: default; }
+.choix-psm .nom-psm { min-width: 4.6em; padding-left: 3px; font: 500 16px/1.2 var(--corps); color: var(--parchemin); }
+.table-comp td.avec { vertical-align: middle; }
+@media (pointer: coarse) {
+  .createur .choix-psm label span { width: 44px; height: 44px; font-size: 15px; }
+}
+
+/* La couleur d'un aventurier envoyé, prise ou trop sombre : la carte dit celle que la TV lui donnera (E06). */
+.couleur-accueil { margin: 0; font: italic 400 15px/1.4 var(--corps); color: var(--texte-doux); }
+.couleur-accueil .pastille, .joueur-en-ligne button .pastille { display: inline-block; width: 13px; height: 13px; margin: 0 2px; border-radius: 50%; vertical-align: -1px; box-shadow: 0 0 0 1px rgba(0, 0, 0, .5); }
+.joueur-en-ligne button .pastille { margin-left: 8px; }
+
+/* Le compte d'un joueur sur sa carte (compte-joueur.js) et son mot de passe provisoire, montré une seule fois (dialogue.js). */
+.compte-a-creer { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 10px; }
+.compte-a-creer .champ { flex: 1 1 200px; margin: 0; }
+.dialogue.une-fois { width: min(560px, calc(100vw - 32px)); }
+.une-fois .a-dicter { display: grid; gap: 2px; margin: 4px 0 16px; padding: 12px 16px; border-left: 3px solid var(--sang); background: rgba(43, 29, 18, .08); }
+.une-fois .a-dicter dt { font: 700 11px/1.3 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: #5b4731; }
+.une-fois .a-dicter dd + dt { margin-top: 10px; }
+.une-fois .a-dicter dd { margin: 0; font: 600 24px/1.25 var(--corps); font-variant-numeric: lining-nums; color: var(--encre); overflow-wrap: anywhere; user-select: all; }
+/* Le mot de passe et l'identifiant sur une ligne (dialogue.js les rétrécit pour qu'ils tiennent) ; trop longs, à la ligne. */
+.une-fois .a-dicter dd { white-space: nowrap; overflow: hidden; }
+.une-fois .a-dicter dd.a-la-ligne { white-space: normal; }
+@media (max-width: 400px) { .une-fois .a-dicter { padding: 12px 12px; } }
+.une-fois textarea { width: 100%; font-size: 15px; }
+.dialogue.une-fois .statut-copie { min-height: 1.3em; margin: 6px 0 0; font-size: 15px; color: var(--sang); }

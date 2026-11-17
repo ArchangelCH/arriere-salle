@@ -1,0 +1,36 @@
+/* « Le monde » (lot MJ-6, js/mj/monde.js) : la campagne telle que les joueurs la connaissent, en lecture, pour un MJ
+   invité. La carte dans son cadre, les lieux et les personnages connus côte à côte (l'un sous l'autre à l'étroit). */
+.page-monde .monde-cartes { margin-bottom: 22px; }
+.choix-cartes { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.choix-cartes button { min-height: 38px; }
+.choix-cartes button[aria-pressed="true"] { border-color: var(--bronze); background: var(--bois-3); color: var(--parchemin); }
+.cadre-monde {
+  position: relative; height: min(68vh, 640px); min-height: 280px; overflow: hidden;
+  border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: #140f0b;
+}
+.carte-monde { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.carte-monde.en-main { cursor: grabbing; }
+.gestes-monde { position: absolute; right: 10px; bottom: 10px; z-index: 2; display: flex; gap: 6px; }
+.gestes-monde button { min-width: 40px; min-height: 40px; padding: 0 12px; background: rgba(30, 22, 17, .88); }
+.monde-cartes .aide { margin: 10px 0 0; }
+
+.grille-monde { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 22px; align-items: start; }
+.grille-monde h2 small { margin-left: 6px; font: italic 400 15px var(--corps); letter-spacing: 0; color: var(--texte-pale); }
+.grille-monde .recherche { width: 100%; margin: 0 0 12px; }
+.liste-monde { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.liste-monde li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; border: 1px solid var(--filet); border-radius: var(--rayon); background: var(--bois-2); }
+.liste-monde li.vide { display: block; border: 0; background: none; padding: 0; }
+.liste-monde li[hidden] { display: none; }
+.vignette-monde { flex: none; width: 56px; height: 56px; border-radius: var(--rayon); object-fit: cover; border: 1px solid var(--filet); }
+.vignette-monde.vide { display: block; background: var(--bois-3); }
+.liste-monde .texte { display: flex; flex-direction: column; min-width: 0; }
+.liste-monde b { font: 700 17px/1.25 var(--titre); color: var(--parchemin); }
+.liste-monde b i { font: italic 400 16px var(--corps); color: var(--texte-doux); }
+.liste-monde .meta { font-size: 15px; font-style: italic; color: var(--texte-pale); }
+.liste-monde .resume { font-size: 15px; color: var(--texte-doux); }
+
+@media (max-width: 720px) {
+  .grille-monde { grid-template-columns: 1fr; }
+  /* Au téléphone tenu droit, un cadre à la mesure d'une carte plus large que haute. */
+  .cadre-monde { height: min(58vh, 85vw); }
+}

@@ -1,0 +1,92 @@
+/* La page Réglages (js/reglages/reglages.js) : un sommaire, puis une section par famille de réglages, chacune une grille
+   de blocs (la même que l'onglet Table, .table-etat). Les blocs viennent de là où ils vivaient avant : ici, seulement ce
+   qui les range ensemble. */
+
+.page-reglages .titre-page { margin-bottom: 22px; }
+
+/* Le sommaire : les sections comme des onglets, collé sous l'en-tête pendant qu'on fait défiler. */
+.sommaire-reglages {
+  position: sticky;
+  top: var(--haut-entete, 0px);
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 22px;
+  margin: 0 0 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--filet-fort);
+  background: var(--nuit);
+}
+.sommaire-reglages a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  border-bottom: 2px solid transparent;
+  color: var(--texte-doux);
+  font: 600 12px/1 var(--titre);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.sommaire-reglages a:hover { color: var(--parchemin); }
+.sommaire-reglages a[aria-current="true"] { color: var(--parchemin); border-bottom-color: var(--sang-vif); }
+
+.section-reglages { margin: 0; padding: 34px 0 6px; scroll-margin-top: calc(var(--haut-entete, 0px) + 58px); }
+.titre-section-reglages { margin: 0 0 6px; font: 700 26px/1.1 var(--titre); letter-spacing: .02em; color: var(--parchemin); }
+.intro-reglages { max-width: 720px; margin: 0 0 18px; }
+
+/* Les blocs de la grille : ceux qui portent une liste prennent toute la largeur ; une zone restée vide (« Les MJ » sans
+   invitations) ne laisse pas de trou. */
+.grille-reglages { align-items: start; }
+.grille-reglages > .large { grid-column: 1 / -1; }
+.grille-reglages > div:empty { display: none; }
+.grille-reglages .joueurs-en-ligne { margin-top: 0; }
+.grille-reglages .zone-confort .confort-table { margin: 0; }
+.grille-reglages .bloc h3:first-child { margin-top: 0; }
+
+/* Le carnet et la bible des joueurs : leurs interrupteurs vivaient sous un filet, dans un autre bloc. */
+.grille-reglages .carnet-des-joueurs { margin: 0; padding: 0; border: 0; }
+.grille-reglages .carnet-des-joueurs > h3:first-child { display: none; }
+.grille-reglages .bible-joueurs { margin: 0; padding: 0; border: 0; }
+
+/* Le mot de passe : trois champs l'un sous l'autre. */
+.changer-mot-de-passe { display: grid; gap: 10px; max-width: 420px; margin: 0 0 12px; }
+.changer-mot-de-passe .champ { margin: 0; }
+.changer-mot-de-passe .actions { margin: 4px 0 0; }
+
+.bloc-musique-reglages .musique-combat { margin: 0 0 12px; }
+.grille-reglages .periode-mj { margin: 0 0 12px; }
+
+/* Les liens « Réglages » laissés aux anciennes places. */
+.vers-reglages-page { margin: 12px 0 0; }
+.vers-reglages { white-space: nowrap; }
+
+@media (max-width: 700px) {
+  .sommaire-reglages { gap: 0 16px; }
+  .titre-section-reglages { font-size: 22px; }
+}
+
+/* Au doigt : les champs propres à la page (mot de passe, listes de la musique, noms) prennent 44 px, comme ceux de
+   l'onglet Table (doigt.css). */
+@media (pointer: coarse) {
+  .page-reglages input[type="password"], .page-reglages input[type="text"], .page-reglages select { min-height: 44px; }
+  /* Les liens dans le texte des blocs (doigt.css leur donne 12 px de marge, à 43 px) et les niveaux du confort. */
+  .page-reglages .grille-reglages .bloc p > a { padding: 13px 0; }
+  .page-reglages .ct-themes .segments button { min-height: 44px; }
+}
+
+/* Le téléphone (jusqu'à 520 px) : la ligne des familles ne tient que la loupe et un petit lien. « Réglages » garde sa
+   place dans l'en-tête ; la corbeille se rejoint depuis le haut de la page Réglages. */
+.vers-corbeille { display: none; }
+@media (max-width: 520px) {
+  .entete-atelier .liens-atelier a[href="#/corbeille"] { display: none; }
+  .vers-corbeille { display: block; margin: 10px 0 0; }
+  .vers-corbeille a { display: inline-block; padding: 12px 0; }
+}
+
+/* Le téléphone : le sommaire tient sur une ligne et défile de côté, sans pousser la page. */
+@media (max-width: 760px) {
+  .sommaire-reglages { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 8px; padding: 0 16px; }
+  .sommaire-reglages::-webkit-scrollbar { display: none; }
+  .sommaire-reglages a { flex: none; }
+}

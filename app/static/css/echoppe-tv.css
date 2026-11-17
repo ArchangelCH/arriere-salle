@@ -1,0 +1,27 @@
+/* L'échoppe de la TV, en plus de table.css (E07) : la pancarte en haut à gauche, qui dit le rayon montré quand la
+   boutique se montre par rayon ; le rayon suivant qui glisse à sa place. Lue par Chromium 79 : ni gap en flexbox, ni inset, ni :has. */
+
+/* La pancarte tient à gauche de l'enseigne (900 px à l'échelle, ou la largeur moins 460 px) ; son texte ne grandit pas
+   au-delà de l'échelle 1, quand une petite boutique agrandit tout le reste. */
+.pancarte-tv { --kp: min(var(--k), 1); position: absolute; top: calc(var(--k) * 34px); left: calc(var(--k) * 56px); z-index: 2; margin: 0;
+  max-width: calc(var(--k) * 330px); max-width: calc(max((100% - var(--k) * 900px) / 2, var(--k) * 230px) - var(--k) * 76px);
+  padding: calc(var(--kp) * 10px) calc(var(--kp) * 16px) calc(var(--kp) * 11px); box-sizing: border-box;
+  background: radial-gradient(ellipse at 50% 40%, #f7ecd2, #e2cc9c); border: 1px solid #8a6a3c; color: #2b1d12;
+  box-shadow: 0 calc(var(--k) * 6px) calc(var(--k) * 12px) rgba(0, 0, 0, .55); transform: rotate(-1.5deg); }
+.pancarte-tv[hidden], .pancarte-tv p[hidden] { display: none; }
+.pancarte-tv p { margin: 0; }
+/* Les chiffres en Garamond : ceux de Cinzel font d'un 1 un I. */
+.page-rayon-tv b { display: block; font: 700 calc(var(--kp) * 27px)/1.1 "EB Garamond", serif; letter-spacing: .02em; color: #8e1b17; font-variant-numeric: lining-nums; }
+.page-rayon-tv .ensuite { display: block; margin-top: calc(var(--kp) * 2px); font: italic 500 calc(var(--kp) * 22px)/1.2 "EB Garamond", serif; color: #4a3420; }
+
+/* Le carton d'un PNJ réduit l'échoppe : la pancarte ne garde que le rayon. */
+body.avec-pnj .pancarte-tv .ensuite { display: none; }
+body.avec-pnj .pancarte-tv.sans-rayon { display: none; }
+
+.etageres-tv.autre-rayon { animation: autre-rayon .7s ease both; }
+@keyframes autre-rayon { from { opacity: 0; transform: translateX(4%); } to { opacity: 1; transform: none; } }
+
+/* Sur un téléphone (table publique) : la pancarte passe sous l'enseigne, dans le fil de l'échoppe qui défile. */
+@media (max-width: 700px) {
+  .pancarte-tv { position: relative; top: auto; left: auto; max-width: 86%; margin: 0 auto calc(var(--k) * 24px); text-align: center; transform: none; }
+}

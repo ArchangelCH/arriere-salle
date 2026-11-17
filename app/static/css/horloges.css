@@ -1,0 +1,29 @@
+/* ---- Les horloges de la menace dans le tableau du MJ (horloges.js) : une ligne par horloge (cadran, nom, parts,
+   + et −, « À la TV », supprimer), puis le formulaire d'une nouvelle. Le cadran est celui des fils de campagne
+   (seances/fils.js, styles .horloge d'atelier.css). ---- */
+.tableau-combat:not([hidden]) + .tableau-horloges { margin-top: 6px; }
+.hz-groupe h3 { display: flex; align-items: baseline; justify-content: space-between; }
+.hz-groupe .hz-touches { color: var(--texte-pale); font-style: normal; }
+.hz-touches kbd { padding: 1px 4px; font-size: 9px; }
+.hz-ligne {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  grid-template-areas: "cadran texte pas" "cadran actions actions";
+  align-items: center;
+  gap: 4px 10px;
+}
+.hz-ligne .horloge { grid-area: cadran; align-self: start; margin-top: 2px; }
+.hz-texte { grid-area: texte; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; min-width: 0; margin: 0; }
+.hz-texte b { font-weight: 600; font-size: 16px; line-height: 1.2; color: var(--parchemin); overflow-wrap: anywhere; }
+.hz-texte small { font: 700 11px/1 var(--titre); letter-spacing: .08em; font-variant-numeric: lining-nums; color: var(--texte-pale); white-space: nowrap; }
+.hz-texte .etat { margin-left: 4px; padding: 2px 6px; border-radius: 2px; background: var(--sang); font: 700 9px/1 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: #fbeee0; }
+.hz-pas { grid-area: pas; display: inline-flex; gap: 5px; }
+.hz-pas button { width: 32px; min-height: 30px; height: 30px; padding: 0; font: 600 20px/1 var(--corps); letter-spacing: 0; }
+.hz-actions { grid-area: actions; display: flex; align-items: center; gap: 12px; }
+.hz-actions button[data-hz-action="tv"] { min-height: 28px; padding: 3px 10px; font-size: 10px; }
+.hz-ligne.echue { border-radius: var(--rayon); background: rgba(142, 27, 23, .12); box-shadow: inset 3px 0 0 var(--sang-vif); }
+.hz-ligne.echue .horloge path { stroke: #e0584c; }
+.hz-nouvelle { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; margin: 10px 0 2px; }
+.hz-nouvelle input, .hz-nouvelle select { min-width: 0; padding: 5px 8px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: #120d0a; color: var(--texte); font: 400 15px/1.3 var(--corps); }
+.hz-nouvelle input:focus, .hz-nouvelle select:focus { border-color: var(--bronze); outline: none; box-shadow: 0 0 0 3px rgba(194, 155, 92, .18); }
+.hz-nouvelle button { min-height: 32px; padding: 4px 12px; font-size: 11px; }

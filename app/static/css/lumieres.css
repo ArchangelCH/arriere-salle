@@ -1,0 +1,17 @@
+/* Le menu des lumières de l'éditeur de plans (js/plan/lumieres-menu.js). */
+.types-lumiere { display: flex; flex-wrap: wrap; gap: 6px; }
+.types-lumiere button { display: inline-flex; align-items: center; gap: 6px; min-height: 0; padding: 5px 10px; font-size: 14px; }
+.types-lumiere .pastille { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .5); }
+.alerte-lumiere { padding: 8px 10px; border: 1px solid var(--filet-fort); border-left: 3px solid var(--bronze-clair); border-radius: var(--rayon); background: var(--bois-2); }
+.liste-lumieres { margin: 8px 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.liste-lumieres li { display: flex; align-items: stretch; gap: 4px; border: 1px solid var(--filet); border-radius: var(--rayon); background: var(--bois-2); }
+.liste-lumieres li[data-choisie="true"] { border-color: var(--bronze-clair); background: var(--bois-3); }
+.liste-lumieres li[data-eteinte="true"] .nom-lumiere span:not(.temoin-lumiere) { opacity: .55; }
+.liste-lumieres .nom-lumiere { flex: 1; display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 4px 8px; border: 0; background: transparent; text-align: left; color: inherit; font-size: 15px; }
+.liste-lumieres .bascule-lumiere { min-height: 0; padding: 4px 10px; border: 0; border-left: 1px solid var(--filet); background: transparent; font-size: 13px; }
+.liste-lumieres .bascule-lumiere[aria-pressed="true"] { color: var(--bronze-clair); }
+.temoin-lumiere { flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--lum); box-shadow: 0 0 8px var(--lum); border: 1px solid rgba(0, 0, 0, .5); }
+.temoin-lumiere[data-eteinte="true"] { background: transparent; box-shadow: none; border: 1px dashed var(--lum); }
+.lumiere-choisie { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: var(--bois-2); }
+.lumiere-choisie h3 { margin-top: 0; }
+.lumiere-choisie .pastille-teinte[aria-pressed="true"] { outline: 2px solid var(--bronze-clair); outline-offset: 1px; }

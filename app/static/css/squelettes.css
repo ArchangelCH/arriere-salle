@@ -1,0 +1,26 @@
+/* Le squelette d'un scénario, sous une idée (js/idees/squelette.js). */
+.idee-squelette { margin: 4px 0 12px; }
+.squelettes { padding: 12px 14px; border: 1px solid var(--filet); border-radius: var(--rayon); background: var(--bois-2); }
+.sq-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 12px; }
+.sq-form > .aide, .sq-large, .sq-form-actions { grid-column: 1 / -1; }
+.sq-form label { display: grid; gap: 4px; font-size: 14px; color: var(--texte-doux); }
+.sq-form input, .sq-form textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: var(--bois); color: var(--texte); font: 17px/1.4 var(--corps); }
+.sq-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.squelette { margin-top: 8px; border: 1px solid var(--filet); border-left: 3px solid var(--bronze); border-radius: var(--rayon); background: var(--bois); }
+.squelette > summary { padding: 10px 14px; cursor: pointer; line-height: 1.35; }
+.squelette > summary .sq-titre { font-family: var(--titre); font-size: 16px; letter-spacing: .04em; color: var(--bronze-clair); }
+.squelette > :not(summary) { margin-left: 14px; margin-right: 14px; }
+.sq-accroche { font-size: 18px; line-height: 1.45; }
+.sq-acte h4 { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 14px 0 4px; font-family: var(--titre); font-size: 15px; letter-spacing: .04em; }
+.sq-acte h4 button, .sq-actions button { min-height: 0; padding: 5px 12px; font-size: 14px; }
+.sq-acte ol { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.sq-scene { padding: 8px 12px; border: 1px solid var(--filet); border-radius: var(--rayon); background: var(--bois-2); }
+.sq-scene p { margin: 2px 0; font-size: 16px; line-height: 1.4; }
+.sq-scene-titre { font-size: 17px !important; }
+.sq-type { display: inline-block; margin-right: 6px; padding: 0 6px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--texte-doux); }
+.sq-scene[data-type="combat"] .sq-type { border-color: var(--sang-vif); color: var(--sang-vif); }
+.squelette h5 { margin: 14px 0 4px; font-family: var(--titre); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--texte-doux); }
+.squelette ul { margin: 0; padding-left: 20px; }
+.squelette li { margin: 2px 0; font-size: 16px; line-height: 1.4; }
+.sq-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 14px 12px; }
+@media (max-width: 760px) { .sq-form { grid-template-columns: 1fr; } }

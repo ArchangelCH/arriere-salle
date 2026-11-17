@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Mon compte · {{campagne.nom}}</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/atelier.css">
+  <link rel="stylesheet" href="/static/css/compte-coin.css">
+</head>
+<body class="coin-joueurs" data-compte="compte">
+  <header class="entete">
+    <span class="marque"><span class="losange" aria-hidden="true"></span><span>{{campagne.nom}}</span><small>le coin des joueurs</small></span>
+  </header>
+  <main id="page"><div class="chargement plein">Ouverture de votre compte…</div></main>
+  <script type="module" src="/static/js/joueurs/compte.js"></script>
+</body>
+</html>

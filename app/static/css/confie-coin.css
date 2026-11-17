@@ -1,0 +1,62 @@
+/* « Pour le MJ seulement » (js/joueurs/histoire-confie.js), au bas de « L'histoire de mon héros » : une lettre à part,
+   cachetée de cire, pour dire sans détour que ce qui s'y écrit ne va qu'au MJ. Le champ reprend les lignes réglées des
+   autres passages (histoire-coin.css, chargée avant), le témoin et les tampons aussi. Pensée d'abord pour le téléphone :
+   18 px dans le champ (Safari ne zoome pas), cibles de 44 px. Couleurs et polices du carnet (carnet.css). */
+
+.zone-confie { padding: 0 10px 40px; scroll-margin-top: 78px; }
+.zone-confie[hidden] { display: none; }
+.coin-histoire main { padding-bottom: 22px; }
+
+.feuille-confie { max-width: 760px; margin-top: 26px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .6), inset 0 0 90px rgba(110, 18, 16, .13); }
+.feuille-confie::before { border-color: #6e1210; }
+
+/* Le cachet de cire, à cheval sur le haut de la feuille. */
+.sceau-confie { position: absolute; top: -20px; left: 50%; z-index: 2; width: 46px; height: 46px; margin-left: -23px; border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, #c4392e 0, #9b211a 46%, #6e1210 100%);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .45), inset 0 -3px 6px rgba(0, 0, 0, .3); }
+.sceau-confie::after { content: ""; position: absolute; top: 50%; left: 50%; width: 15px; height: 15px; margin: -8.5px 0 0 -8.5px;
+  border: 2px solid rgba(251, 238, 224, .78); transform: rotate(45deg); }
+
+.titre-confie { text-align: center; padding: 10px 8px 0; }
+.titre-confie .kicker { color: #6e1210; }
+.titre-confie h2 { margin: 0; font: 700 clamp(23px, 6vw, 32px)/1.12 var(--titre); letter-spacing: .01em; color: var(--encre); }
+.titre-confie .chapo { margin-bottom: 0; }
+.sans-aide { max-width: 34em; margin: 12px auto 0; padding-top: 10px; border-top: 1px solid var(--filet); font-size: 16px;
+  font-style: italic; color: var(--doux); }
+
+/* Où en est ce qui a été confié : un billet épinglé, à l'encre de la cire. */
+.etat-confie:empty { display: none; }
+.etat-confie { margin: 22px 0 0; padding: 12px 16px; border: 1px solid rgba(107, 79, 42, .5); border-left: 4px solid #6e1210;
+  background: rgba(255, 251, 240, .6); }
+.etat-confie p { margin: 0; font-size: 17px; }
+.etat-confie p + p, .etat-confie p + details { margin-top: 6px; }
+.etat-confie b { font: 700 12px/1.3 var(--titre); letter-spacing: .16em; text-transform: uppercase; color: #6e1210; }
+.etat-confie .echec-confie b { color: var(--rouge); }
+.etat-confie .aide-confie { font-size: 16px; font-style: italic; color: var(--doux); }
+.relire-confie summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; font: 600 12px/1.2 var(--titre);
+  letter-spacing: .1em; text-transform: uppercase; color: var(--sang); }
+.relire-confie .texte-confie { padding: 6px 0 2px 12px; border-left: 2px solid rgba(107, 79, 42, .4); }
+.relire-confie .texte-confie p { margin: 0 0 6px; overflow-wrap: anywhere; }
+
+.passage-confie { margin-top: 18px; border-bottom: 0; }
+.passage-confie textarea { min-height: 150px; border-left-color: rgba(110, 18, 16, .35); }
+.tampon-passage[data-etat="lu"] { border-color: #4d6a2c; color: #4d6a2c; }
+
+/* Le témoin, à l'encre du carnet (comme dans la feuille de l'histoire). */
+.feuille-confie .temoin-enregistrement { display: inline-flex; align-items: center; gap: 7px; font: 600 11px/1.3 var(--titre);
+  letter-spacing: .14em; text-transform: uppercase; color: #4d6a2c; }
+.feuille-confie .temoin-enregistrement .court { display: none; }
+.feuille-confie .temoin-enregistrement .temoin-pastille { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.feuille-confie .temoin-enregistrement[data-etat="modifie"], .feuille-confie .temoin-enregistrement[data-etat="enregistrement"] { color: var(--or-sombre); }
+.feuille-confie .temoin-enregistrement[data-etat="erreur"] { color: var(--rouge); }
+
+.barre-confie { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 14px; margin: 14px 0 0; }
+.barre-confie .ligne-temoin { flex: 1 1 160px; justify-content: flex-start; margin: 0; }
+.barre-confie .lien-passage[hidden] { display: none; }
+.refus-confie { margin-top: 10px; }
+
+@media (min-width: 600px) {
+  .zone-confie { padding: 0 18px 60px; }
+  .feuille-confie { margin-top: 34px; }
+}

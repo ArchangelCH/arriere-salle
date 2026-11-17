@@ -1,0 +1,58 @@
+/* Les pointeurs de la page Table du coin (js/joueurs/pointeurs-coin.js) : le point du MJ (même dessin qu'à la TV, en pixels),
+   sa règle, le bouton « Montrer au MJ » et le point que pose le joueur. Tout est posé dans le cadre du plan ou de la carte
+   (même origine que le canvas), sans toucher : rien n'intercepte les gestes. */
+.pointeur-coin { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; opacity: 0; transition: opacity .3s ease; will-change: opacity; z-index: 2; }
+.pointeur-coin.visible { opacity: 1; transition-duration: .12s; }
+.pointeur-coin.estompe { transition-duration: 1.2s; }
+.pointeur-coin i, .pointeur-coin .ondes { position: absolute; left: 0; top: 0; display: block; will-change: transform; }
+.pointeur-coin i { border-radius: 50%; }
+.pointeur-coin .point {
+  width: 18px; height: 18px; margin: -9px 0 0 -9px;
+  background: radial-gradient(circle at 50% 42%, #fffaf0 0, #ffe6a0 32%, #f2b746 64%, #c27f1a 100%);
+  box-shadow: 0 0 0 2px rgba(43, 29, 18, .82), 0 0 9px 3px rgba(255, 214, 120, .9), 0 0 26px 10px rgba(255, 184, 60, .4);
+}
+.pointeur-coin .trace { width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; background: rgba(255, 210, 110, .62); box-shadow: 0 0 8px 2px rgba(255, 184, 60, .4); }
+.pointeur-coin .trace:nth-child(2) { opacity: .86; }
+.pointeur-coin .trace:nth-child(3) { opacity: .72; }
+.pointeur-coin .trace:nth-child(4) { opacity: .6; }
+.pointeur-coin .trace:nth-child(5) { opacity: .48; }
+.pointeur-coin .trace:nth-child(6) { opacity: .37; }
+.pointeur-coin .trace:nth-child(7) { opacity: .27; }
+.pointeur-coin .trace:nth-child(8) { opacity: .18; }
+.pointeur-coin.dehors .point, .pointeur-coin.dehors .trace { opacity: 0; }
+.pointeur-coin .onde {
+  width: 110px; height: 110px; margin: -55px 0 0 -55px; opacity: 0;
+  border: 3px solid rgba(255, 216, 124, .95);
+  box-shadow: 0 0 0 1.5px rgba(43, 29, 18, .7), inset 0 0 0 1.5px rgba(43, 29, 18, .5), 0 0 16px rgba(255, 184, 60, .55);
+}
+
+/* La règle du MJ : un trait doré en tirets, deux bouts, sa mesure au milieu. */
+.regle-coin { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 2; }
+.regle-coin[hidden] { display: none; }
+.regle-trait { stroke: #e0b562; stroke-width: 3; stroke-dasharray: 9 6; stroke-linecap: round; filter: drop-shadow(0 0 2px rgba(20, 13, 8, .9)); }
+.regle-bout { fill: #e0b562; stroke: rgba(20, 13, 8, .85); stroke-width: 2; }
+.regle-texte { fill: #fff3d6; font: 700 14px/1 var(--titre, serif); letter-spacing: .03em; paint-order: stroke; stroke: rgba(20, 13, 8, .92); stroke-width: 4px; stroke-linejoin: round; }
+
+/* « Montrer au MJ » : le mode prend les touchers du plan. */
+.commandes-table [data-pointeur] { border-color: var(--or-vif); }
+.commandes-table [data-pointeur][aria-pressed="true"] { background: var(--or-vif); color: #1a110a; }
+.commandes-table [data-pointeur] svg .plein { fill: currentColor; stroke: none; }
+.toile-table.mode-pointeur { cursor: crosshair; box-shadow: inset 0 0 0 3px rgba(224, 181, 98, .65); }
+.indice-pointeur {
+  position: absolute; z-index: 3; left: 50%; bottom: max(64px, calc(env(safe-area-inset-bottom) + 58px)); transform: translateX(-50%);
+  max-width: min(92%, 420px); margin: 0; padding: 7px 12px; border-radius: 3px; background: rgba(20, 13, 8, .88); color: var(--parchemin, #f4ead4);
+  font: 600 13px/1.3 var(--titre, serif); letter-spacing: .03em; text-align: center; pointer-events: none;
+}
+.indice-pointeur[hidden] { display: none; }
+.mon-pointeur {
+  --c: #e0b562;
+  position: absolute; left: 0; top: 0; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; pointer-events: none; z-index: 2;
+  background: var(--c); box-shadow: 0 0 0 3px rgba(244, 234, 212, .95), 0 0 0 5px rgba(20, 13, 8, .8), 0 0 14px 4px var(--c); will-change: transform;
+}
+.mon-pointeur[hidden] { display: none; }
+.mon-pointeur.onde::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%;
+  border: 3px solid var(--c); animation: onde-mon-pointeur .9s ease-out 1;
+}
+@keyframes onde-mon-pointeur { from { transform: scale(.2); opacity: .95; } to { transform: scale(1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .mon-pointeur.onde::after { animation: none; opacity: 0; } }

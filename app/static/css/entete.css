@@ -1,0 +1,191 @@
+/* L'en-tête de l'atelier sur deux lignes (js/commun/onglets.js) : le nom, les trois familles et les outils, puis les petits
+   liens et les onglets de la famille ouverte, à la même place d'une page à l'autre. Sa hauteur vit dans --haut-entete :
+   toutes les pages pleine hauteur et les panneaux qui pendent sous l'en-tête s'y règlent (52 px au coin des joueurs). */
+.atelier { --haut-ligne1: 50px; --haut-ligne2: 34px; --haut-entete: calc(var(--haut-ligne1) + var(--haut-ligne2)); }
+
+.entete.entete-atelier {
+  display: grid;
+  /* Les familles prennent toujours leur place ; les outils, le reste (le nom de l'ambiance s'y abrège au besoin). */
+  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-rows: var(--haut-ligne1) minmax(0, 1fr);
+  grid-template-areas: "marque familles outils" "liens onglets onglets";
+  align-items: center;
+  gap: 0 30px;
+  height: var(--haut-entete);
+  padding: 0 20px;
+  /* Un filet entre les deux lignes ; la seconde, un ton plus sombre, comme une réglure. */
+  background:
+    linear-gradient(var(--filet), var(--filet)) 0 var(--haut-ligne1) / 100% 1px no-repeat,
+    linear-gradient(#1a130e, #150f0b var(--haut-ligne1), #110c09 var(--haut-ligne1), #0e0a07);
+}
+.entete-atelier .marque { grid-area: marque; }
+.entete-atelier .liens-atelier { grid-area: liens; align-self: center; gap: 16px; margin-left: 22px; }
+.entete-atelier .liens-atelier button { min-height: 0; }
+.entete-atelier .outils-entete { grid-area: outils; justify-self: end; max-width: 100%; min-width: 0; }
+/* Le nom d'une ambiance qui joue s'abrège avant le témoin de la TV : en partie, la musique tourne, et le témoin dit ce
+   que voient les joueurs. Plus étroit (voir 1250 px), le témoin cède à son tour. */
+.entete-atelier .bouton-musique { min-width: 0; flex: 0 1 auto; }
+.entete-atelier .temoin-tv { min-width: 96px; width: auto; flex: 0 1 236px; }
+/* Le témoin absorbe ce qui manque : avec Demandes, Journal et « ce soir » à la fois, rien ne sort de l'écran et la page
+   ne défile jamais de côté. Les lettres des boutons (T, N, I) cèdent avant lui, sous 1 560 px. */
+.entete-atelier .outils-entete { flex: 0 1 auto; }
+@media (max-width: 1560px) {
+  .entete-atelier .temoin-tv { flex-basis: 196px; }
+  .entete-atelier .outils-entete kbd.touche { display: none; }
+  .entete-atelier .bouton-musique { padding: 7px 9px; }
+  .entete-atelier .bouton-musique .libelle { display: none; }
+}
+/* Sous 1 360 px, avec Demandes, le témoin, Tableau, Journal et Idée, le nom de l'atelier cède : le losange reste le lien
+   (le nom reste lu par les lecteurs d'écran), comme sur la tablette et le téléphone. */
+@media (max-width: 1360px) {
+  .entete.entete-atelier { grid-template-columns: auto auto minmax(0, 1fr) auto; grid-template-areas: "marque familles outils outils" "onglets onglets onglets liens"; gap: 0 14px; }
+  .entete-atelier .marque > span:not(.losange) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .entete-atelier .liens-atelier { justify-self: end; margin-left: 0; gap: 8px; }
+  .entete-atelier .onglets { margin-left: -11px; }
+}
+/* La loupe se serre contre les petits liens (elle n'a que la place de l'écart entre colonnes). */
+@media (min-width: 761px) and (max-width: 1360px) { .entete-atelier .chercher-entete { margin-right: -12px; } }
+/* La tablette et la fenêtre étroite : les boutons de l'en-tête se resserrent pour que Demandes, Tableau, Journal et Idée
+   tiennent ensemble. */
+@media (max-width: 1100px) {
+  .entete-atelier .outils-entete { gap: 6px; }
+  .entete-atelier .outils-entete .ouvrir-tableau, .entete-atelier .outils-entete .noter-journal, .entete-atelier .outils-entete .noter-idee { padding: 6px 8px; letter-spacing: .08em; }
+  .entete-atelier .pastille-demandes { padding: 6px 6px 6px 8px; letter-spacing: .04em; gap: 5px; }
+}
+@media (max-width: 1100px) { .entete-atelier .temoin-tv { min-width: 68px; } }
+@media (max-width: 760px) { .entete-atelier .temoin-tv { min-width: 0; flex: none; } }
+
+/* Les trois familles : des mots en Cinzel ; le losange posé sur le filet marque celle dont les onglets sont dessous. */
+.familles { grid-area: familles; align-self: stretch; display: flex; gap: 4px; min-width: 0; margin-left: -12px; }
+.familles .famille {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--texte-doux);
+  font: 700 13px/1 var(--titre);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.familles .famille:hover { background: none; color: var(--texte); }
+.familles .famille.courante { color: var(--texte); }
+.familles .famille[aria-expanded="true"] { color: var(--parchemin); }
+.familles .famille[aria-expanded="true"]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  z-index: 1;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  background: var(--sang);
+  transform: rotate(45deg);
+  box-shadow: inset 0 0 0 2px var(--sang), inset 0 0 0 3.5px var(--parchemin);
+}
+/* Le jour d'une séance, Jouer le dit ; ses onglets restent au bout de la seconde ligne. */
+.famille-soir { font: italic 500 15px/1 var(--corps); letter-spacing: 0; text-transform: none; color: var(--bronze-clair); }
+
+/* La seconde ligne : les onglets de la famille ouverte, alignés sous les familles. */
+.entete-atelier .onglets { grid-area: onglets; align-self: stretch; height: auto; gap: 2px; margin-left: -11px; }
+.entete-atelier .onglets a { flex: none; padding: 0 11px; font: 600 12px/1 var(--titre); letter-spacing: .13em; }
+.onglets-soir {
+  flex: none;
+  align-self: center;
+  margin: 0 4px 0 12px;
+  padding: 3px 0 3px 16px;
+  border-left: 1px solid var(--filet-fort);
+  font: 700 10px/1 var(--titre);
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--sang-vif);
+  white-space: nowrap;
+}
+.onglets-soir[hidden] { display: none; }
+/* À l'étroit, la séparation garde son filet et perd son mot (le mot Jouer dit déjà « ce soir »). */
+.onglets-soir.courte { width: 1px; margin: 0 6px; padding: 0; overflow: hidden; color: transparent; }
+
+@media (max-width: 1250px) {
+  .entete.entete-atelier { gap: 0 22px; }
+  .familles .famille { padding: 0 10px; letter-spacing: .16em; }
+  .familles { margin-left: -10px; }
+  /* Le témoin de la TV garde de quoi se lire : la musique se réduit à son signe (le nom de l'ambiance est dans son
+     panneau), les lettres des boutons restent sur la carte des touches, « Retirer » aux pages et à la télécommande. Le
+     témoin cède le dernier. */
+  .entete-atelier .bouton-musique { padding: 7px 9px; }
+  .entete-atelier .bouton-musique .libelle { display: none; }
+  .entete-atelier .outils-entete kbd.touche { display: none; }
+  .entete-atelier .temoin-retirer { display: none; }
+  .entete-atelier .temoin-tv { flex: 0 1 auto; }
+}
+/* L'iPhone déplié, l'iPad en portrait et les fenêtres étroites : le nom de l'atelier s'efface (le losange reste le
+   lien), les petits liens passent au bout de la seconde ligne, sous les outils ; le témoin de la TV garde sa largeur. */
+@media (max-width: 1100px) {
+  /* La ligne des onglets couvre la colonne souple : sa longueur n'élargit pas celles du nom et des familles. */
+  .entete.entete-atelier { grid-template-columns: auto auto minmax(0, 1fr) auto; grid-template-areas: "marque familles outils outils" "onglets onglets onglets liens"; gap: 0 14px; padding: 0 12px; }
+  .entete-atelier .marque > span:not(.losange) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .entete-atelier .liens-atelier { justify-self: end; margin-left: 0; gap: 12px; }
+  .familles .famille { padding: 0 8px; font-size: 12px; letter-spacing: .12em; }
+  .familles { margin-left: -8px; gap: 2px; }
+  .entete-atelier .onglets { margin-left: -8px; }
+  .entete-atelier .onglets a { padding: 0 8px; font-size: 11.5px; letter-spacing: .08em; }
+  .onglets-soir { margin-left: 6px; padding-left: 10px; letter-spacing: .16em; }
+  .famille-soir { font-size: 14px; }
+}
+/* L'iPhone déplié : « ce soir » devient un petit losange après Jouer (la bulle du mot le dit en entier), le témoin de
+   la TV garde sa place. */
+@media (max-width: 1000px) {
+  .famille-soir { width: 6px; height: 6px; margin-left: 1px; overflow: hidden; font-size: 0; background: var(--sang-vif); transform: rotate(45deg); }
+}
+/* Le téléphone (390 px, l'iPhone plié à 466 px, et tourné à 678 px) : trois lignes, tout en vue, rien qui défile. En haut, le losange (le
+   nom reste lu par les lecteurs d'écran) et les outils ; puis les trois familles, les petits liens au bout ; enfin les
+   onglets de la famille ouverte, répartis sur toute la largeur. Des cibles de 44 px ; --haut-entete suit. */
+@media (max-width: 760px) {
+  .atelier { --haut-ligne1: 52px; --haut-ligne2: 45px; --haut-ligne3: 45px; --haut-entete: calc(var(--haut-ligne1) + var(--haut-ligne2) + var(--haut-ligne3)); }
+  .entete.entete-atelier {
+    /* La loupe de la recherche (chercher.css) a sa case sur la ligne des familles, avant les petits liens. */
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-rows: var(--haut-ligne1) var(--haut-ligne2) minmax(0, 1fr);
+    grid-template-areas: "marque outils outils outils" "familles familles chercher liens" "onglets onglets onglets onglets";
+    gap: 0 8px;
+    padding: 0 10px;
+    background:
+      linear-gradient(var(--filet), var(--filet)) 0 var(--haut-ligne1) / 100% 1px no-repeat,
+      linear-gradient(var(--filet), var(--filet)) 0 calc(var(--haut-ligne1) + var(--haut-ligne2)) / 100% 1px no-repeat,
+      linear-gradient(#1a130e, #150f0b var(--haut-ligne1), #110c09 var(--haut-ligne1), #0e0a07);
+  }
+  .entete-atelier .marque { justify-content: center; min-width: 44px; min-height: 44px; }
+  .entete-atelier .outils-entete { gap: 6px; }
+  .outils-entete .ouvrir-tableau { padding: 6px 7px; letter-spacing: .06em; }
+  .familles { justify-self: start; margin-left: -9px; gap: 0; }
+  .familles .famille { padding: 0 9px; font-size: 11.5px; letter-spacing: .1em; }
+  .entete-atelier .liens-atelier { align-self: stretch; align-items: center; gap: 12px; }
+  .entete-atelier .liens-atelier a, .entete-atelier .liens-atelier button { display: inline-flex; align-items: center; min-height: 44px; }
+  .entete-atelier .onglets { justify-content: space-between; margin: 0 -6px; }
+  .entete-atelier .onglets a { padding: 0 6px; font-size: 11px; letter-spacing: .07em; }
+}
+@media (max-width: 480px) {
+  .entete-atelier .liens-atelier .lien-touches { display: none; }
+  /* Six boutons d'outils (musique, Demandes, TV, Tableau, Journal, Idée) tiennent sur la première ligne : le losange
+     se resserre, les mots aussi. */
+  .atelier .entete-atelier .marque { min-width: 26px; }
+  .entete-atelier .outils-entete, .entete-atelier .outils-entete:has(.noter-journal:not([hidden])) { gap: 4px; }
+  .entete-atelier .outils-entete .ouvrir-tableau, .entete-atelier .outils-entete .noter-journal, .entete-atelier .outils-entete .noter-idee,
+  .entete-atelier .outils-entete:has(.noter-journal:not([hidden])) .noter-idee { padding: 6px 4px; letter-spacing: .02em; }
+}
+/* 390 px : la loupe tient entre Jouer et Corbeille si les familles et le petit lien se resserrent un peu. */
+@media (max-width: 420px) {
+  .entete.entete-atelier { gap: 0 6px; }
+  .familles .famille { padding: 0 6px; letter-spacing: .05em; }
+  .entete-atelier .liens-atelier a, .entete-atelier .liens-atelier button { letter-spacing: .06em; }
+  /* Les sept onglets de Préparer tiennent sur la largeur, Documents compris. */
+  .atelier .entete-atelier .onglets a { min-width: 0; padding: 0 4px; font-size: 10.5px; letter-spacing: .03em; }
+}

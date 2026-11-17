@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>L'Arrière-salle</title>
+  <meta name="description" content="Atelier du MJ pour la campagne {{campagne.nom}} : cartes, lieux, table de jeu.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="preload" href="/static/fonts/Cinzel-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/EBGaramond-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/css/atelier.css">
+  <link rel="stylesheet" href="/static/css/affiches.css">
+  <link rel="stylesheet" href="/static/css/boutiques.css">
+  <link rel="stylesheet" href="/static/css/sanctuaire.css">
+  <link rel="stylesheet" href="/static/css/flammes.css">
+  <link rel="stylesheet" href="/static/css/jouer.css">
+  <link rel="stylesheet" href="/static/css/fil-seance.css">
+  <link rel="stylesheet" href="/static/css/regles.css">
+  <link rel="stylesheet" href="/static/css/horloges.css">
+  <link rel="stylesheet" href="/static/css/carnet-mj.css">
+  <link rel="stylesheet" href="/static/css/createur.css">
+  <link rel="stylesheet" href="/static/css/tableau-aides.css">
+  <link rel="stylesheet" href="/static/css/combat.css">
+  <link rel="stylesheet" href="/static/css/corbeille.css">
+  <link rel="stylesheet" href="/static/css/lieux.css">
+  <link rel="stylesheet" href="/static/css/carton-pnj.css">
+  <link rel="stylesheet" href="/static/css/editeurs.css">
+  <link rel="stylesheet" href="/static/css/entete.css">
+  <link rel="stylesheet" href="/static/css/touches.css">
+  <link rel="stylesheet" href="/static/css/chercher.css">
+  <link rel="stylesheet" href="/static/css/comptoir.css">
+  <link rel="stylesheet" href="/static/css/liens.css">
+  <link rel="stylesheet" href="/static/css/filets.css">
+  <link rel="stylesheet" href="/static/css/preparer.css">
+  <link rel="stylesheet" href="/static/css/billets-suite.css">
+  <link rel="stylesheet" href="/static/css/confort.css">
+  <link rel="stylesheet" href="/static/css/demandes.css">
+  <link rel="stylesheet" href="/static/css/lore-mj.css">
+  <link rel="stylesheet" href="/static/css/activites.css">
+  <link rel="stylesheet" href="/static/css/salle.css">
+  <link rel="stylesheet" href="/static/css/portraits-mj.css">
+  <link rel="stylesheet" href="/static/css/confie-mj.css">
+  <link rel="stylesheet" href="/static/css/pions-images.css">
+  <link rel="stylesheet" href="/static/css/reglages.css">
+  <link rel="stylesheet" href="/static/css/jeu-correctifs.css">
+  <link rel="stylesheet" href="/static/css/squelettes.css">
+  <link rel="stylesheet" href="/static/css/lumieres.css">
+  <link rel="stylesheet" href="/static/css/sang.css">
+  <link rel="stylesheet" href="/static/css/pointeurs-joueurs.css">
+  <link rel="stylesheet" href="/static/css/etroit.css">
+  <link rel="stylesheet" href="/static/css/doigt.css">
+</head>
+<body class="atelier">
+  <header class="entete entete-atelier">
+    <a class="marque" href="#/cartes"><span class="losange" aria-hidden="true"></span><span>L'Arrière-salle</span><small>atelier du MJ</small></a>
+    <div class="liens-atelier" hidden></div>
+    <nav class="familles" aria-label="Familles d'onglets">
+      <button type="button" class="famille" data-famille="preparer" aria-controls="onglets" aria-expanded="false">Préparer</button>
+      <button type="button" class="famille" data-famille="compagnie" aria-controls="onglets" aria-expanded="false">La compagnie</button>
+      <button type="button" class="famille" data-famille="jouer" aria-controls="onglets" aria-expanded="false">Jouer</button>
+    </nav>
+    <nav class="onglets" id="onglets" aria-label="Sections">
+      <a href="#/scenarios" data-onglet="scenarios">Scénarios</a>
+      <a href="#/cartes" data-onglet="cartes">Cartes</a>
+      <a href="#/lieux" data-onglet="lieux">Lieux</a>
+      <a href="#/pnj" data-onglet="pnj">PNJ</a>
+      <a href="#/idees" data-onglet="idees">Idées</a>
+      <a href="#/bible" data-onglet="bible">Bible</a>
+      <a href="#/documents" data-onglet="documents">Documents</a>
+      <a href="#/aventuriers" data-onglet="aventuriers">Aventuriers</a>
+      <a href="#/auberge" data-onglet="auberge">Auberge</a>
+      <a href="#/boutiques" data-onglet="boutiques">Boutiques</a>
+      <a href="#/sanctuaire" data-onglet="sanctuaire">Sanctuaire</a>
+      <a href="#/seances" data-onglet="seances">Séances</a>
+      <a href="#/combats" data-onglet="combats">Combats</a>
+      <a href="#/table" data-onglet="table">Table</a>
+      <a href="#/regles" data-onglet="regles">Règles maison</a>
+    </nav>
+    <div class="outils-entete">
+      <a class="pastille-demandes" href="#/demandes" hidden><span class="libelle">Demandes</span><span class="compte-demandes">0</span></a>
+      <div class="temoin-tv" hidden></div>
+      <button class="ouvrir-tableau" type="button" title="Le combat en cours et l'état des héros, sans quitter la page (touche T)">Tableau<kbd class="touche" aria-hidden="true">T</kbd></button>
+      <button class="noter-journal" type="button" hidden>Journal<kbd class="touche" aria-hidden="true">N</kbd></button>
+      <button class="noter-idee" type="button" title="Noter une idée sans quitter la page (touche I)">Idée<kbd class="touche" aria-hidden="true">I</kbd></button>
+    </div>
+  </header>
+  <main id="page"></main>
+  <script type="module" src="/static/js/atelier.js"></script>
+</body>
+</html>

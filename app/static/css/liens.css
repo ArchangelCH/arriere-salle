@@ -1,0 +1,81 @@
+/* Les liens dans les deux sens : ce que lient les scènes dans « Sous la main », « Proposer les liens », « Dans les
+   scénarios » sur les fiches, « Retour au chapitre », les liens courts et la création d'une fiche en écrivant. */
+
+/* Préparer › Sous la main : une entrée liée par une scène dit laquelle, en petit ; un clic ouvre son « Lier ». */
+.choix .puces li.par-scene a { flex: 0 1 auto; padding-right: 6px; }
+.mention-scene { display: block; flex: 0 1 auto; min-width: 0; min-height: 0; padding: 3px 12px 3px 8px; overflow: hidden; border: 0; border-left: 1px solid var(--filet); border-radius: 0 999px 999px 0; background: none; color: var(--texte-pale); font: italic 400 13.5px/1.2 var(--corps); letter-spacing: 0; text-transform: none; white-space: nowrap; text-overflow: ellipsis; }
+.mention-scene:hover { background: var(--bois-3); color: var(--texte); }
+
+/* La durée d'une scène : la même encre que son titre (on la croyait vide en italique gris). */
+.scene .duree input { font-style: normal; color: var(--texte); }
+
+/* « Proposer les liens », au-dessus du déroulé, et ce qui est proposé sous chaque scène. */
+.proposer-liens { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: -2px 0 12px; }
+.proposer-liens .aide { flex: 1 1 260px; margin: 0; font-size: 14.5px; }
+.proposer-liens .lien + .aide { flex-basis: 100%; }
+.proposition-scene { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0 2px; padding: 8px 10px; border: 1px dashed var(--bronze); border-radius: var(--rayon); background: rgba(194, 155, 92, .06); }
+.proposition-titre { margin-right: 4px; font: 600 11px/1 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--bronze); }
+.puce-proposee { min-height: 30px; padding: 3px 12px; border-radius: 999px; font: 400 15px/1.2 var(--corps); letter-spacing: 0; text-transform: none; }
+.puce-proposee i { margin-right: 3px; color: var(--texte-pale); }
+.puce-proposee[aria-pressed="true"] { box-shadow: none; }
+.puce-proposee[aria-pressed="false"] { border-style: dashed; background: transparent; color: var(--texte-pale); text-decoration: line-through; text-decoration-color: rgba(235, 166, 155, .7); }
+.proposition-source { font: italic 400 13.5px/1.2 var(--corps); color: var(--texte-pale); }
+.proposition-actions { display: inline-flex; align-items: center; gap: 12px; margin-left: auto; }
+
+/* « Dans les scénarios » : sur la fiche d'un PNJ (comme ses champs), dans le panneau d'un lieu (comme « PNJ ici »). */
+.dans-les-scenarios { margin: 0 0 16px; }
+.dans-les-scenarios:empty { display: none; }
+.carnet-fiche .dans-les-scenarios h3 { margin: 0 0 7px; font: 600 11px/1.2 var(--titre); letter-spacing: .1em; text-transform: uppercase; color: var(--texte-doux); }
+.dans-les-scenarios h3 .compte { margin-left: 4px; }
+.scenario-cite { margin: 0 0 3px; font: 600 15px/1.25 var(--corps); color: var(--texte); }
+.passages { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
+.passages li { display: grid; gap: 1px; }
+.passages a { display: flex; align-items: baseline; gap: 8px; min-width: 0; color: var(--bronze-clair); text-decoration: none; font: 400 16px/1.25 var(--corps); }
+.passages a:hover .titre { text-decoration: underline; text-underline-offset: 3px; }
+.passages .numero { flex: none; min-width: 1.4em; font: 600 11px/1 var(--titre); color: var(--texte-pale); text-align: right; }
+.passages .titre { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.passages .fois { flex: none; font: italic 400 13px/1 var(--corps); color: var(--texte-pale); }
+.passages .par, .passages .extrait { margin-left: calc(1.4em + 8px); font: italic 400 14px/1.35 var(--corps); color: var(--texte-pale); }
+.passages .extrait { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ancien-scenario { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 4px 0 0; font: italic 400 14.5px/1.35 var(--corps); color: var(--texte-doux); }
+.ancien-scenario button.lien { font-size: 14px; }
+
+/* « Retour au chapitre », en tête d'une fiche ouverte par un lien du scénario. */
+.retour-chapitre { display: inline-block; margin: 0 0 10px; font: 600 11px/1.3 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--texte-pale); text-decoration: none; }
+.retour-chapitre::before { content: "← "; }
+.retour-chapitre:hover { color: var(--bronze-clair); }
+
+/* Scénarios : « Reprendre » le dernier chapitre écrit, en tête de la liste. */
+.reprendre { display: flex; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; margin: 0 0 22px; padding: 14px 20px; border: 1px solid var(--filet-fort); border-left: 3px solid var(--sang-vif); border-radius: var(--rayon); background: var(--bois); color: var(--texte); text-decoration: none; }
+.reprendre:hover { border-color: var(--bronze); background: var(--bois-2); }
+.reprendre .kicker { margin: 0; }
+.reprendre .quoi { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; min-width: 0; }
+.reprendre b { font: 700 19px/1.2 var(--titre); letter-spacing: .02em; color: var(--parchemin); }
+.reprendre .ou { font: italic 400 16px/1.3 var(--corps); color: var(--texte-doux); }
+
+/* « Lier une fiche » sans résultat : créer la fiche qui manque. */
+.choix-fiches li.creer-fiche { flex-direction: column; align-items: stretch; gap: 10px; padding: 10px; cursor: default; }
+.choix-fiches li.creer-fiche:hover { background: none; }
+.creer-fiche .actions { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px; margin: 0; }
+.creer-fiche .actions button { text-transform: none; letter-spacing: .02em; font: 500 15px/1.2 var(--corps); }
+
+/* Aperçu : un lien court dont la fiche n'existe pas encore ; le passage ouvert depuis une fiche s'éclaire. */
+.apercu .lien-court { border-bottom: 1px dashed rgba(235, 166, 155, .7); color: var(--texte); cursor: help; }
+.apercu a.eclat { border-radius: 2px; animation: eclat 1.6s ease-out; }
+
+/* Carte › panneau du lieu : « Ajouter un PNJ », un PNJ du carnet cherché par son nom, son métier ou son lieu. */
+.ajouter-pnj { margin: -6px 0 14px; }
+.ajouter-pnj input { width: 100%; padding: 7px 10px; border: 1px solid var(--filet-fort); border-radius: var(--rayon); background: #120d0a; color: var(--texte); font: 400 16px/1.3 var(--corps); }
+.ajouter-pnj input:focus { border-color: var(--bronze); outline: none; box-shadow: 0 0 0 3px rgba(194, 155, 92, .18); }
+.trouves-pnj { margin-top: 6px; }
+.trouves-pnj .vide { padding: 4px 8px; font: italic 400 14.5px/1.3 var(--corps); color: var(--texte-doux); }
+.panneau .retour-chapitre { margin-bottom: 8px; }
+
+/* Lieux › la fiche d'un lieu sans carte, qui se remplit sur place. */
+.nom-lieu { width: 100%; margin: 0 0 10px; padding: 2px 0 6px; border: 0; border-bottom: 1px solid var(--filet-fort); background: none; color: var(--parchemin); font: 700 40px/1.12 var(--titre); }
+.nom-lieu:focus { outline: none; border-bottom-color: var(--bronze-clair); }
+.ligne-lieu { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.ligne-lieu .champ { flex: 1 1 auto; max-width: 260px; }
+.panneau-lieu-seul h3 { margin: 22px 0 10px; padding-top: 16px; border-top: 1px solid var(--filet); font: 700 12px/1 var(--titre); letter-spacing: .18em; text-transform: uppercase; color: var(--bronze); }
+.panneau-lieu-seul > h3:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.panneau-lieu-seul h3 .compte { float: right; color: var(--texte-pale); letter-spacing: 0; }

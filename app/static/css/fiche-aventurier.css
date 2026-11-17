@@ -1,0 +1,196 @@
+/* Fiche d'aventurier : le gabarit des fiches du kit (parchemin, capitales Cinzel, dizaines en rouge, cadre à losanges),
+   une feuille A4 par face. Les tailles du texte variable suivent --k, que le script réduit tant que la fiche déborde. */
+
+@font-face { font-family: "Cinzel"; src: url("../fonts/Cinzel-VF.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: "Cinzel Decorative"; src: url("../fonts/CinzelDecorative-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Cinzel Decorative"; src: url("../fonts/CinzelDecorative-Black.woff2") format("woff2"); font-weight: 900; font-display: swap; }
+@font-face { font-family: "EB Garamond"; src: url("../fonts/EBGaramond-VF.woff2") format("woff2"); font-weight: 400 800; font-display: swap; }
+@font-face { font-family: "EB Garamond"; src: url("../fonts/EBGaramond-Italic-VF.woff2") format("woff2"); font-weight: 400 800; font-style: italic; font-display: swap; }
+
+:root {
+  --encre: #2b1d12;
+  --sang: #8e1b17;
+  --rouge: #b3261e;
+  --bronze: #8a6a34;
+  --doux: #6b5a45;
+  --filet: rgba(107, 79, 42, .38);
+  --encart: rgba(139, 98, 40, .08);
+  --parchemin: #f4ead4;
+  --losange: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><polygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/><polygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/></svg>");
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { background: #2a1f16; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; padding: 22px 16px 40px; color: var(--encre); font: 400 9.8pt/1.3 "EB Garamond", Garamond, Georgia, serif; font-variant-numeric: lining-nums; hyphens: auto; }
+
+.outils-fiche { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; max-width: 210mm; margin: 0 auto 14px; color: #e8dcc3; font: 16px/1.3 "EB Garamond", Georgia, serif; }
+.outils-fiche a { color: #e0b562; }
+.outils-fiche button {
+  padding: 7px 16px; border: 1px solid #b8433b; border-radius: 3px; background: var(--sang); color: #fbeee0;
+  font: 600 12px/1 "Cinzel", serif; letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+}
+.outils-fiche label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.outils-fiche .bouton-pdf {
+  padding: 7px 16px; border: 1px solid #b8943f; border-radius: 3px; color: #f1d9a0; text-decoration: none;
+  font: 600 12px/1 "Cinzel", serif; letter-spacing: .1em; text-transform: uppercase;
+}
+.outils-fiche .bouton-pdf:hover { background: rgba(224, 181, 98, .14); }
+.outils-fiche input { accent-color: #b3261e; width: 16px; height: 16px; }
+.outils-fiche .taille { flex: 1 1 100%; margin: 0; font-style: italic; color: #b7a585; }
+.outils-fiche .taille.alerte { color: #f2b3a8; font-style: normal; }
+.chargement { color: #e8dcc3; font: italic 18px "EB Garamond", serif; text-align: center; }
+
+.feuilles { display: grid; gap: 18px; justify-content: center; }
+
+p { margin: 0 0 1.2mm; }
+b, strong { font-weight: 700; }
+.dizaine { color: var(--rouge); }
+.petit { font-size: .94em; }
+.doux { color: var(--doux); }
+
+/* La feuille : A4, parchemin, double cadre à losanges */
+.feuille {
+  --k: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 210mm;
+  height: 297mm;
+  padding: 12.5mm 14mm 10.5mm;
+  overflow: hidden;
+  background: #f6eedb url("../img/kit/parchemin-clair.jpg") center / 100% 100% no-repeat;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+  gap: 2.6mm;
+}
+.feuille::before, .feuille::after { content: ""; position: absolute; pointer-events: none; }
+.feuille::before {
+  inset: 6mm;
+  border: .6pt solid #6b4f2a;
+  background:
+    var(--losange) left top / 3mm 3mm no-repeat, var(--losange) right top / 3mm 3mm no-repeat,
+    var(--losange) left bottom / 3mm 3mm no-repeat, var(--losange) right bottom / 3mm 3mm no-repeat;
+}
+.feuille::after { inset: 7.6mm; border: .25pt solid #6b4f2a; }
+.feuille > * { position: relative; z-index: 1; }
+.feuille > .sang { position: absolute; z-index: 0; width: 34mm; right: 5mm; bottom: 4mm; opacity: .8; pointer-events: none; }
+.eco .feuille { background: #fff; }
+.eco .sang { display: none; }
+
+h2 {
+  font: 700 10.6pt/1.18 "Cinzel", serif;
+  letter-spacing: .03em;
+  color: var(--sang);
+  margin: 2.6mm 0 1.4mm;
+  padding: 0 0 1.7mm;
+  background:
+    var(--losange) left bottom / 2.6mm 2.6mm no-repeat,
+    linear-gradient(to right, #8a6a34, rgba(138, 106, 52, 0)) 3.4mm calc(100% - 1.25mm) / calc(100% - 3.4mm) .7pt no-repeat;
+  break-after: avoid;
+}
+h2:first-child { margin-top: 0; }
+ul { margin: 0 0 1.3mm; padding-left: 4.4mm; }
+li { margin-bottom: .4mm; }
+ul li::marker { content: "◆  "; color: var(--sang); font-size: .62em; }
+table { width: 100%; border-collapse: collapse; margin: 0 0 1.4mm; font-variant-numeric: lining-nums tabular-nums; }
+th { font: 700 7.4pt/1.15 "Cinzel", serif; letter-spacing: .05em; text-align: left; color: var(--sang); border-bottom: 1.2pt solid var(--encre); padding: 1mm 1.2mm .9mm; vertical-align: bottom; }
+td { padding: .7mm 1.2mm; border-bottom: .5pt solid var(--filet); vertical-align: top; }
+td.n, th.n { text-align: center; white-space: nowrap; }
+tr:last-child td { border-bottom: 1.2pt solid var(--encre); }
+.lbl { font: 700 6.8pt/1 "Cinzel", serif; letter-spacing: .1em; color: var(--sang); text-transform: uppercase; }
+
+/* Le haut : histoire et identité, puis le médaillon */
+.perso .haut { display: grid; grid-template-columns: 1fr 60mm; gap: 6mm; }
+.perso .marque { width: 64mm; height: auto; display: block; margin: -1mm 0 2mm -1mm; }
+.perso .source { font: 700 6.6pt/1 "Cinzel", serif; letter-spacing: .2em; color: var(--sang); margin-bottom: 2.4mm; text-transform: uppercase; }
+.perso .histoire { font-size: calc(10pt * var(--k)); line-height: 1.38; margin-bottom: 2mm; }
+.perso .meta { font-size: calc(9.4pt * var(--k)); line-height: 1.45; }
+.portrait { position: relative; width: 60mm; height: 56mm; border: 2.4pt solid #f4ead4; outline: 1pt solid #2b1d12; box-shadow: 0 1.4mm 2.4mm rgba(43, 29, 18, .35); display: grid; place-items: center; overflow: hidden; }
+.portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; }
+.portrait .embleme { width: 58%; height: 58%; opacity: .9; filter: drop-shadow(0 .6mm 1mm rgba(0, 0, 0, .45)); }
+.portrait span { position: absolute; font: 800 10pt/1 "Cinzel", serif; color: #fbf4e3; text-shadow: 0 .4mm .8mm rgba(0, 0, 0, .85), 0 0 1.4mm rgba(0, 0, 0, .6); letter-spacing: .04em; }
+.portrait .p-niveau { top: 2.4mm; left: 3mm; }
+.portrait .p-psy { bottom: 2.6mm; left: 3mm; }
+.portrait .p-sante { bottom: 2.6mm; right: 3mm; }
+.perso .nom { font: 800 17pt/1.08 "Cinzel", serif; text-align: center; margin: 3mm 0 .8mm; letter-spacing: .02em; text-shadow: 0 1px 0 rgba(255, 250, 235, .7); overflow-wrap: anywhere; }
+.perso .nom.long { font-size: 13pt; }
+.perso .titre { font: 700 9.4pt/1.2 "EB Garamond", serif; text-align: center; }
+
+/* Les trois caractéristiques */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 2pt solid var(--encre); outline: .6pt solid var(--encre); outline-offset: .9mm; margin: 1.4mm .9mm 0; }
+.stats > div { border-left: 1.2pt solid var(--encre); text-align: center; }
+.stats > div:first-child { border-left: none; }
+.stats .lbl-c { display: block; font: 700 9pt/1 "Cinzel", serif; letter-spacing: .12em; padding: 1.8mm 0 1.6mm; background: rgba(255, 252, 244, .55); border-bottom: 1.2pt solid var(--encre); text-transform: uppercase; }
+.stats .val { display: block; font: 600 17pt/1 "EB Garamond", serif; padding: 2mm 0 1mm; }
+.stats .val, .portrait span, .jt span, .perso .nom, td, .c { font-variant-numeric: lining-nums; }
+.stats .val small { font-size: 12pt; }
+.stats .cartons { display: flex; justify-content: center; gap: 1.2mm; padding: 0 0 1.6mm; font: 6.6pt/1 "Cinzel", serif; letter-spacing: .06em; color: var(--doux); align-items: center; }
+.case { display: inline-block; width: 3.2mm; height: 3.2mm; border: .8pt solid var(--encre); border-radius: .4mm; background: rgba(255, 255, 255, .5); }
+.case.jaune { border: 1.3pt solid #d8a91d; }
+.case.rouge { border: 1.3pt solid #b3261e; }
+
+/* Le corps en deux colonnes */
+.perso .corps { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; flex: 1; min-height: 0; margin-top: 1.4mm; font-size: calc(9.2pt * var(--k)); line-height: 1.3; }
+.perso .col { min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.perso .corps table { font-size: 1em; }
+.perso .corps td.petit { font-size: .9em; }
+.perso .don { font-size: .99em; line-height: 1.3; margin: 0 0 1.3mm; }
+.perso .don small { font: 700 .72em "Cinzel", serif; letter-spacing: .04em; color: var(--doux); }
+.cout { display: inline-block; min-width: 4.2mm; padding: .5mm 1mm .45mm; margin: 0 .8mm 0 .6mm; border-radius: 2.2mm; background: var(--sang); color: #fbf4e3; font: 700 6.4pt/1 "Cinzel", serif; text-align: center; vertical-align: .06em; white-space: nowrap; }
+.jauges { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin-bottom: 1.6mm; }
+.jt { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .8mm; }
+.jt b { font: 800 10.5pt/1 "Cinzel", serif; }
+.jt span { font: 800 12pt/1 "Cinzel", serif; color: var(--sang); }
+.rangee { display: flex; flex-wrap: wrap; gap: .7mm; }
+.c { width: 4.4mm; height: 4.4mm; border: .6pt solid #8d7a60; background: rgba(255, 255, 255, .45); font: 5.6pt/4.3mm "EB Garamond", serif; text-align: center; color: #9b8a72; }
+.protection { line-height: 1.45; border-top: .6pt solid var(--bronze); border-bottom: .6pt solid var(--bronze); padding: 1.2mm 0; margin-bottom: 1.4mm; }
+/* Les rappels de la fiche vierge du kit : coma et mort, repos, jetons. Ils cèdent leur place quand la face déborde. */
+.feuille [hidden] { display: none !important; }
+.note-j { margin: .6mm 0 0 !important; font: italic 7.2pt/1.2 "EB Garamond", serif; color: var(--doux); }
+.jetons { display: flex; gap: 2.4mm; align-items: center; margin: 0 0 1.4mm; }
+.jetons .note-j { margin: 0 !important; flex: 1; }
+.rond { flex: none; display: grid; place-items: center; width: 11mm; height: 11mm; border: .9pt dashed var(--encre); border-radius: 50%; background: rgba(255, 255, 255, .3); font: 700 5.4pt/1.1 "Cinzel", serif; text-align: center; color: var(--doux); }
+.perso .corps p { margin-bottom: 1.3mm; }
+.encart { background: var(--encart); border: .8pt solid var(--bronze); outline: .4pt solid var(--bronze); outline-offset: -1.4mm; margin: 1.6mm 0 0; padding: 2.4mm 3mm 2mm; }
+.encart .titre-encart { font: 700 8.6pt/1.1 "Cinzel", serif; letter-spacing: .08em; color: var(--sang); margin-bottom: 1.4mm; }
+.encart ul { margin: 0; padding-left: 3.6mm; font-size: .98em; line-height: 1.32; }
+.encart li { margin-bottom: .9mm; }
+.notes { flex: 1; min-height: 10mm; display: flex; flex-direction: column; margin-top: 1.2mm; }
+.notes .lignes { flex: 1; overflow: hidden; }
+.lignes i { display: block; height: 6.4mm; border-bottom: .5pt solid rgba(107, 79, 42, .45); }
+.perso .pied { border-top: .8pt solid var(--encre); padding-top: 1.2mm; font: 7.4pt/1.2 "EB Garamond", serif; color: var(--doux); padding-right: 30mm; }
+.perso .pied b { color: var(--sang); }
+
+/* Le verso : l'histoire écrite sur les lignes, puis le carnet de campagne */
+.verso .haut-verso { display: flex; align-items: flex-end; gap: 5mm; border-bottom: 1.2pt solid var(--encre); padding-bottom: 1.4mm; margin-bottom: 1.4mm; }
+.verso .haut-verso .marque { width: 52mm; margin: 0; }
+.verso .haut-verso .source { margin: 0 0 1.4mm; }
+.verso .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 7mm; }
+.verso .q .lbl { display: block; margin-bottom: .6mm; }
+.reponse {
+  min-height: 19.2mm;
+  margin: 0;
+  font: italic 500 calc(10.4pt * var(--k)) / 6.4mm "EB Garamond", serif;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(6.4mm - .8pt), rgba(107, 79, 42, .5) calc(6.4mm - .8pt), rgba(107, 79, 42, .5) 6.4mm);
+}
+.q.large { grid-column: 1 / -1; }
+.verso .progression table { font-size: 9pt; }
+.verso .journal { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-top: 1mm; }
+.verso .journal .lignes { flex: 1; overflow: hidden; }
+
+@page { size: A4; margin: 0; }
+/* À l'écran seulement : la face qui ne tient pas sur sa page. */
+@media screen {
+  .feuille.deborde { outline: 3px solid #b3261e; outline-offset: 5px; }
+}
+@media print {
+  html { background: none; }
+  body { padding: 0; }
+  .outils-fiche { display: none; }
+  .feuilles { display: block; }
+  .feuille { box-shadow: none; break-after: page; }
+  .feuille:last-child { break-after: auto; }
+}
+
+.verso .fam-image { margin: 0 0 3mm; text-align: center; }
+.verso .fam-image img { max-width: 100%; max-height: 105mm; object-fit: contain; border: .6pt solid var(--encre); }

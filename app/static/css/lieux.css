@@ -1,0 +1,17 @@
+/* La fiche d'un lieu sans carte (js/lieux/fiche-lieu.js) et le dialogue d'une carte mise à la corbeille avec ses lieux
+   (js/lieux/jeter-carte.js). */
+.fiche-lieu .kicker a { color: inherit; text-decoration: none; }
+.fiche-lieu .kicker a:hover { color: var(--parchemin); }
+.fiche-lieu .titre-page .etiquettes { margin: 0 0 16px; }
+.etiquette.sans-carte { border-color: rgba(224, 181, 98, .6); color: var(--bronze-clair); }
+.fiche-lieu .poser-lieu { max-width: 720px; margin-bottom: 22px; }
+.poser-ligne { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.poser-ligne .champ { flex: 1 1 240px; max-width: 380px; margin: 0; }
+.grille-fiche { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); align-items: start; gap: 14px; }
+.texte-fiche { margin: 0; white-space: pre-wrap; font-size: 17px; line-height: 1.45; }
+.bloc.reserve { border-color: rgba(179, 38, 30, .45); background: #170c0a; }
+.bloc.reserve h2 { color: #e39b8f; }
+.illustration-lieu { display: block; width: 100%; border: 1px solid var(--filet-fort); border-radius: var(--rayon); }
+.dialogue-jeter-carte > form > p { margin: 0 0 16px; color: var(--texte-doux); }
+.dialogue-jeter-carte .choix-modele > .champ { margin: -4px 0 4px 38px; }
+.dialogue-jeter-carte .place-accueil { display: block; margin-top: 4px; font-style: italic; color: var(--texte-pale); }

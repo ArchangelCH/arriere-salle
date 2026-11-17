@@ -1,0 +1,41 @@
+/* Préparer plus vite : les petits gains des scénarios, des PNJ, des cartes et des plans. */
+
+/* Le titre du scénario passe à la ligne plutôt que d'être coupé (scenarios.js ajuste sa hauteur). */
+.scenario-sommaire textarea.scenario-nom { display: block; resize: none; overflow: hidden; min-height: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Un titre qui se modifie le montre : un filet or en pointillé au survol, plein quand on écrit dedans. */
+.titre-chapitre:hover, .scenario-nom:hover { border-bottom: 1px dotted var(--bronze); }
+.titre-chapitre:focus, .scenario-nom:focus { border-bottom: 1px dotted var(--bronze-clair); }
+
+/* Les trois relectures du canon, sous un intertitre. */
+.actions-relecture .titre-relecture { margin: 0 0 4px; font: 700 11px/1.2 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--bronze); }
+.actions-relecture > .aide { margin-bottom: 4px; font-size: 14px; }
+
+/* Sur la fiche d'un PNJ, les champs qui partent sur son carton (la TV, la table publique). */
+.champ .vu-table { margin-left: 4px; font: italic 400 12px/1 var(--corps); letter-spacing: 0; text-transform: none; color: var(--bronze); cursor: help; }
+
+/* Une idée ouverte depuis « Voir » (le message qui suit « Noter ») : un éclat d'or, le temps de la trouver. */
+.liste-idees .idee.eclat { animation: eclat 1.6s ease-out; }
+
+/* Les chapitres qu'on fait glisser : une poignée à gauche de chaque ligne (deux colonnes de points), un filet or là où
+   le chapitre se posera, et la ligne déplacée qui s'éclaire un instant. */
+.liste-chapitres > li { position: relative; }
+.liste-chapitres .poignee {
+  flex: none; align-self: stretch; width: 12px; margin-left: 2px; cursor: grab; opacity: .35;
+  background: radial-gradient(circle, var(--texte-doux) 1.1px, transparent 1.4px) 0 50% / 6px 6px repeat-y,
+              radial-gradient(circle, var(--texte-doux) 1.1px, transparent 1.4px) 6px 50% / 6px 6px repeat-y;
+  background-clip: content-box; padding: 9px 0;
+}
+.liste-chapitres li:hover > .poignee, .liste-chapitres li[aria-current] > .poignee { opacity: .8; }
+.liste-chapitres li.glisse { opacity: .5; }
+.liste-chapitres li.avant { box-shadow: 0 -2px 0 var(--bronze-clair); }
+.liste-chapitres li.apres { box-shadow: 0 2px 0 var(--bronze-clair); }
+.liste-chapitres li.deplace { animation: eclat 1.4s ease-out; }
+@media (prefers-reduced-motion: reduce) { .liste-chapitres li.deplace { animation: none; } }
+
+/* Pose en série (meubles d'un plan, tracés d'une carte) : la fiche de ce qu'on vient de poser, sous la palette. */
+.panneau .pose-en-serie { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--filet-fort); }
+.panneau .pose-en-serie h2 { font-size: 17px; }
+
+/* « Nouvelle carte » : un champ caché l'est vraiment (.champ est en grille). */
+.dialogue .champ[hidden] { display: none; }

@@ -1,0 +1,90 @@
+/* La page des documents remis aux joueurs (js/documents/documents.js). La mise en page vient du carnet de PNJ (.carnet,
+   .carnet-liste, .carnet-fiche) ; le papier lui-même, de documents.css, partagé avec la TV. */
+
+/* ---- La liste ---- */
+.liste-documents { list-style: none; margin: 0; padding: 6px; overflow-y: auto; flex: 1; scrollbar-color: var(--bois-3) transparent; }
+.liste-documents button {
+  width: 100%; justify-content: flex-start; gap: 10px; padding: 8px 10px; min-height: 52px; border-color: transparent; background: none;
+  font: 500 16px/1.2 var(--corps); letter-spacing: 0; text-transform: none; text-align: left;
+}
+.liste-documents button:hover { background: var(--bois-2); }
+.liste-documents button[aria-current="true"] { background: var(--bois-3); border-color: var(--bronze); }
+.liste-documents .texte { display: grid; flex: 1; min-width: 0; }
+.liste-documents .nom { color: var(--parchemin); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.liste-documents .meta { font-size: 14px; font-style: italic; color: var(--texte-pale); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.liste-documents .vide { display: grid; gap: 10px; padding: 22px 12px; color: var(--texte-doux); font-style: italic; }
+.liste-documents .vide button.principal { width: auto; min-height: 34px; justify-self: start; padding: 6px 14px; border-color: #b8433b; background: var(--sang); font: 600 12px/1.1 var(--titre); letter-spacing: .09em; text-transform: uppercase; }
+.liste-documents .vide .aide { margin: 0; font-style: normal; }
+
+/* Jamais montré : un losange vide, le pendant du losange plein des PNJ inconnus. */
+.jamais-montre { flex: none; display: inline-block; width: 8px; height: 8px; margin: 0 4px; transform: rotate(45deg); border: 1.5px solid var(--bronze); }
+
+/* Le genre en miniature : la silhouette du papier, sans couleur criarde. */
+.genre-mini { position: relative; flex: none; display: inline-block; width: 22px; height: 28px; background: #d9c69c; box-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
+.genre-mini.genre-lettre::after { content: ""; position: absolute; left: 0; right: 0; top: 33%; bottom: 33%; border-top: 1px solid rgba(43, 29, 18, .35); border-bottom: 1px solid rgba(43, 29, 18, .35); }
+.genre-mini.genre-affiche { width: 20px; transform: rotate(-3deg); }
+.genre-mini.genre-affiche::after { content: ""; position: absolute; top: 3px; left: 8px; width: 4px; height: 4px; border-radius: 50%; background: #3a332c; }
+.genre-mini.genre-note { width: 22px; height: 18px; margin: 5px 0; transform: rotate(-6deg); clip-path: polygon(0 12%, 20% 0, 40% 14%, 60% 0, 80% 12%, 100% 0, 100% 100%, 0 100%); }
+.genre-mini.genre-parchemin { background: #e3cf9f; border-top: 3px solid #a57c43; border-bottom: 3px solid #a57c43; border-radius: 2px; }
+.genre-mini.genre-plan { background: #e6d9bb repeating-linear-gradient(0deg, rgba(43, 29, 18, .25) 0 1px, transparent 1px 5px), repeating-linear-gradient(90deg, rgba(43, 29, 18, .25) 0 1px, transparent 1px 5px); }
+
+/* ---- La fiche ---- */
+/* « Montrer à la TV » tient le coin en haut à droite, même quand la fiche défile : le titre et le témoin lui laissent
+   la place. */
+.fiche-document { --tv-largeur: 210px; }
+.tete-document { padding-bottom: 16px; border-bottom: 1px solid var(--filet); }
+.tete-document .ligne-nom { padding-right: 226px; }
+.tete-document .nom {
+  width: 100%; padding: 4px 0; border: 0; border-bottom: 1px solid var(--filet-fort); background: none; color: var(--parchemin);
+  font: 700 30px/1.15 var(--titre); letter-spacing: .01em;
+}
+.tete-document .nom:focus { outline: none; border-bottom-color: var(--bronze-clair); }
+.tete-document .nom::placeholder { color: var(--texte-pale); }
+.tete-document .aide-titre { margin: 6px 0 12px; }
+.genres-document { display: flex; flex-wrap: wrap; gap: 8px; }
+.genre-document {
+  display: inline-flex; align-items: center; gap: 9px; min-height: 40px; padding: 5px 13px 5px 9px; border: 1px solid var(--filet-fort);
+  border-radius: var(--rayon); background: var(--bois-2); color: var(--texte-doux); font: 500 16px/1.1 var(--corps); cursor: pointer;
+}
+.genre-document input { position: absolute; opacity: 0; pointer-events: none; }
+.genre-document:hover { border-color: var(--bronze); color: var(--texte); }
+.genre-document.choisi { border-color: var(--bronze-clair); background: var(--bois-3); color: var(--parchemin); box-shadow: inset 0 -2px 0 var(--bronze-clair); }
+.genre-document:focus-within { outline: 2px solid var(--bronze-clair); outline-offset: 2px; }
+
+.corps-document { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 30px; padding-top: 18px; }
+.ecrire-document > h2, .entete-apercu h2 { margin: 0 0 12px; font: 700 13px/1 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--bronze); }
+.ecrire-document h2 ~ h2 { margin-top: 22px; }
+.image-ligne { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font: 400 16px var(--corps); letter-spacing: 0; text-transform: none; }
+.image-ligne img { width: 72px; height: 72px; object-fit: cover; border: 1px solid var(--filet-fort); border-radius: var(--rayon); }
+.aide-carnet { margin-top: -4px; }
+.dans-les-seances { margin-top: 14px; }
+
+.entete-apercu { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.entete-apercu h2 { margin-bottom: 10px; }
+/* L'aperçu : le document sur la table de chêne, comme à la TV. */
+.table-apercu {
+  position: relative; display: grid; justify-items: center; align-content: center; min-height: 340px; padding: 30px 24px 22px;
+  border: 1px solid var(--filet-fort); border-radius: var(--rayon); overflow: hidden;
+  background: radial-gradient(ellipse at 50% 46%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, .6) 100%), #1a100a url("../img/planche-chene.jpg") center / cover;
+}
+.papier-apercu { max-width: 100%; }
+.legende-apercu { margin: 16px 0 0; font: 700 12px/1.2 var(--titre); letter-spacing: .24em; text-align: center; text-transform: uppercase; color: #e6c68e; text-shadow: 0 1px 0 #000; }
+.legende-apercu:empty { display: none; }
+
+@media (max-width: 1100px) {
+  .fiche-document .tv-colle { height: auto; display: flex; justify-content: flex-end; margin: -12px 0 10px; }
+  .fiche-document .tv-colle .bouton-tv { position: static; width: auto; }
+  .tete-document .ligne-nom { padding-right: 0; }
+}
+@media (max-width: 1200px) {
+  .corps-document { grid-template-columns: minmax(0, 1fr); }
+  .apercu-document { order: -1; }
+}
+@media (max-width: 900px) {
+  body[data-page="documents"] { overflow: auto; }
+  /* La page défile entière : la fiche cesse d'être un cadre qui défile, sinon le bouton de la TV s'y collait à la hauteur
+     de l'en-tête, par-dessus les genres. */
+  body[data-page="documents"] .fiche-document { overflow: visible; }
+  .fiche-document .tv-colle { top: var(--haut-entete); }
+  .liste-documents { max-height: 50vh; }
+}

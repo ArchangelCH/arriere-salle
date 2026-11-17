@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Carte X · L'Arrière-salle</title>
+  <meta name="description" content="La carte X à imprimer : on la pose au milieu de la table, qui la touche fait passer à autre chose.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolygon points='10,1 19,10 10,19 1,10' fill='%238e1b17'/%3E%3Cpolygon points='10,6 14,10 10,14 6,10' fill='%23f4ead4'/%3E%3C/svg%3E">
+  <link rel="preload" href="/static/fonts/Cinzel-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/EBGaramond-VF.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/css/fiche.css">
+  <link rel="stylesheet" href="/static/css/carte-x.css">
+  <style id="format-page">@page { size: A4 landscape; margin: 0; }</style>
+</head>
+<body class="carte-x-page grande">
+  <div class="outils-fiche">
+    <a class="retour" href="/#/regles">Retour à l'atelier</a>
+    <fieldset class="choix-format">
+      <legend>Format</legend>
+      <label><input type="radio" name="format" value="grande" checked> Une grande carte</label>
+      <label><input type="radio" name="format" value="petites"> Deux petites</label>
+    </fieldset>
+    <label class="eco"><input type="checkbox" name="eco"> Sans le fond parchemin</label>
+    <button type="button" data-action="imprimer">Imprimer</button>
+    <p class="consigne">Imprimez sur une seule face, puis pliez au milieu, le côté imprimé dehors : le X devant, la règle au dos.<span class="petites-seulement"> Puis découpez le long du pointillé.</span></p>
+  </div>
+  <main class="feuilles" aria-label="Aperçu de l'impression"></main>
+  <!-- Le bord d'encre des traits du X, une seule fois pour toutes les cartes de la page. -->
+  <svg class="definitions" width="0" height="0" aria-hidden="true">
+    <filter id="encre" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="7" result="bruit"/>
+      <feDisplacementMap in="SourceGraphic" in2="bruit" scale="4.5"/>
+    </filter>
+  </svg>
+  <template id="modele-carte">
+    <div class="carte">
+      <div class="face recto">
+        <span class="cadre" aria-hidden="true"></span>
+        <svg class="grand-x" viewBox="0 0 200 200" role="img" aria-label="X">
+          <g class="traits" filter="url(#encre)">
+            <path d="M36 24 Q 104 76 176 163 Q 181 170 174 177 Q 167 183 157 178 Q 78 118 22 40 Q 18 32 25 26 Q 31 21 36 24 Z"/>
+            <path d="M164 25 Q 170 21 176 27 Q 181 33 177 41 Q 119 113 42 177 Q 33 182 27 176 Q 21 169 26 163 Q 97 81 164 25 Z"/>
+            <circle cx="182" cy="24" r="2.6"/><circle cx="188" cy="34" r="1.4"/><circle cx="16" cy="182" r="2.2"/>
+            <circle cx="24" cy="190" r="1.1"/><circle cx="178" cy="186" r="1.8"/><circle cx="14" cy="20" r="1.2"/>
+          </g>
+        </svg>
+        <span class="losange" aria-hidden="true"></span>
+      </div>
+      <div class="face verso">
+        <span class="cadre" aria-hidden="true"></span>
+        <div class="regle">
+          <p class="kicker">{{campagne.nom}}</p>
+          <h1>La carte X</h1>
+          <span class="filet" aria-hidden="true"></span>
+          <p>Si quelque chose vous pèse en jeu, touchez cette carte, sans un mot.</p>
+          <p>Le MJ passe à autre chose, et personne n'a à se justifier.</p>
+        </div>
+      </div>
+    </div>
+  </template>
+  <script type="module" src="/static/js/carte-x.js"></script>
+</body>
+</html>

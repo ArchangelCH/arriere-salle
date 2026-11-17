@@ -1,0 +1,58 @@
+/* Feuille de combat : posée sur fiche.css (polices, encre, barre d'outils). Une page A4 ou plus, une rencontre jamais
+   coupée entre deux pages. À l'écran, la marge de la feuille est celle de l'impression. */
+
+.feuille-combat .page { height: auto; min-height: 297mm; padding: 10mm 12mm; overflow: visible; font-size: 10pt; }
+
+.feuille-combat .aucune { margin: 2em 0; font-style: italic; color: var(--pale); }
+.feuille-combat .aucune a { color: var(--sang); }
+
+.rencontre { margin-bottom: 1.1em; padding: .6em .75em .55em; border: 1px solid var(--filet); border-left: 3px solid var(--sang); break-inside: avoid; }
+.tete-rencontre { display: flex; justify-content: space-between; align-items: baseline; gap: 1em; margin-bottom: .3em; border-bottom: 1px solid var(--filet); }
+.tete-rencontre h2 { margin: 0; padding: 0; border: 0; font-size: .95em; letter-spacing: .16em; }
+.tete-rencontre .plan { margin: 0; font-size: .82em; font-style: italic; color: var(--pale); }
+/* La scène qui lie la rencontre (heure et titre), ou « Sous la main » : au-dessus du nom, sur sa propre ligne. */
+.tete-rencontre { flex-wrap: wrap; }
+.scene-rencontre { flex: 1 0 100%; margin: 0 0 .1em; font: italic 400 .86em/1.25 "EB Garamond", Garamond, serif; color: var(--sang); }
+.rencontre p > span:first-child { display: inline-block; margin-right: .5em; font: 700 .7em/1 "Cinzel", serif; letter-spacing: .12em; text-transform: uppercase; color: var(--pale); }
+.ordre { font-size: .92em; }
+
+.adversaires { width: 100%; margin: .35em 0 .4em; border-collapse: collapse; }
+.adversaires th { padding: 0 .4em .2em 0; text-align: left; font: 700 .68em/1.2 "Cinzel", serif; letter-spacing: .12em; text-transform: uppercase; color: var(--pale); border-bottom: 1px solid var(--filet); }
+.adversaires td { padding: .3em .4em .3em 0; vertical-align: middle; }
+.adversaires .groupe { break-inside: avoid; }
+.adversaires .groupe + .groupe tr:first-child td { border-top: 1px solid var(--filet); }
+.adversaires .qui { width: 25%; }
+.adversaires .val { width: 9%; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.adversaires .val small, .adversaires .sante small { display: block; font-size: .78em; font-style: italic; color: var(--pale); white-space: normal; }
+.adversaires th.sante { width: 42%; }
+.combattant + .combattant .qui, .combattant + .combattant .sante { border-top: 1px dotted var(--filet); }
+
+/* Le numéro du pion, rond comme sur le plan. */
+.pion {
+  display: inline-block; min-width: 1.75em; height: 1.75em; padding: 0 .3em; margin-left: .25em; vertical-align: middle;
+  border: 1.5px solid var(--sang); border-radius: 1em; text-align: center;
+  font: 700 .74em/1.6em "Cinzel", serif; color: var(--encre);
+}
+
+.jauge { display: flex; align-items: center; gap: .6em; }
+.adversaires .max { flex: none; min-width: 1.6em; font: 700 1em/1 "Cinzel", serif; text-align: right; }
+.adversaires .max small { font-family: "EB Garamond", Georgia, serif; font-weight: 400; }
+.cases-sante { display: flex; flex-wrap: wrap; gap: .3em .55em; }
+.paquet { display: flex; gap: .2em; }
+.paquet i { display: block; width: 1.1em; height: 1.1em; border: 1px solid var(--encre); background: #fff; }
+.a-compter { display: block; width: 12em; height: 1.2em; border-bottom: 1px solid var(--encre); }
+
+.capacites td { padding: 0 0 .35em; font-size: .9em; font-style: italic; color: var(--pale); }
+.rang { margin-right: .5em; font: 700 .72em/1 "Cinzel", serif; font-style: normal; letter-spacing: .12em; text-transform: uppercase; color: var(--sang); }
+
+.notes { font-size: .88em; color: var(--pale); }
+.pied-rencontre { padding-top: .35em; border-top: 1px solid var(--filet); font-size: .92em; }
+.pied-rencontre p { margin: 0 0 .15em; }
+.pied-rencontre .moral { color: var(--sang); }
+/* Le pied de page ne part jamais seul sur une dernière feuille : il emmène la dernière rencontre avec lui. */
+.feuille-combat .pied { break-before: avoid; }
+
+@page { size: A4; margin: 10mm 12mm; }
+@media print {
+  .feuille-combat .page { width: auto; min-height: 0; padding: 0; }
+}

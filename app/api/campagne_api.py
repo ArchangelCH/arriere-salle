@@ -6,6 +6,7 @@ from datetime import datetime
 
 from fastapi import HTTPException, Request
 
+from commun.campagne import SOUS_TITRE
 from mj import cloisonnement
 from contenu import regles_maison
 from table.masque import masquer_tout
@@ -17,7 +18,7 @@ from api import config
 def campagne() -> dict:
     if config.CAMPAGNE.exists():
         return utilitaires.lire_fiche(config.CAMPAGNE)
-    return {"nom": "L'Âge de fer", "niveau": 1, "tablee": [], "reputations": [], "modifie": None}
+    return {"nom": SOUS_TITRE, "niveau": 1, "tablee": [], "reputations": [], "modifie": None}
 
 
 # Ce qu'un MJ invité lit de la campagne : le niveau du groupe et la tablée telle que la TV la montre (joueur,

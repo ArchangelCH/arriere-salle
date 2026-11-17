@@ -44,6 +44,34 @@ L'atelier le relit quand il change. Faux au démarrage, il l'empêche de démarr
 l'ancienne liste reste en place. Il doit être là avant le premier démarrage d'une image qui ne porte plus les noms dans
 son code, et se remplace par copie, jamais en l'effaçant d'abord (effacé, plus rien n'est masqué).
 
+## La bible
+
+L'onglet Bible de l'atelier (lecture, recherche sans accents) et ce que la rédaction sait de l'univers viennent d'un
+dossier de Markdown à part, monté en lecture seule : `BIBLE_DIR` dans `.env`. Sans lui, le compose prend
+`docker/bible-vide` : l'onglet reste vide, le reste de l'atelier ne change pas. Chaque partie est facultative :
+
+```
+ma-bible/
+  bible/<chapitre>.md             # la bible thématique (rubrique « La bible »)
+  saisons/<groupe>.md             # une synthèse par groupe (rubrique « Synthèses »)
+  saisons/<groupe>-arbitrages.md  # les contradictions tranchées (rubrique « Arbitrages »)
+  episodes/<groupe>/NNN-<id>.md   # une fiche par épisode ou par séance
+  glossaire.md                    # références
+  inventaire.md
+  chronique/  kit/  examen/       # contrôles : lus par le MJ, hors de la recherche, jamais montrés aux joueurs
+```
+
+- Les chapitres connus passent d'abord, dans cet ordre : `etat-du-monde`, `chronologie`, `personnages`, `lieux`,
+  `factions`, `magie-cosmologie`, `objets-bestiaire`, `mysteres-et-flottements`, `ton-et-table` ; les autres suivent.
+- Les groupes (`saison-1`, `hors-serie`…) et leur nom affiché sont `ORDRE_GROUPES_BIBLE` et `NOMS_GROUPES_BIBLE` de
+  `commun/campagne.py` : un groupe absent de cette liste n'est pas lu.
+- Le titre d'un document est son premier titre `# ` (à défaut, le nom du fichier).
+
+La **bible des joueurs** est fermée par défaut ; l'interrupteur de l'onglet Bible l'ouvre. Le coin reçoit alors une
+liste blanche, passée par le masque des noms cachés : les chapitres sauf `mysteres-et-flottements`, les synthèses et
+arbitrages, le glossaire, l'inventaire et les fiches d'épisode. Jamais les contrôles ni un fichier qu'elle ne nomme pas
+(`app/commun/bible.py`).
+
 ## Un pack
 
 Un dossier qui reproduit l'arborescence du dépôt, avec seulement les fichiers qu'il remplace :

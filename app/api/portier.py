@@ -255,8 +255,10 @@ class Garde:
                     h["Cache-Control"] = "no-cache"
             await send(message)
 
-        if versionne and methode in ("GET", "HEAD"):
-            reecrit = statiques_versionnes.reponse(chemin, versionne[1], portee)
+        # Une page HTML de /static/, versionnée ou non, passe par la réécriture : ses liens et le nom de la campagne
+        # (commun/nom_campagne.py) ; un fichier servi brut garderait ses repères {{campagne.…}}.
+        if methode in ("GET", "HEAD") and (versionne or (chemin.startswith("/static/") and chemin.endswith(".html"))):
+            reecrit = statiques_versionnes.reponse(chemin, bool(versionne and versionne[1]), portee)
             if reecrit is not None:
                 return await GZipMiddleware(reecrit, minimum_size=1024, compresslevel=6)(scope, receive, envoyer)
         if (chemin.startswith(("/media/", "/static/img/", "/static/fonts/", "/api/table/vignette/")) or chemin.endswith("/fond")

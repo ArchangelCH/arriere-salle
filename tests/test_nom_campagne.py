@@ -33,3 +33,12 @@ def test_les_pages_servies_portent_le_nom(tmp_path, monkeypatch):
     monkeypatch.setattr(joueurs, "HOTES", {"testserver"})
     with TestClient(joueurs.app) as coin:
         assert "{{" not in coin.get("/").text
+
+
+def test_une_page_de_static_servie_a_son_adresse_simple_porte_le_nom():
+    from fastapi.testclient import TestClient
+    from api import application
+    with TestClient(application.app) as atelier:
+        for adresse in ("/static/joueurs/apercu.html", "/static/carte-x.html", "/carte-x"):
+            r = atelier.get(adresse)
+            assert r.status_code == 200 and "{{campagne." not in r.text and campagne.NOM.split("'")[-1] in r.text, adresse

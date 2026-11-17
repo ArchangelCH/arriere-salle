@@ -1,4 +1,4 @@
-"""Les petits défauts relevés aux contrôles des vagues 5 et 6 (Jarvis #308 et #314), un essai chacun : les écritures de
+"""Les petits défauts relevés aux contrôles des vagues 5 et 6, un essai chacun : les écritures de
 joueurs.json sous un verrou, la remise d'une version d'une fiche illustrée sous SAC_VERROU, la bibliothèque d'images
 sans doublon, la ligne de la boîte d'une porte fermée à clé dite une fois, la table du coin republiée dès qu'un plan
 montré est enregistré."""

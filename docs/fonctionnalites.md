@@ -191,7 +191,7 @@ bâtiment caché (`GET /api/table/sanctuaire`, `sanctuaire_public`). Tests : `te
 fils de la campagne, des horloges à étapes. À la clôture d'une séance, chaque fil dont les héros ne se sont pas mêlés avance
 selon son rythme ; une étape franchie laisse une rumeur à placer à l'auberge, parfois une affiche sur la planche. Chaque
 séance se prépare (objectif, déroulé minuté, PNJ, lieux, affiches, rumeurs sous la main), se joue (présents, scène en cours
-et retard, journal horodaté, boutons pour la TV) et se clôt (résumé, « Précédemment dans Aventures… » rédigé au besoin par
+et retard, journal horodaté, boutons pour la TV) et se clôt (résumé, « Précédemment… » rédigé au besoin par
 l'IA, réputation, niveau, avancée du monde). Le journal se tient aussi depuis n'importe quel écran : bouton « Journal »
 de l'en-tête ou touche N hors d'un champ, une ligne puis Entrée, l'heure du serveur se met seule ; il vise la séance du
 jour, sinon la séance non close la plus proche. Une ligne s'ajoute ou se retire par sa route
@@ -562,7 +562,7 @@ que le chargement du contexte (« au moins 0,34 $ »). Les boutons portent `data
 
 **La table.** « Montrer à la table » envoie la vue en cours ; « Suivre » fait suivre chaque déplacement ; la fiche d'un
 lieu peut s'afficher en carton, une illustration en plein écran, un PNJ en portrait avec son nom, la planche à contrats (une affiche
-de près), une rumeur, et le « Précédemment dans Aventures… » qui défile phrase après phrase sur les illustrations des lieux
+de près), une rumeur, et le « Précédemment… » qui défile phrase après phrase sur les illustrations des lieux
 visités. Pour ouvrir la séance, Séances › Jouer › À montrer › « Montrer le titre » joue le carton-titre d'épisode : fondu au
 noir, « <nom de la campagne> · Épisode N », puis le titre, lettre après lettre, sur l'illustration de la séance, sinon celle du
 premier de ses lieux connus qui en a une, sinon un fond sombre. Le titre est celui de « Titre montré aux joueurs » (Préparer,

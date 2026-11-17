@@ -1,4 +1,4 @@
-"""Ce qu'un joueur écrit ne fait rien charger au Chromium du PDF (#288) : Chromium ne sort pas de la boucle locale (ni
+"""Ce qu'un joueur écrit ne fait rien charger au Chromium du PDF : Chromium ne sort pas de la boucle locale (ni
 Internet, ni l'atelier voisin sur le réseau Docker, qui croit parler au réseau local), la fiche du coin a sa politique de
 contenu, le nom de fichier ne casse pas l'en-tête. Et un nom de héros piégé ne dicte rien au modèle qui rédige le
 « Précédemment », ni ne part au carnet sans le MJ."""

@@ -12,8 +12,8 @@ Un atelier de meneur de jeu pour le jeu de rôle sur table, et l'écran que la t
 
 Le système de jeu est un D100 sous la valeur : caractéristiques et compétences en pourcentages, Santé et Psy, postures
 de combat, dés d'aventure. Le monde, les personnages, la carte et le kit de départ viennent d'un pack de campagne
-(`docs/campagne.md`) ; sans pack, une petite campagne d'exemple. Outil de fan né autour d'une campagne dans l'univers de
-la web-série *Aventures* : quelques identifiants de données en gardent la trace, aucun texte de la série n'y figure.
+(`docs/campagne.md`) ; sans pack, une petite campagne d'exemple. L'outil est né autour d'une campagne précise :
+quelques identifiants de données (modèles de carte) en gardent la trace, aucun de ses textes n'y figure.
 
 ## Démarrer
 

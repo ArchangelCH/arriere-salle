@@ -67,6 +67,7 @@ POST /api/horloges/avancer
 PATCH /api/horloges/{ident}
 DELETE /api/horloges/{ident}
 GET /api/musique
+PUT /api/musique/ecoute
 PUT /api/musique
 PUT /api/mj/comptes/{ident}/budget
 GET /api/table/vignette/{nom}
@@ -200,6 +201,7 @@ POST /api/jets/mj
 POST /api/jets/mesaventure
 POST /api/jets/mesaventure/{joueur}/retirer
 POST /api/jets/{ident}/aventure/annuler
+POST /api/jets/{ident}/mesaventure/annuler
 PUT /api/des-aventure
 POST /api/des-aventure/passer
 POST /api/jets/demandes/{joueur}/{ident}/retirer

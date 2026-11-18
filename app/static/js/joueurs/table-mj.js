@@ -67,7 +67,7 @@ export function ajouterBlocTableJoueurs(grille) {
         : "Fermée : l'onglet « La table » du coin des joueurs dit seulement qu'elle n'est pas ouverte."}</p>
       <label class="case"><input type="checkbox" data-musique-coin ${etat?.musique !== false ? "checked" : ""}${etat ? "" : " disabled"}> Votre musique à la table du coin</label>
       <p class="aide">${etat?.musique !== false
-        ? "Ce que joue votre lecteur de musique s'entend aussi sur leur page « La table », pour ceux qui le choisissent sur leur appareil (en visio, par exemple). Ni le nom ni la note de l'ambiance ne partent."
+        ? "Ce que joue votre lecteur de musique s'entend aussi sur leur page «\u00a0La table\u00a0», pour ceux qui le choisissent sur leur appareil (en visio, par exemple). Ni le nom ni la note de l'ambiance ne partent."
         : "Votre musique reste sur votre ordinateur : rien ne part vers le coin."}</p>
       <p class="aide">Leurs pions et leurs distances : <a href="#/reglages/regles">Règles de jeu</a>.</p>`;
     },

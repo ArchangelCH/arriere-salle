@@ -232,13 +232,13 @@ def test_chaque_joueur_ne_voit_que_son_pion(atelier, monde):
     # L'autre Léa, sans héros, invitée la première : le même prénom ne mêle pas les pions.
     assert monde["homonyme"].get("/api/table").json()["pion"] is None
     # Le pion, et pour le bouger son tour au combat et la case où ce tour a commencé.
-    assert set(lea) == {"ouverte", "vue", "pion", "mon_tour", "combat", "debut"}
+    assert set(lea) == {"ouverte", "vue", "pion", "mon_tour", "combat", "debut", "familiers"} and lea["familiers"] == []
     assert (lea["pion"], basile["pion"]) == ("t-aude", None)  # le pion de Bertrand est caché
     # Un fichier par joueur, sous la clé de son lien : ni son identifiant, ni la référence du pion, ni rien d'autre.
     fichiers = sorted((TABLE / table_joueurs.PIONS).glob("*.json"))
     assert {cle_de(lea_id), cle_de(basile_id)} <= {f.stem for f in fichiers}
     for f in fichiers:
-        assert table_joueurs.CLE.match(f.stem) and set(json.loads(f.read_text(encoding="utf-8"))) == {"maj", "pion", "mon_tour", "combat", "debut"}
+        assert table_joueurs.CLE.match(f.stem) and set(json.loads(f.read_text(encoding="utf-8"))) == {"maj", "pion", "mon_tour", "combat", "debut", "familiers"}
     assert json.loads((TABLE / table_joueurs.PIONS / f"{cle_de(lea_id)}.json").read_text(encoding="utf-8"))["pion"] == "t-aude"
     # Bertrand sort de l'ombre : chacun voit le sien, jamais celui de l'autre.
     plan = atelier.get(f"/api/plans/{monde['plan']['id']}").json()
@@ -250,7 +250,7 @@ def test_chaque_joueur_ne_voit_que_son_pion(atelier, monde):
     # Un pion publié qui n'est plus montré sur le plan ne sert plus : la page n'en voit rien.
     vue = table_joueurs.vue_publiee(config.PROPOSITIONS)
     vue["plan"]["pions"] = [t for t in vue["plan"]["pions"] if t["id"] != "t-aude"]
-    assert table_joueurs.pion_publie(config.PROPOSITIONS, cle_de(lea_id), vue) == {"pion": None, "mon_tour": False, "combat": False, "debut": None}
+    assert table_joueurs.pion_publie(config.PROPOSITIONS, cle_de(lea_id), vue) == {"pion": None, "mon_tour": False, "combat": False, "debut": None, "familiers": []}
     # Une clé qui n'en est pas une ne mène à aucun fichier.
     for cle in ("../vue", "", "x" * 32, cle_de(lea_id).upper()):
         assert table_joueurs.pion_publie(config.PROPOSITIONS, cle, table_joueurs.vue_publiee(config.PROPOSITIONS))["pion"] is None

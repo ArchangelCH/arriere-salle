@@ -93,11 +93,13 @@ const SIGNES = {
   offensive: '<g transform="rotate(-45)"><line x1="0" y1="-6.2" x2="0" y2="3" stroke-width="2"/><line x1="-3" y1="3" x2="3" y2="3" stroke-width="1.6"/><circle cx="0" cy="5.2" r="1.3" stroke="none"/></g>',
   defensive: '<path d="M-4.6 -5H4.6V-.5Q4.2 4.2 0 6.2Q-4.2 4.2 -4.6 -.5Z" stroke="none"/>',
   focus: '<path d="M-6.2 0Q0 -6.2 6.2 0Q0 6.2 -6.2 0Z" fill="none" stroke-width="1.4"/><circle r="2" stroke="none"/>',
+  aucune: '<circle r="5" fill="none" stroke-width="1.6"/><line x1="-3.6" y1="3.6" x2="3.6" y2="-3.6" stroke-width="1.6"/>',
 };
 const REGLES_POSTURES = {
   offensive: "dégâts au maximum, critique de 01 à 10 ; aucune défense",
   defensive: "une défense par tour (esquiver, parer, protéger un allié) ; bouclier compté",
   focus: "+5 % à tous les tests, chaque don coûte 1 Psy de moins ; aucune défense",
+  aucune: "à découvert : aucune défense, aucun effet",
 };
 
 export const signePosture = (k) => `<svg class="signe-posture" viewBox="-9 -9 18 18" aria-hidden="true" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${SIGNES[k] || ""}</svg>`;

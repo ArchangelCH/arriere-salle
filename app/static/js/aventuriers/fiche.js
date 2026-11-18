@@ -18,7 +18,7 @@ const MARQUE = `<svg class="marque" viewBox="0 0 1000 170" xmlns="http://www.w3.
   + (LETTRES.length < 3 ? e(LETTRES) : `<tspan font-size="150">${e(LETTRES[0])}</tspan>${e(LETTRES.slice(1, -1))}<tspan font-size="150">${e(LETTRES[LETTRES.length - 1])}</tspan>`)
   + '</text></svg>';
 
-const DEFENSES = { offensive: "aucune défense", defensive: "une défense (esquive, parade ou protéger un allié)", focus: "aucune défense, +5 % à tous les tests" };
+const DEFENSES = { offensive: "aucune défense", defensive: "une défense (esquive, parade ou protéger un allié)", focus: "aucune défense, +5 % à tous les tests", aucune: "aucune défense" };
 // En dessous, le texte deviendrait illisible : une fiche qui déborde encore à 72 % le dit.
 const PLANCHER = 0.72;
 

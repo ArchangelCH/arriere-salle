@@ -701,3 +701,69 @@ def test_le_module_de_lecture_est_servi_au_coin(tablee):
     assert "js/jets/des.js" in joueurs.FICHIERS
     assert coin.get("/static/js/jets/des.js").status_code == 200
     assert coin.get("/static/js/jets/reserve-table.js").status_code == 404
+
+
+# ---------------------------------------------------------------- le dé de mésaventure ajouté par le joueur (19/11)
+
+def test_le_joueur_ajoute_un_de_de_mesaventure(atelier, tablee, hasard, regle):
+    a = tablee["a"]
+    assert atelier.post("/api/des-aventure/passer", json={"vers": "mj"}).status_code == 200
+    assert attendre(lambda: fiche_coin(a["coin"])["reserve"] == {"actif": True, "aventure": 3, "mesaventure": 1})
+    calme(a["joueur"])
+    hasard(30, 4)
+    ident = lancer(a["coin"], carac="physique", mesaventure=True).json()["lance"]
+    assert next(x for x in lances(a["joueur"]) if x["id"] == ident)["corps"]["mesaventure"] is True
+    p = resultat(a["coin"], ident)["public"]
+    assert p["mesaventure"] == {"face": 4, "effet": "Posture", "choisie": False, "ajoute": True}
+    # Joué, le dé de mésaventure revient au groupe, comme celui que le MJ fait rouler.
+    assert (reserve_mj(atelier)["groupe"], reserve_mj(atelier)["mj"]) == (4, 0)
+    x = next(j for j in atelier.get("/api/jets").json()["jets"] if j["id"] == ident)
+    assert x["mesaventure"] == {"face": 4, "effet": "Posture", "choisie": "", "ajoute": True, "annule": False}
+    # Le MJ l'annule : le dé revient dans sa réserve ; le joueur le lit sous son résultat.
+    r = atelier.post(f"/api/jets/{ident}/mesaventure/annuler")
+    assert r.status_code == 200, r.text
+    assert (r.json()["reserve"]["groupe"], r.json()["reserve"]["mj"]) == (3, 1)
+    assert attendre(lambda: a["coin"].get("/api/jets").json()["dernier"]["public"]["mesaventure"].get("annule") is True)
+    assert atelier.post(f"/api/jets/{ident}/mesaventure/annuler").status_code == 409
+    assert atelier.post("/api/jets/000000000000/mesaventure/annuler").status_code == 404
+
+
+def test_mesaventure_du_joueur_sans_de_libre(atelier, tablee, hasard, regle):
+    a, b = tablee["a"], tablee["b"]
+    calme(a["joueur"])
+    hasard(30, 4)
+    p = resultat(a["coin"], lancer(a["coin"], carac="mental", mesaventure=True).json()["lance"])["public"]
+    assert "mesaventure" not in p and "Plus de dé de mésaventure" in p["notes"][0]
+    # Le seul dé du MJ est annoncé à Basile : il n'est pas libre pour Aube.
+    assert atelier.post("/api/des-aventure/passer", json={"vers": "mj"}).status_code == 200
+    assert atelier.post("/api/jets/mesaventure", json={"joueur": b["joueur"]["id"]}).status_code == 200
+    calme(a["joueur"])
+    p = resultat(a["coin"], lancer(a["coin"], carac="mental", mesaventure=True).json()["lance"])["public"]
+    assert "mesaventure" not in p
+    assert (reserve_mj(atelier)["groupe"], reserve_mj(atelier)["mj"]) == (3, 1)
+    # Un test sans dé ajouté ne s'annule pas comme tel ; l'annonce du MJ non plus.
+    atelier.post(f"/api/jets/mesaventure/{b['joueur']['id']}/retirer")
+
+
+def test_annonce_et_ajout_ne_font_qu_un_de(atelier, tablee, hasard, regle):
+    a = tablee["a"]
+    jid = a["joueur"]["id"]
+    for _ in range(2):
+        assert atelier.post("/api/des-aventure/passer", json={"vers": "mj"}).status_code == 200
+    assert atelier.post("/api/jets/mesaventure", json={"joueur": jid}).status_code == 200
+    calme(a["joueur"])
+    hasard(30, 1)
+    ident = lancer(a["coin"], carac="mental", mesaventure=True).json()["lance"]
+    p = resultat(a["coin"], ident)["public"]
+    assert p["mesaventure"] == {"face": 1, "effet": "Mouvement", "choisie": False}
+    assert any("un seul a roulé" in n for n in p["notes"])
+    assert (reserve_mj(atelier)["groupe"], reserve_mj(atelier)["mj"]) == (3, 1)
+    # L'annonce du MJ ne s'annule pas comme un dé ajouté par le joueur.
+    assert atelier.post(f"/api/jets/{ident}/mesaventure/annuler").status_code == 404
+
+
+def test_mesaventure_illisible_refusee(tablee):
+    a = tablee["a"]
+    calme(a["joueur"])
+    r = lancer(a["coin"], carac="mental", mesaventure="oui")
+    assert r.status_code == 400 and "mesaventure" in r.json()["detail"]

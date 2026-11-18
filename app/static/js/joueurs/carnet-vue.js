@@ -125,13 +125,16 @@ function enGroupes(liste, html, [croisesTitre, autresTitre, autresAide]) {
     ${autres.length ? `<div class="groupe-coin"><h3 class="intertitre">${e(autresTitre)}</h3><p class="aide-groupe">${e(autresAide)}</p>${html(autres)}</div>` : ""}`;
 }
 
+// La croix d'un personnage mort, posée sur son médaillon (dessinée : nette à toutes les tailles).
+const CROIX_MORT = '<svg class="croix-mort" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5v19M5.5 8h13"/></svg>';
+
 function htmlPersonnages(liste) {
   if (!liste.length) return '<p class="vide">Personne pour l\'instant : les personnages paraissent ici quand les héros les connaissent.</p>';
   const galerie = (l) => `<div class="galerie">${l.map((p) => `
-    <article class="personnage" data-cherche="${e(forme([p.nom, p.surnom, p.role, p.peuple, p.apparence, p.rencontre].join(" ")))}">
-      <span class="medaillon${p.illustration ? "" : " sans-image"}" data-image>${p.illustration ? `<img src="${e(p.illustration)}" alt="" loading="lazy" decoding="async">` : ""}${monogramme(p.nom)}</span>
+    <article class="personnage${p.mort === true ? " mort" : ""}" data-cherche="${e(forme([p.nom, p.surnom, p.role, p.peuple, p.apparence, p.rencontre, p.mort === true ? "mort morte" : ""].join(" ")))}">
+      <span class="medaillon${p.illustration ? "" : " sans-image"}" data-image>${p.illustration ? `<img src="${e(p.illustration)}" alt="" loading="lazy" decoding="async">` : ""}${monogramme(p.nom)}${p.mort === true ? CROIX_MORT : ""}</span>
       <div class="texte">
-        <h3>${e(p.nom)}</h3>
+        <h3>${e(p.nom)}${p.mort === true ? '<span class="dit-mort">Mort</span>' : ""}</h3>
         ${p.surnom ? `<p class="surnom">« ${e(p.surnom)} »</p>` : ""}
         ${p.role || p.peuple ? `<p class="role">${e([p.role, p.peuple].filter(Boolean).join(" · "))}</p>` : ""}
         ${p.rencontre ? `<p class="rencontre">${e(p.rencontre)}</p>` : ""}

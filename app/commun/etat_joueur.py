@@ -6,7 +6,7 @@ Un genre de la file des demandes (demandes.py), « etat-heros », appliqué seul
 du MJ et de « Mes demandes » (il vit sous le pouce du joueur et dans le Tableau) :
   - {champ: "sante" | "psy", delta} : des points en plus ou en moins. Un écart, jamais une valeur : deux écrans qui
     notent en même temps (le joueur et le MJ) ne s'écrasent pas ;
-  - {posture: "offensive" | "defensive" | "focus"}.
+  - {posture: "offensive" | "defensive" | "focus" | "aucune"}.
 Le coin n'envoie que cela ; l'atelier calcule sur sa fiche et sur l'état du moment (etat_joueur_mj.py), et écrit dans
 « public » ce que le joueur relit aussitôt.
 
@@ -24,7 +24,8 @@ from commun.demandes import Genre, Refus
 
 GENRE = "etat-heros"
 CHAMPS = {"sante": "Santé", "psy": "Psy"}
-POSTURES = {"offensive": "Offensive", "defensive": "Défensive", "focus": "Focus"}
+# « Aucune » : la posture perdue (un dé de mésaventure l'a cassée) ; à découvert, aucune défense, aucun effet.
+POSTURES = {"offensive": "Offensive", "defensive": "Défensive", "focus": "Focus", "aucune": "Aucune"}
 DELTA_MAX = 99
 PAR_HEURE = 240  # gestes par joueur et par heure : la page regroupe les touchers rapprochés en un seul envoi
 EN_ROUTE = 60  # secondes : un geste que l'atelier n'a pas appliqué à temps ne l'est plus
@@ -40,7 +41,7 @@ def valider(corps) -> dict:
         raise Refus(400, "Le changement : demande illisible.")
     if "posture" in corps:
         if set(corps) != {"posture"} or not isinstance(corps["posture"], str) or corps["posture"] not in POSTURES:
-            raise Refus(400, "La posture : offensive, défensive ou focus.")
+            raise Refus(400, "La posture : offensive, défensive, focus ou aucune.")
         return {"posture": corps["posture"]}
     champ, delta = corps.get("champ"), corps.get("delta")
     if set(corps) != {"champ", "delta"} or not isinstance(champ, str) or champ not in CHAMPS:

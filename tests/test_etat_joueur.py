@@ -193,6 +193,11 @@ def test_en_combat_le_geste_s_ecrit_dans_le_combat(atelier, propre, monkeypatch)
     assert atelier.get(url).json()["combat"]["heros"][0]["posture"] == "defensive"
     assert atelier.get(f"/api/aventuriers/{bertrand}").json()["posture"] == "focus"
     assert heros_etat.postures_au_combat()[bertrand] == "defensive"
+    # Sans posture (cassée par un dé de mésaventure) : à découvert, au combat aussi.
+    assert regler(m, "basile", posture="aucune")["public"]["posture"] == "aucune"
+    assert atelier.get(url).json()["combat"]["heros"][0]["posture"] == "aucune"
+    assert heros_etat.postures_au_combat()[bertrand] == "aucune"
+    regler(m, "basile", posture="defensive")
     # L'avantage dépensé pour un test, en combat : +10 %, le jeton quitte le combat et l'état.
     assert attendre(lambda: m["basile"].get("/api/jets").json()["heros"]["jeton"] == "avantage")
     actions_coin.jets_mj.hasard = Hasard(40)
@@ -231,3 +236,16 @@ def test_l_atelier_recoit_la_ligne_du_geste_jamais_la_tv(atelier, propre, monkey
     recus.clear()
     regler(m, "lea", champ="psy", delta=3)
     assert not any(x.get("type") == "etat-joueur" for x in recus)
+
+
+def test_aucune_posture(atelier, propre):
+    m = propre
+    aude = m["heros_lea"]["id"]
+    assert vue(m, "lea")["postures"] == {"offensive": "Offensive", "defensive": "Défensive", "focus": "Focus", "aucune": "Aucune"}
+    d = regler(m, "lea", posture="aucune")
+    assert d["public"]["posture"] == "aucune"
+    assert atelier.get(f"/api/aventuriers/{aude}").json()["posture"] == "aucune"
+    assert attendre(lambda: vue(m, "lea")["heros"]["posture"] == "aucune")
+    # La fiche de jet le dit au coin ; les critiques restent ceux d'un test ordinaire.
+    jet = attendre(lambda: (lambda h: h if h and h.get("posture") == "aucune" else None)(m["lea"].get("/api/jets").json()["heros"]))
+    assert jet and not (jet.get("critiques") or {}).get("offensive")

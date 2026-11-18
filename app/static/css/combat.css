@@ -130,6 +130,7 @@
 .postures-combat .posture-offensive[aria-pressed="true"] { background: #9b2c22; }
 .postures-combat .posture-defensive[aria-pressed="true"] { background: #2f5d8a; }
 .postures-combat .posture-focus[aria-pressed="true"] { background: #6b4a9a; }
+.postures-combat .posture-aucune[aria-pressed="true"] { background: #5a4d42; }
 .cartons-combat .tc-cartons { margin-left: 10px; }
 .cartons-combat .postures-combat + .tc-cartons { padding-left: 10px; border-left: 1px solid var(--filet); }
 

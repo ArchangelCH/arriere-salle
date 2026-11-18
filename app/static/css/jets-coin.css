@@ -220,7 +220,11 @@ body.jet-ouvert { overscroll-behavior: none; }
 .annonce-jet { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid #b3261e; background: rgba(179, 38, 30, .16); font-size: 16px; }
 .annonce-jet b { font-family: var(--titre, "Cinzel", Georgia, serif); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #ffb3a8; }
 
-.aventure-jet { margin: 12px 0 0; }
+.aventure-jet { margin: 12px 0 0; display: grid; gap: 8px; }
+/* Le dé de mésaventure ajouté par le joueur : la case bordée de sang, comme les dés du MJ. */
+.case-jet.mesaventure-jet { border-color: rgba(179, 38, 30, .7); background: rgba(179, 38, 30, .1); }
+.case-jet.mesaventure-jet input { border-color: #d0574b; }
+.case-jet.mesaventure-jet input:checked { border-color: #e2685b; background: #e2685b; }
 .case-jet { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 12px 4px 8px; border: 1px solid rgba(224, 181, 98, .55); border-radius: 6px;
   background: rgba(244, 234, 212, .05); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 /* Une case dessinée ici : la case native de WebKit, sur ce fond sombre, n'était qu'un carré noir. */

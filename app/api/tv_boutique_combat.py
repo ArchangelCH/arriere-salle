@@ -89,7 +89,7 @@ CLES_TABLE = ("vue", "camera", "style", "version", "aventurier_maj", "seance_maj
 # Le bandeau du combat (la séance dont la TV montre l'ordre du tour) ne se pose et ne se retire que par les routes du
 # combat : un écran qui envoie autre chose à la TV, un plan ou l'accueil, le garde.
 CHAMPS_COMBAT_TABLE = ("combat", "combat_maj")
-POSTURES_TV = ("offensive", "defensive", "focus")
+POSTURES_TV = ("offensive", "defensive", "focus", "aucune")
 CARACS_TV = ("physique", "social", "mental")
 COULEUR_VALIDE = re.compile(r"#[0-9a-fA-F]{3,8}")
 

@@ -624,3 +624,9 @@ html body.menu-coin-ouvert .bouton-jet, html body.menu-coin-ouvert .volume-coin,
 .retour-carnet, .retour-coin, .lien-coin, .vers-boutiques a { min-height: 44px; }
 .retour-coin { display: inline-flex; align-items: center; }
 .vers-aide a, .compagnon .joueur a { display: inline-flex; align-items: center; min-height: 44px; padding: 0; }
+
+/* Un personnage mort : portrait éteint, croix sur le médaillon, et le mot à côté du nom. */
+.personnage.mort .medaillon img { filter: grayscale(1) brightness(.6); }
+.personnage.mort .medaillon .monogramme { opacity: .4; }
+.medaillon .croix-mort { position: absolute; left: 50%; top: 50%; width: 56%; height: 56%; transform: translate(-50%, -50%); fill: none; stroke: #f4ead4; stroke-width: 2.6; stroke-linecap: square; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .9)); pointer-events: none; }
+.dit-mort { margin-left: .5em; font: 600 .62em/1 var(--titre, "Cinzel", serif); letter-spacing: .12em; text-transform: uppercase; color: #a8322a; vertical-align: .15em; }

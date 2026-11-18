@@ -54,7 +54,7 @@ export function statsHeros(fiche, posture) {
   return {
     caracs: x.caracs.map((c) => `${c.nom.charAt(0)} ${c.valeur}`),
     // Comme pour les adversaires : « Déf. 1 × 40 % », le nombre de défenses par tour dans sa posture.
-    defense: parTour === 0 ? `Déf. aucune${p ? ` (${p === "focus" ? "focus, +5 % aux tests" : p})` : ""}` : `Déf. ${typeof parTour === "number" ? `${parTour} × ` : ""}${pctTexte(x.defense)}`,
+    defense: parTour === 0 ? `Déf. aucune${p ? ` (${p === "focus" ? "focus, +5 % aux tests" : p === "aucune" ? "sans posture" : p})` : ""}` : `Déf. ${typeof parTour === "number" ? `${parTour} × ` : ""}${pctTexte(x.defense)}`,
     armure: `Arm. ${x.protection.indice + (x.bouclier && p === "defensive" ? 2 : 0)}`,
     armes: x.armes.map((w) => `${w.nom}${w.nombre > 1 ? ` ×${w.nombre}` : ""} ${w.degats ? `${w.degats} ` : ""}(${pctTexte(w.valeur)})`.replace(/\s+/g, " ")),
   };

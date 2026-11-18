@@ -137,8 +137,9 @@ def vitalite_de(a: dict, etat: dict) -> dict:
 
 
 def face_dite(x: dict | None) -> dict | None:
-    """Un dé d'aventure ou de mésaventure tel que le lisent le joueur et la TV : la face, l'effet, et s'il a été choisi."""
-    return {"face": x["face"], "effet": x["effet"], "choisie": bool(x.get("choisie"))} if x else None
+    """Un dé d'aventure ou de mésaventure tel que le lisent le joueur et la TV : la face, l'effet, s'il a été choisi, et
+    (dé de mésaventure) s'il a été ajouté par le joueur."""
+    return {"face": x["face"], "effet": x["effet"], "choisie": bool(x.get("choisie")), **({"ajoute": True} if x.get("ajoute") else {})} if x else None
 
 
 class JetsMJ:
@@ -330,7 +331,8 @@ class JetsMJ:
                                  "heros_nom": f["nom"], **{k: r[k] for k in champs},
                                  "demande": demande["id"] if demande else None, **({"critiques": seuils} if seuils["offensive"] else {}),
                                  **({"aventure": {**aventure, "annule": False}} if aventure else {}),
-                                 **({"mesaventure": mesaventure} if mesaventure else {}), **({"notes": notes} if notes else {})})
+                                 **({"mesaventure": {**mesaventure, "annule": False} if mesaventure.get("ajoute") else mesaventure} if mesaventure else {}),
+                                 **({"notes": notes} if notes else {})})
         if demande is not None:
             demande.update(etat="repondue", jet=d["id"], repondue_le=quand)
         self.ecrire_registre(registre)
@@ -388,6 +390,17 @@ class JetsMJ:
             else:
                 face = des.rouler_d6(self.hasard)
             mesaventure = {"face": face, "effet": des.effet(face), "choisie": par}
+        if corps.get("mesaventure") and m is not None:
+            if roule:
+                notes.append("Votre MJ avait déjà annoncé un dé de mésaventure pour ce test : un seul a roulé.")
+        elif corps.get("mesaventure"):
+            if not r["actif"]:
+                notes.append("La règle des dés d'aventure n'est plus en jeu : votre test est parti sans dé de mésaventure.")
+            elif not rsv.prendre_mesaventure(r):
+                notes.append("Plus de dé de mésaventure libre chez votre MJ : votre test est parti sans.")
+            else:
+                face = des.rouler_d6(self.hasard)
+                mesaventure = {"face": face, "effet": des.effet(face), "choisie": "", "ajoute": True}
         return aventure, mesaventure, notes, (r if json.dumps(r, sort_keys=True) != avant else None)
 
     # ------------------------------------------------------------ l'avantage après le lancer : changer la face d'un dé
@@ -625,6 +638,32 @@ class JetsMJ:
                 demandes.ecrire(self.depot, x["joueur"], liste)
         return x
 
+    def annuler_mesaventure(self, ident: str) -> dict:
+        """« Annuler le dé » : le dé de mésaventure qu'un joueur a ajouté à son test revient dans la réserve du MJ ; le
+        joueur le lit sous son résultat. Celui que le MJ a annoncé ne s'annule pas ici."""
+        with demandes.verrou(self.depot):
+            registre = self.lire_registre()
+            x = next((x for x in registre["jets"] if x.get("id") == ident), None)
+            if x is None or not isinstance(x.get("mesaventure"), dict) or not x["mesaventure"].get("ajoute"):
+                raise Refus(404, "Ce test n'a pas de dé de mésaventure ajouté par le joueur.")
+            if x["mesaventure"].get("annule"):
+                raise Refus(409, "Ce dé de mésaventure est déjà revenu dans votre réserve.")
+            r = self.reserve.lire()
+            rsv.rendre_mesaventure(r)
+            x["mesaventure"]["annule"] = True
+            self.ecrire_registre(registre)
+            self.reserve.ecrire(r)
+            try:
+                liste = demandes.lire(self.depot, x.get("joueur"))
+            except Refus:
+                liste = []
+            d = demandes.trouver(liste, ident)
+            p = d.get("public") if d else None
+            if isinstance(p, dict) and isinstance(p.get("mesaventure"), dict):
+                p["mesaventure"]["annule"] = True
+                demandes.ecrire(self.depot, x["joueur"], liste)
+        return x
+
     def regler(self, corps: dict) -> dict:
         """L'interrupteur « Dés d'aventure », le total, et « Tout au groupe » (onglet Table)."""
         with demandes.verrou(self.depot):
@@ -853,6 +892,10 @@ class JetsMJ:
         @r.post("/api/jets/{ident}/aventure/annuler")
         async def annuler_un_de_d_aventure(ident: str):
             return await geste(self.annuler_aventure, ident)
+
+        @r.post("/api/jets/{ident}/mesaventure/annuler")
+        async def annuler_un_de_de_mesaventure(ident: str):
+            return await geste(self.annuler_mesaventure, ident)
 
         @r.put("/api/des-aventure")
         async def regler_les_des(requete: Request):

@@ -65,9 +65,10 @@ const PAR = { joueur: "choisi par le joueur", mj: "choisi par vous" };
 export function htmlDesDuTest(x, avecAnnuler = true) {
   const morceaux = [["aventure", "Aventure"], ["mesaventure", "Mésaventure"]].filter(([k]) => x[k]).map(([k, nom]) => {
     const d = x[k];
-    const annuler = k === "aventure" && avecAnnuler && !d.annule
-      ? `<button type="button" class="annuler-de" data-jets="annuler-de" title="Le dé revient au groupe">Annuler le dé</button>` : "";
-    return `<span class="de-aventure-mj ${k}${d.annule ? " annule" : ""}"><span class="face">${e(d.face)}</span>${nom}\u00a0: <b>${e(d.effet)}</b>${d.choisie ? ` <small>(${e(PAR[d.choisie] || "choisi")})</small>` : ""}${d.annule ? " <small>(annulé, revenu au groupe)</small>" : ""}${annuler}</span>`;
+    // Le dé de mésaventure s'annule aussi quand le joueur l'a ajouté lui-même (il revient dans votre réserve).
+    const annuler = avecAnnuler && !d.annule && (k === "aventure" || d.ajoute)
+      ? `<button type="button" class="annuler-de" data-jets="${k === "aventure" ? "annuler-de" : "annuler-mesaventure-de"}" title="${k === "aventure" ? "Le dé revient au groupe" : "Le dé revient dans votre réserve"}">Annuler le dé</button>` : "";
+    return `<span class="de-aventure-mj ${k}${d.annule ? " annule" : ""}"><span class="face">${e(d.face)}</span>${nom}\u00a0: <b>${e(d.effet)}</b>${d.choisie ? ` <small>(${e(PAR[d.choisie] || "choisi")})</small>` : ""}${d.ajoute ? " <small>(ajouté par le joueur)</small>" : ""}${d.annule ? ` <small>(annulé, revenu ${k === "aventure" ? "au groupe" : "chez vous"})</small>` : ""}${annuler}</span>`;
   });
   return morceaux.join("");
 }
@@ -172,6 +173,7 @@ async function geste(promesse) {
 export const imposerMesaventure = (joueur, face = null) => geste(api.post("/api/jets/mesaventure", { joueur, face }));
 export const retirerMesaventure = (joueur) => geste(api.post(`/api/jets/mesaventure/${encodeURIComponent(joueur)}/retirer`, {}));
 export const annulerAventure = (ident) => geste(api.post(`/api/jets/${encodeURIComponent(ident)}/aventure/annuler`, {}));
+export const annulerMesaventure = (ident) => geste(api.post(`/api/jets/${encodeURIComponent(ident)}/mesaventure/annuler`, {}));
 export const passerDe = (vers) => geste(api.post("/api/des-aventure/passer", { vers }));
 export const reglerDes = (corps) => geste(api.put("/api/des-aventure", corps));
 

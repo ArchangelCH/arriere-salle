@@ -13,7 +13,7 @@ import { accorderEnfants } from "../commun/accorder.js";
 import { echapper as e, toast } from "../api.js";
 import { effet } from "./des.js";
 import {
-  CARACS, EFFETS_CHOISIS, annulerAventure, deux, demanderTest, desavantageDe, ecouterLesJets, herosDe, heure, htmlDesDuTest, htmlDetail,
+  CARACS, EFFETS_CHOISIS, annulerAventure, annulerMesaventure, deux, demanderTest, desavantageDe, ecouterLesJets, herosDe, heure, htmlDesDuTest, htmlDetail,
   htmlIssue, htmlPips, imposerMesaventure, passerDe, prenomDe, retirerMesaventure, retirerTest, signe, testDe,
 } from "./jets.js";
 
@@ -238,6 +238,10 @@ export class JetsDuTableau {
     if (b.dataset.jets === "annuler-de") {
       const ident = b.closest("[data-jet]")?.dataset.jet;
       return ident && this.occupe(b, () => annulerAventure(ident), "Le dé d'aventure est revenu au groupe.");
+    }
+    if (b.dataset.jets === "annuler-mesaventure-de") {
+      const ident = b.closest("[data-jet]")?.dataset.jet;
+      return ident && this.occupe(b, () => annulerMesaventure(ident), "Le dé de mésaventure est revenu dans votre réserve.");
     }
     if (b.dataset.jetsCarac) {
       const j = this.joueurChoisi();

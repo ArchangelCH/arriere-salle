@@ -238,7 +238,7 @@ export class Carnet {
     }
     ul.innerHTML = liste.map(({ p, trouve }) => `
       <li><button data-pnj="${e(p.id)}" aria-current="${this.fiche?.id === p.id}">
-        <span class="medaillon-mini">${p.illustration ? `<img ${attributsMiniature(p.illustration, 160, 40)} alt="">` : `<span>${e(initiales(p.nom))}</span>`}</span>
+        <span class="medaillon-mini${p.statut === "mort" ? " mort" : ""}">${p.illustration ? `<img ${attributsMiniature(p.illustration, 160, 40)} alt="">` : `<span>${e(initiales(p.nom))}</span>`}${p.statut === "mort" ? '<svg class="croix-mort" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5v19M5.5 8h13"/></svg>' : ""}</span>
         <span class="texte">
           <span class="nom">${marquer(p.nom)}${p.surnom ? ` <i>«&nbsp;${marquer(p.surnom)}&nbsp;»</i>` : ""}</span>
           <span class="meta">${marquer([p.role, this.nomLieu(p.lieu)].filter(Boolean).join(" · "))}</span>
@@ -303,7 +303,7 @@ export class Carnet {
     const option = (liste, valeur) => liste.map(([v, n]) => `<option value="${e(v)}" ${v === valeur ? "selected" : ""}>${e(n)}</option>`).join("");
     zone.innerHTML = `
       <div class="fiche-tete">
-        <figure class="medaillon">${p.illustration ? `<img ${attributsMiniature(p.illustration, 320)} alt="Portrait de ${e(p.nom)}">` : `<span>${e(initiales(p.nom))}</span>`}</figure>
+        <figure class="medaillon${p.statut === "mort" ? " mort" : ""}">${p.illustration ? `<img ${attributsMiniature(p.illustration, 320)} alt="Portrait de ${e(p.nom)}">` : `<span>${e(initiales(p.nom))}</span>`}${p.statut === "mort" ? '<svg class="croix-mort" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5v19M5.5 8h13"/></svg>' : ""}</figure>
         <div class="identite">
           <div class="avec-de ligne-nom">
             <input class="nom" type="text" value="${e(p.nom)}" data-champ="nom" aria-label="Nom">

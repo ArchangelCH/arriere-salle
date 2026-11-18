@@ -251,6 +251,7 @@ REGLES: dict[str, str] = {
     "POST /api/jets/mesaventure": COMMUNE,
     "POST /api/jets/mesaventure/{joueur}/retirer": COMMUNE,
     "POST /api/jets/{ident}/aventure/annuler": COMMUNE,
+    "POST /api/jets/{ident}/mesaventure/annuler": COMMUNE,
     "POST /api/des-aventure/passer": COMMUNE,
     "PUT /api/des-aventure": PRINCIPAL_SEUL,
 

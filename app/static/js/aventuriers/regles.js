@@ -455,10 +455,14 @@ export function accord(texte, a) {
 
 // L'essentiel d'une fiche pour jouer, tel que le regardent le MJ et la table (vue de la tablée, TV) : les compétences
 // et les armes portent leur valeur de test, caractéristique comprise ; deux armes identiques n'en font qu'une, « × 2 ».
-export const DEFENSES_PAR_TOUR = { offensive: 0, defensive: 1, focus: 0 };
+export const DEFENSES_PAR_TOUR = { offensive: 0, defensive: 1, focus: 0, aucune: 0 };
+
+// La posture perdue en partie (un dé de mésaventure l'a cassée) : jamais une posture de base, donc hors de POSTURES (le
+// créateur ne la propose pas), mais lue sur une fiche ou au combat.
+export const SANS_POSTURE = { cle: "aucune", nom: "Aucune", donne: "Rien.", coute: "À découvert : aucune esquive ni parade." };
 
 export function essentiel(a) {
-  const posture = POSTURES.find((p) => p.cle === a.posture) || null;
+  const posture = [...POSTURES, SANS_POSTURE].find((p) => p.cle === a.posture) || null;
   const competences = (a.competences || []).filter((c) => (c.nom || "").trim())
     .map((c) => ({ nom: c.nom.trim(), valeur: valeurCompetence(a, c), bonus: +c.bonus || 0, avec: c.avec || competenceConnue(c.nom)?.avec || "Physique" }))
     .sort((x, y) => y.valeur - x.valeur || x.nom.localeCompare(y.nom, "fr"));

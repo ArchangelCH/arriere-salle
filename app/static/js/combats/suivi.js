@@ -11,7 +11,8 @@ export const SITUATIONS = [
   [3, "Groupe vraiment préparé"],
 ];
 export const ENNEMIS = "ennemis";
-export const POSTURES_COMBAT = [["offensive", "Offensive"], ["defensive", "Défensive"], ["focus", "Focus"]];
+// « Aucune » : la posture perdue (un dé de mésaventure l'a cassée), à découvert : aucune défense, aucun effet.
+export const POSTURES_COMBAT = [["offensive", "Offensive"], ["defensive", "Défensive"], ["focus", "Focus"], ["aucune", "Aucune"]];
 export const CARACS_CARTON = [["physique", "Physique"], ["social", "Social"], ["mental", "Mental"]];
 export const CARTONS = { jaune: "jaune, −10 %", rouge: "rouge, −30 %" };
 // Le jeton du kit : un seul à la fois ; un avantage et un désavantage s'annulent.

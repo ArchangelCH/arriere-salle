@@ -241,7 +241,7 @@ def fiche_publique(a: dict, etats: dict | None = None, candidats: list | None = 
     protection = a.get("protection") if isinstance(a.get("protection"), dict) else {}
     public["protection"] = {"nom": utilitaires.texte(protection.get("nom")), "indice": protection.get("indice")}
     public["bouclier"] = bool(a.get("bouclier"))
-    public["posture"] = a.get("posture") if a.get("posture") in ("offensive", "defensive", "focus") else ""
+    public["posture"] = a.get("posture") if a.get("posture") in ("offensive", "defensive", "focus", "aucune") else ""
     if a.get("peuple_cache"):
         public["dons"] = []
     else:

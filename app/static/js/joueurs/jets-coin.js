@@ -121,6 +121,7 @@ export function monter() {
   let faces = 6;
   let bonus = 0;
   let aventure = false; // « Ajouter un dé d'aventure »
+  let mesaventure = false; // « Ajouter un dé de mésaventure », quand le MJ le demande à voix haute (19/11)
   let avecAvantage = false; // « Utiliser mon avantage » : +10 % à ce test, le jeton est dépensé
   let change = false; // un changement d'effet (l'avantage, après le lancer) est en route
   let dernierDes = null; // { des, arme } : « Relancer » refait le même jet
@@ -161,6 +162,7 @@ export function monter() {
   // Les dés d'aventure, tels que l'atelier les a publiés pour ce héros.
   const regle = () => heros()?.reserve?.actif === true;
   const groupe = () => (regle() ? heros().reserve.aventure : 0);
+  const chezLeMj = () => (regle() ? heros().reserve.mesaventure : 0);
   const annonce = () => (regle() ? heros()?.mesaventure || null : null);
   const avantage = () => heros()?.jeton === "avantage";
   // Les seuils des critiques, élargis en posture offensive (publiés par l'atelier avec la fiche de jet).
@@ -178,6 +180,7 @@ export function monter() {
   // Ce qui n'a plus lieu d'être quand la feuille se relit : plus de dé au groupe, plus d'annonce, plus de jeton.
   function accorderChoix() {
     if (!regle() || groupe() < 1) aventure = false;
+    if (!regle() || chezLeMj() < 1 || annonce()) mesaventure = false;
     if (!avantage()) avecAvantage = false;
   }
 
@@ -225,7 +228,11 @@ export function monter() {
     const n = groupe();
     const caseAventure = `<label class="case-jet${n ? "" : " vide"}"><input type="checkbox" data-aventure${aventure ? " checked" : ""}${n ? "" : " disabled"}>
         <span>${n ? `Ajouter un dé d'aventure <small>(${n}\u00a0dans la réserve)</small>` : "Plus de dé d'aventure dans la réserve du groupe"}</span></label>`;
-    return `<div class="aventure-jet">${caseAventure}</div>`;
+    // Le dé de mésaventure que le MJ demande à voix haute : le joueur l'ajoute lui-même (pas quand le MJ l'a déjà annoncé).
+    const m = chezLeMj();
+    const caseMesaventure = annonce() ? "" : `<label class="case-jet mesaventure-jet${m ? "" : " vide"}"><input type="checkbox" data-mesaventure${mesaventure ? " checked" : ""}${m ? "" : " disabled"}>
+        <span>${m ? `Ajouter un dé de mésaventure <small>(quand votre MJ le demande ; ${m} dans sa réserve)</small>` : "Plus de dé de mésaventure dans la réserve du MJ"}</span></label>`;
+    return `<div class="aventure-jet">${caseAventure}${caseMesaventure}</div>`;
   }
 
   // « Utiliser mon avantage » : +10 % à ce test ; le jeton s'en va quand le dé roule.
@@ -237,7 +244,8 @@ export function monter() {
   }
 
   // Ce qui part avec un test : le dé d'aventure et l'avantage dépensé, s'il y a lieu.
-  const desDuTest = () => ({ ...(aventure ? { aventure: true } : {}), ...(avecAvantage && avantage() ? { avantage: true } : {}) });
+  const desDuTest = () => ({ ...(aventure ? { aventure: true } : {}), ...(mesaventure && !annonce() ? { mesaventure: true } : {}),
+    ...(avecAvantage && avantage() ? { avantage: true } : {}) });
 
   // ---- Lot G : le volet « Des dés » ----
 
@@ -326,7 +334,7 @@ export function monter() {
       const changer = dernier && avantage() && !x.choisie && !x.annule
         ? `<div class="effets-jet changer-effet" role="group" aria-label="${nom} : changer l'effet avec votre avantage"><span>Votre avantage\u00a0: changer l'effet <small>(le jeton est dépensé)</small></span>${EFFETS_CHOISIS.filter(([, effet]) => effet !== x.effet).map(([face, effet, lesFaces]) => `<button type="button" data-changer="${k}" data-face="${face}"${change || etat?.face?.en_route ? " disabled" : ""}>${effet}<small>${lesFaces}</small></button>`).join("")}</div>`
         : "";
-      return `<li data-de="${k}"${x.annule ? ' class="annule"' : ""}><span class="face-jet">${e(x.face)}</span><span><b>${nom}</b> : ${e(x.effet)}${x.choisie ? " <small>(effet choisi)</small>" : ""}${x.annule ? "<em>Votre MJ l'a annulé : le dé est revenu au groupe.</em>" : ""}</span>${changer}</li>`;
+      return `<li data-de="${k}"${x.annule ? ' class="annule"' : ""}><span class="face-jet">${e(x.face)}</span><span><b>${nom}</b> : ${e(x.effet)}${x.choisie ? " <small>(effet choisi)</small>" : ""}${x.annule ? `<em>Votre MJ l'a annulé : le dé est revenu ${k === "aventure" ? "au groupe" : "dans sa réserve"}.</em>` : ""}</span>${changer}</li>`;
     });
     const notes = (p.notes || []).map((n) => `<p class="note-jet">${e(n)}</p>`).join("");
     const refus = dernier && etat?.face?.jet === ident && etat.face.phrase ? `<p class="erreur-jet" role="alert">${e(etat.face.phrase)}</p>` : "";
@@ -402,6 +410,7 @@ export function monter() {
       comp = "";
       mod = 0;
       aventure = false;
+      mesaventure = false;
       avecAvantage = false;
     }
     voile.hidden = false;
@@ -602,6 +611,10 @@ export function monter() {
   feuille.addEventListener("change", (ev) => {
     if (ev.target.matches("[data-aventure]")) {
       aventure = ev.target.checked;
+      dessiner();
+    }
+    if (ev.target.matches("[data-mesaventure]")) {
+      mesaventure = ev.target.checked;
       dessiner();
     }
     if (ev.target.matches("[data-avantage]")) {

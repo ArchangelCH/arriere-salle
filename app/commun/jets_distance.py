@@ -91,7 +91,7 @@ def caracteristique(v) -> str:
 
 
 def avec_les_des(corps: dict, propre: dict) -> dict:
-    """Le dé d'aventure : « aventure » vrai pour en ajouter un. Et l'avantage du héros dépensé pour ce test
+    """Le dé d'aventure : « aventure » vrai pour en ajouter un ; « mesaventure » vrai pour un dé de mésaventure. Et l'avantage du héros dépensé pour ce test
     (« avantage » vrai : +10 % à la valeur visée, le jeton s'en va quand le dé roule). Absents, rien ne s'ajoute au corps.
 
     Depuis le 11/11, l'avantage ne choisit plus la face d'un dé d'aventure avant le lancer : il la change après, une fois
@@ -101,6 +101,13 @@ def avec_les_des(corps: dict, propre: dict) -> dict:
         raise Refus(400, "« aventure » : oui ou non.")
     if aventure:
         propre["aventure"] = True
+    # Le dé de mésaventure que le joueur ajoute lui-même, quand son MJ le lui dit à voix haute (19/11) : pris dans la réserve
+    # du MJ par l'atelier, au lancer, jamais en double avec celui que le MJ a annoncé.
+    mesaventure = corps.get("mesaventure")
+    if mesaventure not in (None, True, False):
+        raise Refus(400, "« mesaventure » : oui ou non.")
+    if mesaventure:
+        propre["mesaventure"] = True
     avantage = corps.get("avantage")
     if avantage not in (None, True, False):
         raise Refus(400, "« avantage » : oui ou non.")
@@ -274,7 +281,7 @@ def fiche_valide(f) -> dict | None:
     return {"nom": f["nom"][:120], **{k: jets.entier(f.get(k), 0, jets.VALEUR_MAX) for k in jets.CARACS},
             "competences": competences[:COMPETENCES_MAX],
             "cartons": {k: cartons[k] for k in jets.CARACS if cartons.get(k) in ("jaune", "rouge")},
-            "posture": f.get("posture") if f.get("posture") in ("offensive", "defensive", "focus") else "",
+            "posture": f.get("posture") if f.get("posture") in ("offensive", "defensive", "focus", "aucune") else "",
             "armes": armes_lisibles(f.get("armes")),
             "jeton": f.get("jeton") if f.get("jeton") in ("avantage", "desavantage") else "", "combat": f.get("combat") is True,
             "vitalite": vitalite_valide(f.get("vitalite")),

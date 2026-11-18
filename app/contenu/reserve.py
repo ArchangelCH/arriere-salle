@@ -126,6 +126,25 @@ def prendre(r: dict) -> bool:
     return True
 
 
+def prendre_mesaventure(r: dict) -> bool:
+    """Un joueur ajoute à son test le dé de mésaventure que son MJ lui demande : un dé libre de la réserve du MJ (pas un
+    de ceux qu'il a annoncés à d'autres) roule et revient au groupe, comme un dé de mésaventure joué. Faux si la règle est
+    éteinte ou si aucun dé n'est libre."""
+    if not r["actif"] or libres(r) < 1:
+        return False
+    r["mj"] -= 1
+    r["groupe"] += 1
+    return True
+
+
+def rendre_mesaventure(r: dict) -> None:
+    """Le MJ annule le dé de mésaventure qu'un joueur a ajouté : il revient dans sa réserve."""
+    if r["groupe"] < 1:
+        raise Refus(409, "La réserve du groupe est vide : ce dé ne peut plus revenir chez vous. Réglez les réserves à la main.")
+    r["groupe"] -= 1
+    r["mj"] += 1
+
+
 def rendre(r: dict) -> None:
     """Le MJ annule un dé d'aventure joué : il revient au groupe. Refus si la réserve du MJ est vide entre-temps."""
     if r["mj"] < 1:

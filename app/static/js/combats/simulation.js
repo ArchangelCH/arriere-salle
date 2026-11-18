@@ -39,7 +39,7 @@ export function santeAdversaire(v, nbPj, niveau) {
 }
 
 // Règle du MJ : une défense en défensive, aucune en offensive ni en focus ; +5 % à tous les tests en focus.
-const DEFENSES_POSTURE = { offensive: 0, defensive: 1, focus: 0 };
+const DEFENSES_POSTURE = { offensive: 0, defensive: 1, focus: 0, aucune: 0 };
 const BONUS_FOCUS = 5;
 
 function preparerPj(p, style) {

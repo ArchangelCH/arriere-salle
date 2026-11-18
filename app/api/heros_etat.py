@@ -28,7 +28,8 @@ CARTONS_ETAT = ("jaune", "rouge")
 AVANTAGES = ("avantage", "desavantage")
 # La posture d'un héros sur son pion : celle du combat en cours, sinon celle de sa fiche (postures_au_combat). Elle ne
 # s'écrit pas dans l'état : un héros en pleine forme n'en a pas.
-POSTURES_ETAT = ("offensive", "defensive", "focus")
+# « aucune » : la posture perdue, à découvert (aucune défense, aucun effet).
+POSTURES_ETAT = ("offensive", "defensive", "focus", "aucune")
 SANTE_ETAT_MAX = 999
 NOTES_ETAT_MAX = 300
 

@@ -1982,7 +1982,7 @@ def lancer_ici(j: dict, corps: dict) -> dict:
         raise demandes.Refus(409, jets_distance.FERMEE)
     if not fiche_de_jet(j):
         raise demandes.Refus(409, jets_distance.ABSENT)
-    corps = {k: corps[k] for k in ("carac", "competence", "modificateur", "demande", "aventure", "avantage", "choix", "des", "arme") if k in corps}
+    corps = {k: corps[k] for k in ("carac", "competence", "modificateur", "demande", "aventure", "mesaventure", "avantage", "choix", "des", "arme") if k in corps}
     demande = corps.get("demande") is not None
     instant = time.monotonic()
     faits = [t for t in JETS_LANCES.get(j["id"], []) if instant - t < 3600]

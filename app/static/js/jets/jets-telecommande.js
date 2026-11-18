@@ -11,7 +11,7 @@
 import { accorderEnfants } from "../commun/accorder.js";
 import { echapper as e } from "../api.js";
 import {
-  CARACS, EFFETS_CHOISIS, annulerAventure, demanderTest, desavantageDe, ecouterLesJets, herosDe, heure, htmlDesDuTest, htmlDetail, htmlIssue,
+  CARACS, EFFETS_CHOISIS, annulerAventure, annulerMesaventure, demanderTest, desavantageDe, ecouterLesJets, herosDe, heure, htmlDesDuTest, htmlDetail, htmlIssue,
   htmlPips, imposerMesaventure, passerDe, prenomDe, retirerMesaventure, retirerTest, signe, testDe,
 } from "./jets.js";
 
@@ -207,6 +207,10 @@ export function monterJetsTelecommande(bas) {
     if (b.dataset.jets === "annuler-de") {
       const ident = b.closest("[data-jet]")?.dataset.jet;
       return ident && geste(b, () => annulerAventure(ident), "Le dé d'aventure est revenu au groupe.");
+    }
+    if (b.dataset.jets === "annuler-mesaventure-de") {
+      const ident = b.closest("[data-jet]")?.dataset.jet;
+      return ident && geste(b, () => annulerMesaventure(ident), "Le dé de mésaventure est revenu dans votre réserve.");
     }
     if (b.dataset.jetsCarac) {
       const j = joueurChoisi();

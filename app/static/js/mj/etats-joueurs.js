@@ -7,7 +7,7 @@ import { relireEtatJeu } from "../commun/etat-jeu.js";
 import { ecouterEtatsJoueurs } from "../ecran-tv/canal-table.js";
 
 const NOMS = { sante: "Santé", psy: "Psy" };
-const POSTURES = { offensive: "offensive", defensive: "défensive", focus: "focus" };
+const POSTURES = { offensive: "offensive", defensive: "défensive", focus: "focus", aucune: "aucune" };
 
 export function phrase(s) {
   const qui = `${s.heros || "Un héros"}${s.joueur ? ` (${s.joueur})` : ""}`;

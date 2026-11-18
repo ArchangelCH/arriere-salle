@@ -12,7 +12,7 @@ import { change, demandes, lireJson, numeroter } from "./outils.js";
 // tour, le point strat et le sablier. Il passe sur le jeu (plan, carte, image), pas sur les écrans de présentation. Rien
 // d'un adversaire n'arrive ici : le serveur ne l'envoie pas.
 const VUES_COMBAT = ["plan", "carte", "image"];
-const POSTURES_TV = { offensive: "offensive", defensive: "défensive", focus: "focus" };
+const POSTURES_TV = { offensive: "offensive", defensive: "défensive", focus: "focus", aucune: "sans posture" };
 const CARACS_TV = { physique: "P", social: "S", mental: "M" };
 
 function htmlCombattantTv(x, actif) {

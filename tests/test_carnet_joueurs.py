@@ -681,3 +681,19 @@ def test_un_joueur_reinvite_n_herite_pas_des_commandes(atelier, monde, coin_pour
         atelier.delete(f"/api/joueurs/{j['id']}")
     carnet.fichier_commandes(config.PROPOSITIONS, "gaspard").unlink()
     atelier.delete(f"/api/aventuriers/{heros['id']}")
+
+
+def test_un_personnage_mort_porte_sa_croix(atelier, monde):
+    """Un PNJ connu passé en « Mort » : la croix au carnet des joueurs (choix du 19/11). Seul ce statut sort : « disparu » et
+    « sort inconnu » restent à l'atelier."""
+    bran = monde["bran"]["id"]
+    ouvrir_carnet(atelier)
+    try:
+        for statut, mort in (("mort", True), ("disparu", False), ("inconnu", False), ("vivant", False)):
+            assert atelier.patch(f"/api/pnj/{bran}", json={"statut": statut}).status_code == 200
+            carnet_api.publier_carnet()
+            [p] = [x for x in monde["a"]["coin"].get("/api/carnet").json()["personnages"] if x["nom"] == "Bran le Borgne"]
+            assert p["mort"] is mort and "statut" not in p
+            assert '"statut"' not in json.dumps(p)
+    finally:
+        atelier.patch(f"/api/pnj/{bran}", json={"statut": "vivant"})

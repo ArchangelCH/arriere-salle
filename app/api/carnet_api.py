@@ -87,7 +87,7 @@ def fiche_du_joueur(a: dict, etat: dict, image, aventuriers: dict | None = None)
         "competences": lignes("competences", ("nom", "bonus", "avec")), "armes": lignes("armes", ("nom", "competence", "degats", "notes")),
         "protection": {"nom": utilitaires.texte(protection.get("nom")), "indice": entier(protection.get("indice"))},
         "bouclier": bool(a.get("bouclier")), "dons": dons, "langues": utilitaires.texte(a.get("langues")),
-        "posture": a.get("posture") if a.get("posture") in ("offensive", "defensive", "focus") else "",
+        "posture": a.get("posture") if a.get("posture") in ("offensive", "defensive", "focus", "aucune") else "",
         "posture_elementaire": utilitaires.texte(a.get("posture_elementaire")),
         "themes": [utilitaires.texte(t) for t in a.get("themes") or [] if utilitaires.texte(t).strip()],
         "conseils": [utilitaires.texte(c) for c in a.get("conseils") or [] if utilitaires.texte(c).strip()],
@@ -362,7 +362,10 @@ def elements_du_carnet() -> tuple[dict, dict, dict, list]:
         vus = vus_pnj.get(p["id"], [])
         chez = connus.get(p.get("lieu")) if isinstance(p.get("lieu"), str) and any(p["lieu"] in soir for _, soir in vus) else None
         rencontre = croise([n for n, _ in vus], au_lieu(utilitaires.texte(chez.get("nom"))) if chez else "")
-        return public(tv_fiches.pnj_public(p) | {"illustration": image(tv_cartes.url_publique(p))} | rencontre, "nom", (nom, False))
+        # Mort : la croix du carnet des joueurs, dès que le MJ passe la fiche en « Mort » (choix du 19/11). Seul ce statut
+        # sort, jamais « disparu » ni « sort inconnu ».
+        return public(tv_fiches.pnj_public(p) | {"illustration": image(tv_cartes.url_publique(p)), "mort": p.get("statut") == "mort"}
+                      | rencontre, "nom", (nom, False))
 
     def lieu(l):
         return public({k: v for k, v in tv_cartes.lieu_public(l).items() if k != "illustrations"} | {"illustration": image(tv_cartes.url_publique(l))}

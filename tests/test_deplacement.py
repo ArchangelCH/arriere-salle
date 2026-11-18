@@ -1223,9 +1223,9 @@ def test_e4_une_porte_qui_donne_sur_l_eau_profonde_cachee(atelier, monde, montre
 
 @pytest.fixture()
 def plan_familier(atelier, monde):
-    """Le plan d'essai, avec Lumi, le familier d'Aude (ref « familier:<Aude> »), en (1, 1)."""
+    """Le plan d'essai, avec Brindille, le familier d'Aude (ref « familier:<Aude> »), en (1, 1)."""
     fiche = plan_d_essai(monde["aude"]["id"], monde["bertrand"]["id"])
-    fiche["pions"].append({"id": "t-lumi", "genre": "autre", "nom": "Lumi", "ref": f"familier:{monde['aude']['id']}", "x": 1.5, "y": 1.5})
+    fiche["pions"].append({"id": "t-brindille", "genre": "autre", "nom": "Brindille", "ref": f"familier:{monde['aude']['id']}", "x": 1.5, "y": 1.5})
     p = monde["creer"]("plans", **fiche)
     with demandes.verrou(config.PROPOSITIONS):
         for j in ("lea_id", "basile_id"):
@@ -1242,38 +1242,38 @@ def plan_familier(atelier, monde):
 
 def test_le_joueur_bouge_son_familier(atelier, monde, plan_familier):
     r = table(monde["lea"])
-    assert r["pion"] == "t-aude" and r["familiers"] == [{"id": "t-lumi", "debut": None}]
+    assert r["pion"] == "t-aude" and r["familiers"] == [{"id": "t-brindille", "debut": None}]
     assert table(monde["basile"])["familiers"] == []
     # Le familier sur la table du coin : son nom, ni sa référence ni son héros.
-    lumi = next(t for t in r["vue"]["plan"]["pions"] if t["id"] == "t-lumi")
-    assert lumi["nom"] == "Lumi" and "ref" not in lumi
-    d = bouger(monde["lea"], [1, 3], pion="t-lumi")
+    brindille = next(t for t in r["vue"]["plan"]["pions"] if t["id"] == "t-brindille")
+    assert brindille["nom"] == "Brindille" and "ref" not in brindille
+    d = bouger(monde["lea"], [1, 3], pion="t-brindille")
     assert d.status_code == 200, d.text
     assert traitee(monde, "lea", d.json()["id"])["statut"] == "appliquee"
-    assert pion_du_plan(atelier, plan_familier, "t-lumi") == [1.5, 3.5]
+    assert pion_du_plan(atelier, plan_familier, "t-brindille") == [1.5, 3.5]
     assert pion_du_plan(atelier, plan_familier, "t-aude") == [0.5, 2.5]
     # Basile ne bouge pas le familier d'Aude, ni depuis le coin, ni par une demande écrite tout droit.
-    r = bouger(monde["basile"], [1, 2], pion="t-lumi")
+    r = bouger(monde["basile"], [1, 2], pion="t-brindille")
     assert r.status_code == 409 and r.json()["detail"] == dp.PAS_SUR_LE_PLAN
-    x = ecrire_tout_droit(monde, "basile", {"plan": table(monde["basile"])["vue"]["plan"]["id"], "pion": "t-lumi", "depuis": [1, 3], "vers": [1, 2]})
+    x = ecrire_tout_droit(monde, "basile", {"plan": table(monde["basile"])["vue"]["plan"]["id"], "pion": "t-brindille", "depuis": [1, 3], "vers": [1, 2]})
     assert traitee(monde, "basile", x["id"])["resultat"] == dp.PAS_SUR_LE_PLAN
-    assert pion_du_plan(atelier, plan_familier, "t-lumi") == [1.5, 3.5]
+    assert pion_du_plan(atelier, plan_familier, "t-brindille") == [1.5, 3.5]
 
 
 def test_le_familier_bouge_au_tour_de_son_heros(atelier, monde, plan_familier):
     combat(atelier, monde, actif=1)
-    assert bouger(monde["lea"], [1, 2], pion="t-lumi").json()["detail"] == dp.PAS_TON_TOUR
+    assert bouger(monde["lea"], [1, 2], pion="t-brindille").json()["detail"] == dp.PAS_TON_TOUR
     combat(atelier, monde, actif=0)
     r = table(monde["lea"])
-    # Chacun sa case du début du tour : le héros en (0, 2), Lumi en (1, 1).
-    assert r["debut"] == [0, 2] and r["familiers"] == [{"id": "t-lumi", "debut": [1, 1]}]
+    # Chacun sa case du début du tour : le héros en (0, 2), Brindille en (1, 1).
+    assert r["debut"] == [0, 2] and r["familiers"] == [{"id": "t-brindille", "debut": [1, 1]}]
     atelier.put("/api/table-joueurs", json={"distance_combat": 1})
     tv_etat.table_coin.tout_de_suite()
-    d = bouger(monde["lea"], [1, 2], pion="t-lumi")
+    d = bouger(monde["lea"], [1, 2], pion="t-brindille")
     assert d.status_code == 200 and traitee(monde, "lea", d.json()["id"])["statut"] == "appliquee"
-    assert attendre(lambda: case_sur_la_table(monde["lea"], "t-lumi") == [1, 2], 2.0)
+    assert attendre(lambda: case_sur_la_table(monde["lea"], "t-brindille") == [1, 2], 2.0)
     # Sa distance se compte depuis sa propre case de début (1, 1) : (1, 3) est à deux cases, trop loin pour ce tour.
-    r = bouger(monde["lea"], [1, 3], pion="t-lumi")
+    r = bouger(monde["lea"], [1, 3], pion="t-brindille")
     assert r.status_code == 409 and r.json()["detail"] == dp.trop_loin(1, True)
     # Le héros garde la sienne : (0, 2) → (0, 3), une case.
     assert pas(monde, [0, 3])["statut"] == "appliquee"

@@ -1,4 +1,4 @@
-"""Les notes du joueur, prises depuis la table du coin (demande d'Adrien du 19/11) : un texte libre, à lui seul. Ni le MJ ni
+"""Les notes du joueur, prises depuis la table du coin (lot du 19/11) : un texte libre, à lui seul. Ni le MJ ni
 la tablée ne les lisent : aucune route de l'atelier ne les sert, rien ne les publie.
 
 - Elles vivent dans propositions/notes/<joueur>.json ({texte, modifie}), écrites par le coin seul, sous verrou, en 0600.

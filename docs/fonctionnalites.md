@@ -678,3 +678,30 @@ dont chaque fichier fait relire toute la table), `commun/pointeurs.py` pour les 
   du héros telle qu'à la TV (`couleurs_de_la_tv`), prénom, onde. Un pointeur qui ne vise pas le plan de la TV n'est pas
   transmis. Tests : `tests/test_pointeurs.py` (dont fuite et refus).
 - Correctif en passant : l'outil Mesurer de l'éditeur de cartes ne suivait pas la souris (x1 et y1 jamais mis à jour).
+
+
+## Lot du 19/11/2026 : la table du coin, la musique, les familiers
+
+- **Posture « Aucune »** : la posture perdue (un dé de mésaventure l'a cassée). À découvert : aucune défense, aucun effet
+  (choix du MJ). Au combat (pastille barrée), au Tableau, au coin (barre « Mon héros »), sur la fiche et à la TV
+  (« sans posture »). Le créateur ne la propose pas comme posture de base.
+- **Croix des morts** : un PNJ passé en « Mort » porte une croix et un portrait éteint, dans le carnet de PNJ du MJ (liste et
+  fiche) et dans le carnet des joueurs (choix du MJ : dès « Mort »). Seul ce statut sort vers le coin (champ `mort`), jamais
+  « disparu » ni « sort inconnu ».
+- **Dé de mésaventure ajouté par le joueur** : case « Ajouter un dé de mésaventure » de la feuille de test (quand le MJ le
+  demande à voix haute). Un dé libre de la réserve du MJ roule avec le D100 et revient au groupe ; jamais en double avec
+  celui que le MJ a annoncé ; le MJ peut l'annuler (Tableau, télécommande : `POST /api/jets/{id}/mesaventure/annuler`).
+- **La table du coin** (`js/joueurs/table-heros.js`) : un médaillon au portrait du héros, en bas à gauche, ouvre sa fiche en
+  résumé (caractéristiques avec cartons, défense, armure, compétences, armes, dons) ; « Sac » et « Notes » ouvrent leurs
+  tiroirs sous la barre « Mon héros ». Le sac est celui du carnet (`sac.js`). Les notes (`commun/notes.py`,
+  `GET|PUT /api/notes`, `propositions/notes/<joueur>.json` en 0600) sont au joueur seul : aucune route de l'atelier ne
+  les lit ; un enregistrement porte la version lue (409 si un autre appareil les a changées, la page garde les deux textes).
+- **Musique du MJ au coin** (`commun/musique_coin.py`) : le lecteur de l'atelier publie la vidéo YouTube qui joue, sa
+  position et son état (`PUT /api/musique/ecoute`, à chaque changement et toutes les 30 s) ; jamais le nom ni la note de
+  l'ambiance. Rien ne part table du coin fermée ou case « Votre musique à la table du coin » décochée (réglage `musique` de
+  la table, Réglages, Coin des joueurs). Le coin la relit (`GET /api/musique-table`, sujet de flux « musique ») et chaque
+  appareil choisit de l'écouter (`js/joueurs/musique-coin.js`). La CSP n'ouvre YouTube que sur la page `/table` du coin.
+- **Familiers en pions** : section « Les familiers » de l'outil Pions de l'éditeur ; pion `genre: "autre"`,
+  `ref: "familier:<aventurier>"`, à la couleur du héros et à l'image du familier (`image_libre`). Son joueur le bouge
+  depuis la table du coin comme son héros (toucher le pion, puis la case) ; en combat, au tour du héros, avec sa propre case
+  de début de tour (`tours` noté sous `<héros>#<pion>`). Il ne révèle pas les pièces où il entre.

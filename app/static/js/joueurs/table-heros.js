@@ -1,4 +1,4 @@
-// Son héros sous la main, à la table du coin (demandes d'Adrien du 19/11) :
+// Son héros sous la main, à la table du coin (lot du 19/11) :
 //   - la fiche en résumé, en bas à gauche : un médaillon à son portrait ouvre les caractéristiques (cartons comptés), la
 //     défense et l'armure, les compétences, les armes et les dons (effet au toucher). Elle se lit dans la fiche publiée du
 //     carnet (GET /api/carnet) ; carnet fermé, dans la fiche de jet de la table (GET /api/jets), sans les dons ;

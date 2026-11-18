@@ -1,4 +1,4 @@
-"""La musique du MJ à la table du coin (demande d'Adrien du 19/11) : ce que joue le lecteur de l'atelier (musique.js, sur
+"""La musique du MJ à la table du coin (lot du 19/11) : ce que joue le lecteur de l'atelier (musique.js, sur
 l'ordinateur du MJ) s'entend aussi sur la page Table des joueurs, en visio comme autour de la table.
 
 - L'atelier écrit `musique/ecoute.json` quand son lecteur change (morceau, pause, arrêt) et de loin en loin pendant la

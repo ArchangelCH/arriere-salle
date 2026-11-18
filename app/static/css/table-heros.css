@@ -1,0 +1,117 @@
+/* Son héros sous la main à la table du coin (js/joueurs/table-heros.js) : le médaillon de la fiche en bas à gauche, au-dessus
+   de la jauge du volume, et sa fiche en résumé qui s'ouvre au-dessus de lui ; le sac et les notes en tiroirs sous la barre
+   « Mon héros ». Mêmes matières que la barre : bois sombre, filet doré, parchemin. Après etat-coin.css. */
+
+.medaillon-table {
+  --c: #e0b562;
+  position: fixed; z-index: 37; left: max(12px, env(safe-area-inset-left)); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 56px);
+  width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; overflow: visible; cursor: pointer;
+  background: radial-gradient(circle at 35% 30%, #4a3d31, #1d1611); color: #f1dfb5;
+  box-shadow: 0 0 0 2px var(--c), 0 0 0 3.5px rgba(244, 234, 212, .85), 0 4px 12px rgba(0, 0, 0, .6);
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.medaillon-table[hidden] { display: none; }
+.medaillon-table img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: 50% 18%; display: block; }
+.medaillon-table .lettre { display: grid; place-items: center; height: 100%; font: 700 20px/1 var(--titre, "Cinzel", Georgia, serif); }
+.medaillon-table .mot {
+  position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); padding: 2px 6px 1px; border-radius: 3px;
+  background: #1a110a; border: 1px solid rgba(224, 181, 98, .7); font: 700 9px/1.1 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .12em;
+  text-transform: uppercase; color: #f0d9a8; white-space: nowrap;
+}
+.medaillon-table[aria-expanded="true"] { box-shadow: 0 0 0 2px var(--or-vif, #f0cb78), 0 0 0 5px rgba(240, 203, 120, .35), 0 4px 12px rgba(0, 0, 0, .6); }
+.medaillon-table:focus-visible { outline: 2px solid var(--or-vif, #f0cb78); outline-offset: 4px; }
+/* La légende des héros et le bandeau des réserves gardent la place du médaillon. */
+body.coin-table .legende-coin { left: calc(max(12px, env(safe-area-inset-left)) + 62px); }
+
+/* ---- Les panneaux : la fiche en résumé (au-dessus du médaillon), le sac et les notes (sous la barre) ---- */
+
+.recap-table, .panneau-tiroir {
+  color: var(--parchemin, #f4ead4); font: 17px/1.35 var(--corps, "EB Garamond", Georgia, serif); font-variant-numeric: lining-nums;
+  background: linear-gradient(#21150c, #170f08); border: 1px solid rgba(224, 181, 98, .55); box-shadow: 0 14px 40px rgba(0, 0, 0, .65);
+}
+.recap-table {
+  position: fixed; z-index: 38; left: max(12px, env(safe-area-inset-left)); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 116px);
+  width: min(380px, calc(100vw - 24px)); max-height: max(220px, min(68vh, calc(100dvh - 390px))); overflow-y: auto; overscroll-behavior: contain;
+  padding: 12px 16px 14px; border-radius: 8px;
+}
+.recap-table[hidden], .tiroir-table[hidden], .panneau-tiroir[hidden] { display: none; }
+.tiroir-table {
+  position: absolute; z-index: 30; top: 0; left: 0; right: 0; display: flex; justify-content: flex-end;
+  padding: 0 max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left)); pointer-events: none;
+}
+.panneau-tiroir {
+  pointer-events: auto; width: min(520px, 100%); max-height: min(64vh, calc(100dvh - 220px)); overflow-y: auto; overscroll-behavior: contain;
+  padding: 10px 16px 14px; border-top: 0; border-radius: 0 0 8px 8px;
+}
+
+.tete-recap { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 10px; }
+.tete-recap > div { flex: 1 1 auto; min-width: 0; }
+.tete-recap h2 { margin: 0; font: 700 15px/1.25 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .1em; text-transform: uppercase; color: var(--or-vif, #f0cb78); }
+.tete-recap p { margin: 2px 0 0; color: #c9b48f; font-size: 15px; font-style: italic; }
+.fermer-panneau {
+  flex: none; width: 40px; height: 40px; margin: -4px -6px 0 0; border: 1px solid rgba(224, 181, 98, .45); border-radius: 50%;
+  background: rgba(40, 26, 14, .9); color: #f4ead4; font: 400 24px/1 var(--corps, "EB Garamond", Georgia, serif); cursor: pointer;
+}
+.recap-table h3 {
+  margin: 12px 0 4px; padding-top: 8px; border-top: 1px solid rgba(224, 181, 98, .22);
+  font: 700 11px/1.2 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .14em; text-transform: uppercase; color: #d9c6a3;
+}
+.recap-table .vide, .panneau-tiroir .vide { margin: 8px 0 0; color: #b8a585; font-style: italic; }
+
+.caracs-recap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.carac-recap {
+  display: grid; justify-items: center; gap: 1px; padding: 6px 4px 5px; border: 1px solid rgba(224, 181, 98, .35); border-radius: 6px;
+  background: rgba(244, 234, 212, .05);
+}
+.carac-recap .nom { font: 700 10px/1.2 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .12em; text-transform: uppercase; color: #d9c6a3; }
+.carac-recap b { font: 600 28px/1 var(--titre, "Cinzel", Georgia, serif); color: #fff3d6; }
+.carac-recap small { font-size: 12px; color: #b8a585; }
+.carac-recap.carton-jaune { border-color: #f2c230; box-shadow: inset 0 3px 0 #f2c230; }
+.carac-recap.carton-rouge { border-color: #c62f26; box-shadow: inset 0 3px 0 #c62f26; }
+.carac-recap.carton-jaune small { color: #f2d36b; }
+.carac-recap.carton-rouge small { color: #f0a090; }
+
+.defense-recap { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font-size: 16px; }
+.defense-recap b { font: 700 11px/1 var(--titre, "Cinzel", Georgia, serif); letter-spacing: .1em; text-transform: uppercase; color: #d9c6a3; margin-right: 4px; }
+.defense-recap small { color: #b8a585; }
+
+.liste-recap { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.liste-recap li { display: flex; align-items: baseline; gap: 10px; padding: 3px 0; border-bottom: 1px dotted rgba(224, 181, 98, .18); }
+.liste-recap li span { flex: 1 1 auto; min-width: 0; }
+.liste-recap li i { color: #c9b48f; font-size: 15px; }
+.liste-recap li b { flex: none; font-weight: 600; color: #fff3d6; }
+
+.dons-recap { display: grid; gap: 4px; }
+.dons-recap details { border: 1px solid rgba(224, 181, 98, .28); border-radius: 6px; background: rgba(244, 234, 212, .04); }
+.dons-recap summary {
+  display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 4px 10px; cursor: pointer; list-style: none;
+}
+.dons-recap summary::-webkit-details-marker { display: none; }
+.dons-recap summary span { flex: 1 1 auto; font-weight: 600; }
+.dons-recap summary small { flex: none; padding: 2px 7px; border-radius: 10px; background: rgba(91, 155, 224, .18); border: 1px solid rgba(91, 155, 224, .55); color: #cfe0f5; font-size: 13px; }
+.dons-recap details[open] summary { border-bottom: 1px solid rgba(224, 181, 98, .2); }
+.dons-recap details p { margin: 0; padding: 6px 10px 8px; font-size: 16px; color: #e8dcc2; }
+.pied-recap { margin: 12px 0 0; text-align: right; }
+.pied-recap a { color: var(--or-vif, #f0cb78); }
+
+/* ---- Le sac à la table : celui du carnet (sac.js et sac-coin.css), sur sa feuille de parchemin ---- */
+.sac-table h4 { display: none; }
+.sac-table {
+  padding: 12px 14px 14px; border-radius: 4px; color: #2a1d10;
+  background: #f6eedb url("../img/kit/parchemin-clair.jpg") center / 100% 100%; box-shadow: inset 0 0 0 1px rgba(107, 79, 42, .55);
+}
+.sac-table .vide { color: #6b4f2a; }
+
+/* ---- Les notes ---- */
+.cache { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.notes-table {
+  display: block; width: 100%; min-height: 34vh; max-height: 52vh; resize: vertical; padding: 10px 12px; border: 1px solid rgba(224, 181, 98, .45);
+  border-radius: 6px; background: #f2e6c9; color: #2a1d10; font: 18px/1.45 var(--corps, "EB Garamond", Georgia, serif);
+  box-shadow: inset 0 2px 6px rgba(60, 35, 10, .25);
+}
+.notes-table:focus { outline: 2px solid var(--or-vif, #f0cb78); outline-offset: 1px; }
+.etat-notes { min-height: 1.3em; margin: 6px 0 0; font-size: 14px; color: #b8a585; font-style: italic; }
+.etat-notes[data-alerte="oui"] { color: #f0b3a6; font-style: normal; }
+
+/* Le menu ouvert : le médaillon passe sous son voile, comme les autres boutons flottants. */
+html body.menu-coin-ouvert .medaillon-table, html body.menu-coin-ouvert .recap-table { z-index: 18; }

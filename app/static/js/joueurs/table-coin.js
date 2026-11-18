@@ -29,6 +29,7 @@ import { monter as monterBillets } from "./prives.js";
 import { monter as monterJets } from "./jets-coin.js";
 // « Mon héros » : la Santé, la Psy et la posture que le joueur règle lui-même (etat-coin.js).
 import { monter as monterEtat } from "./etat-coin.js";
+import { monter as monterTableHeros } from "./table-heros.js";
 // ---- Les portraits des joueurs : son portrait sur sa ligne de la légende. ----
 import { suivreMonPortrait } from "./portrait-coin.js";
 // ---- Les jets des autres, en dés 3D, avec le bandeau et le jingle de la TV (lot du 12/11). ----
@@ -523,6 +524,8 @@ monterBillets();
 // temps du choix (jets-coin.js). ----
 monterJets();
 monterEtat(page);
+// Son héros sous la main (19/11) : la fiche en résumé en bas à gauche, le sac et les notes en tiroirs sous « Mon héros ».
+monterTableHeros(page);
 // Le pointeur et la règle du MJ en lecture seule, et le pointeur du joueur vers le MJ (pointeurs-coin.js).
 pointeursCoin = monterPointeurs({
   scene,

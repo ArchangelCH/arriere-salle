@@ -2356,3 +2356,40 @@ async def envoyer_un_portrait(requete: Request, x: str = "", y: str = "", l: str
         return {"envoye": d["id"]} | await asyncio.to_thread(etat_portraits, j)
     except demandes.Refus as refus:
         raise HTTPException(refus.statut, refus.message)
+
+
+# Son héros sous la main à la table du coin (19/11, js/joueurs/table-heros.js) : la fiche en résumé, le sac en tiroir (les
+# routes du carnet), et les notes du joueur (notes.py), à lui seul : rien ne les publie, aucune route de l'atelier ne les
+# lit. Le fichier se trouve par la session, jamais d'après la requête.
+from commun import notes  # noqa: E402
+
+FICHIERS |= {"js/joueurs/table-heros.js", "css/table-heros.css"}
+NOTES_ECRITES: dict[str, list[float]] = {}
+NOTES_PAR_HEURE = 900  # une écriture toutes les quatre secondes en moyenne : la page enregistre à la pause de la saisie
+
+
+@app.get("/api/notes")
+def lire_mes_notes(requete: Request):
+    j = connecte(requete)
+    try:
+        return notes.lire(DEPOT, j["id"])
+    except demandes.Refus as refus:
+        raise HTTPException(refus.statut, refus.message)
+
+
+@app.put("/api/notes")
+async def ecrire_mes_notes(requete: Request):
+    j = connecte(requete)
+    if int(requete.headers.get("content-length") or 0) > notes.ECRITURE_OCTETS_MAX:
+        raise HTTPException(413, f"Vos notes dépassent {notes.TEXTE_MAX} signes.")
+    corps = await objet(requete)
+    instant = time.monotonic()
+    faites = [t for t in NOTES_ECRITES.get(j["id"], []) if instant - t < 3600]
+    NOTES_ECRITES[j["id"]] = faites
+    if len(faites) >= NOTES_PAR_HEURE:
+        raise HTTPException(429, "Beaucoup d'enregistrements en peu de temps : vos notes repartiront dans un moment.")
+    faites.append(instant)
+    try:
+        return await asyncio.to_thread(notes.ecrire, DEPOT, j["id"], corps)
+    except demandes.Refus as refus:
+        raise HTTPException(refus.statut, refus.message)

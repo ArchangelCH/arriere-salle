@@ -20,6 +20,10 @@ const REGROUPER = 650; // millisecondes sans toucher avant d'envoyer l'écart
 const GRACE = 1500; // après un envoi, la valeur attendue reste affichée le temps que la fiche se republie
 const CHAMPS = [["sante", "Santé"], ["psy", "Psy"]];
 const JETONS = { avantage: "Avantage", desavantage: "Désavantage" };
+const TIROIRS = [
+  ["sac", "Sac", '<path d="M7 9V7a5 5 0 0 1 10 0v2"/><path d="M4.5 9h15l-1.3 10.2a2 2 0 0 1-2 1.8H7.8a2 2 0 0 1-2-1.8z"/>'],
+  ["notes", "Notes", '<path d="M14.5 4.5l5 5L9 20H4v-5z"/><path d="M12.5 6.5l5 5"/>'],
+];
 
 let monte = null;
 
@@ -114,7 +118,10 @@ export function monter(page) {
     const don = v.sante_don > 0 ? `<span class="don-etat">${e(v.sante_don)} de Santé payé${v.sante_don > 1 ? "s" : ""} faute de Psy : un repos complet les rend</span>` : "";
     const mot = erreur || (pause ? "Le coin est en pause : votre MJ le rouvrira." : "");
     barre.dataset.combat = h.combat ? "oui" : "non";
-    barre.innerHTML = `<p class="qui-etat">${e(h.nom)}${jeton}</p>
+    // Le sac et les notes (table-heros.js), en tiroirs sous la barre : leurs boutons au bout de la ligne du nom.
+    const tiroir = document.body.dataset.tiroir || "";
+    const outils = `<span class="outils-etat">${TIROIRS.map(([cle, nom, dessin]) => `<button type="button" data-tiroir="${cle}" aria-expanded="${tiroir === cle}" aria-label="${nom === "Sac" ? "Mon sac" : "Mes notes"}"><svg viewBox="0 0 24 24" aria-hidden="true">${dessin}</svg><span class="mot-outil">${nom}</span></button>`).join("")}</span>`;
+    barre.innerHTML = `<p class="qui-etat"><span class="nom-heros-etat">${e(h.nom)}</span>${jeton}${outils}</p>
       <div class="jauges-etat">${jauges}</div>
       <div class="postures-etat" role="group" aria-label="Ma posture"><span class="nom-etat">Posture</span>${postures}</div>
       ${don}${mot ? `<p class="mot-etat" role="${erreur ? "alert" : "status"}">${e(mot)}</p>` : ""}`;
@@ -196,6 +203,7 @@ export function monter(page) {
   barre.addEventListener("click", (ev) => {
     const b = ev.target.closest("button");
     if (!b || b.disabled || !heros()) return;
+    if (b.dataset.tiroir) return window.dispatchEvent(new CustomEvent("tiroir-coin", { detail: b.dataset.tiroir }));
     const base = montre();
     if (b.dataset.posture) {
       if (base.posture === b.dataset.posture) return;

@@ -22,6 +22,7 @@ from table import lectures_publiques
 from ia import images_plan
 from mj import proprietes
 from contenu import sanctuaire
+from commun import musique_coin
 from commun import table_joueurs
 from contenu import reserve
 from table import vignettes
@@ -522,6 +523,7 @@ def publier_table_coin() -> dict:
     l'appelle (la tâche de la publication naît dans la requête qui la demande)."""
     if not reglage_table_joueurs()["ouverte"]:
         table_joueurs.fermer(config.PROPOSITIONS)
+        musique_coin.effacer(config.PROPOSITIONS)
         return {"ouverte": False, "genre": None, "pions": 0}
     vue, medias, pions = table_pour_le_coin()
     table_joueurs.publier(config.PROPOSITIONS, vue, medias, pions)

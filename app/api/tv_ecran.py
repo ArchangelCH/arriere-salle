@@ -12,6 +12,7 @@ from mj import cloisonnement
 from table import horloges
 from table import musique
 from mj import proprietes
+from commun import musique_coin
 from commun import table_joueurs
 
 from api.application import app
@@ -27,6 +28,9 @@ async def changer_table_joueurs(requete: Request):
         raise HTTPException(refus.statut, refus.message)
     reglage["modifie"] = utilitaires.maintenant()
     utilitaires.ecrire(tv_etat.TABLE_JOUEURS, reglage)
+    # La musique au coin coupée, ou la table fermée : ce qui jouait au coin s'arrête.
+    if not (reglage["ouverte"] and reglage["musique"]):
+        musique_coin.effacer(config.PROPOSITIONS)
     return reglage | {"publie": await asyncio.to_thread(tv_etat.table_coin.tout_de_suite)}
 
 
@@ -296,6 +300,23 @@ def lire_musique() -> dict:
 @app.get("/api/musique")
 def musique_lire():
     return lire_musique()
+
+
+# Ce que joue le lecteur du MJ (musique.js), pour la table du coin (musique_coin.py) : la vidéo, sa position, joue ou en
+# pause. Rien ne part quand la table du coin est fermée ou que le MJ a coupé sa musique au coin.
+@app.put("/api/musique/ecoute")
+async def musique_ecoute(requete: Request):
+    corps = await utilitaires.corps_objet(requete)
+    try:
+        ecoute = musique_coin.valider(corps)
+    except musique_coin.Refus as refus:
+        raise HTTPException(refus.statut, refus.message)
+    reglage = tv_etat.reglage_table_joueurs()
+    if not (reglage["ouverte"] and reglage["musique"]):
+        musique_coin.effacer(config.PROPOSITIONS)
+        return {"publie": False}
+    musique_coin.ecrire(config.PROPOSITIONS, ecoute)
+    return {"publie": ecoute["etat"] != "arret"}
 
 
 @app.put("/api/musique")

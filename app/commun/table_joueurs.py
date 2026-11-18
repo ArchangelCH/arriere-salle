@@ -58,7 +58,8 @@ VERROU_JETS = threading.Lock()
 MODES_PIONS = ("libres", "a-valider", "figes")
 DISTANCE = (1, 60)  # cases par déplacement, hors combat
 DISTANCE_COMBAT = (1, 30)  # cases par tour de combat
-REGLAGE_DEFAUT = {"ouverte": False, "pions": "a-valider", "distance": 12, "distance_combat": 6, "entrer": True}
+# « musique » (19/11) : la musique du MJ s'entend aussi à la table du coin (musique_coin.py), chaque appareil choisissant.
+REGLAGE_DEFAUT = {"ouverte": False, "pions": "a-valider", "distance": 12, "distance_combat": 6, "entrer": True, "musique": True}
 
 REGROUPEMENT = 0.15  # secondes : la TV qui change plusieurs fois de suite ne republie qu'une fois
 SECOURS = 30  # secondes : ce qui change sans passer par la TV (un héros relié à son joueur) se rattrape
@@ -96,6 +97,8 @@ def reglage(valeur) -> dict:
     r["distance_combat"] = entier(v.get("distance_combat"), DISTANCE_COMBAT, r["distance_combat"])
     if isinstance(v.get("entrer"), bool):
         r["entrer"] = v["entrer"]
+    if isinstance(v.get("musique"), bool):
+        r["musique"] = v["musique"]
     r["modifie"] = v.get("modifie") if isinstance(v.get("modifie"), str) else None
     return r
 
@@ -105,7 +108,7 @@ def changer(avant: dict, corps: dict) -> dict:
     if not isinstance(corps, dict) or not set(corps) & set(REGLAGE_DEFAUT):
         raise Refus(400, "Aucun réglage reconnu")
     r = reglage(avant)
-    for cle in ("ouverte", "entrer"):
+    for cle in ("ouverte", "entrer", "musique"):
         if cle in corps:
             if not isinstance(corps[cle], bool):
                 raise Refus(400, f"Champ « {cle} » attendu : vrai ou faux")

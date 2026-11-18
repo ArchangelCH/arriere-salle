@@ -4,7 +4,7 @@
 
 .medaillon-table {
   --c: #e0b562;
-  position: fixed; z-index: 37; left: max(12px, env(safe-area-inset-left)); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 56px);
+  position: fixed; z-index: 35; left: max(12px, env(safe-area-inset-left)); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 56px);
   width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; overflow: visible; cursor: pointer;
   background: radial-gradient(circle at 35% 30%, #4a3d31, #1d1611); color: #f1dfb5;
   box-shadow: 0 0 0 2px var(--c), 0 0 0 3.5px rgba(244, 234, 212, .85), 0 4px 12px rgba(0, 0, 0, .6);
@@ -115,3 +115,27 @@ body.coin-table .legende-coin { left: calc(max(12px, env(safe-area-inset-left)) 
 
 /* Le menu ouvert : le médaillon passe sous son voile, comme les autres boutons flottants. */
 html body.menu-coin-ouvert .medaillon-table, html body.menu-coin-ouvert .recap-table { z-index: 18; }
+
+/* ---- La musique du MJ (musique-coin.js) : dans le panneau du volume, et l'invitation quand elle commence ---- */
+.musique-coin { display: grid; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(214, 180, 118, .3); }
+.case-musique { display: flex; align-items: center; gap: 8px; min-height: 40px; font-size: 16px; cursor: pointer; }
+.case-musique input { width: 20px; height: 20px; accent-color: var(--or-vif, #f0cb78); }
+.musique-coin input[type="range"]:disabled { opacity: .45; }
+.etat-musique { margin: 0; font-size: 14px; font-style: italic; color: #c9b48f; }
+.etat-musique:empty { display: none; }
+.ecran-musique { width: 240px; max-width: 100%; aspect-ratio: 16 / 9; border: 1px solid rgba(214, 180, 118, .55); border-radius: 4px; overflow: hidden; background: #000; }
+.ecran-musique[hidden] { display: none; }
+.hote-musique, .hote-musique iframe { width: 100%; height: 100%; display: block; border: 0; }
+.invitation-musique {
+  position: fixed; z-index: 40; left: 50%; bottom: calc(max(12px, env(safe-area-inset-bottom)) + 74px); transform: translateX(-50%);
+  width: min(360px, calc(100vw - 24px)); padding: 10px 14px 12px; border: 1px solid rgba(224, 181, 98, .7); border-radius: 8px;
+  background: rgba(23, 15, 8, .97); box-shadow: 0 10px 30px rgba(0, 0, 0, .6); color: #f4ead4; font: 17px/1.3 var(--corps, "EB Garamond", Georgia, serif);
+}
+.invitation-musique[hidden] { display: none; }
+.invitation-musique p { margin: 0 0 8px; }
+.invitation-musique div { display: flex; gap: 8px; }
+.invitation-musique button {
+  flex: 1 1 0; min-height: 44px; border: 1px solid rgba(224, 181, 98, .6); border-radius: 6px; background: rgba(40, 26, 14, .9);
+  color: #f4ead4; font: 600 16px/1 var(--corps, "EB Garamond", Georgia, serif); cursor: pointer;
+}
+.invitation-musique button.principal { background: var(--or-vif, #f0cb78); border-color: #fff3d6; color: #1a110a; }

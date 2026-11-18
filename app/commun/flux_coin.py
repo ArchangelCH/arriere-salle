@@ -3,7 +3,7 @@ une commande est vendue, le carnet a changé, le coin passe en pause) sans relir
 
 Des événements envoyés par le serveur (SSE, GET /api/flux) plutôt qu'un WebSocket : une requête HTTP ordinaire, qui
 reste sous la Garde du coin (hôte, en-têtes, Cache-Control). Un événement ne porte qu'un sujet (« demandes »,
-« commandes », « carnet », « pause », « table », « prives », « jets-table », « pointeur »), jamais de contenu : la page relit par ses routes habituelles, qui
+« commandes », « carnet », « pause », « table », « prives », « jets-table », « pointeur », « musique »), jamais de contenu : la page relit par ses routes habituelles, qui
 vérifient la session comme toujours. La session est revérifiée à chaque battement (environ 25 secondes) ; 3 flux par
 joueur et 30 en tout.
 
@@ -26,6 +26,7 @@ from commun import carnet
 from commun import confie
 from commun import demandes
 from commun import jets_distance
+from commun import musique_coin
 from commun import pointeurs
 from commun import portraits
 from commun import presence
@@ -35,7 +36,7 @@ from commun import veille
 
 journal = logging.getLogger("coin.flux")
 
-SUJETS = ("demandes", "commandes", "carnet", "pause", "table", "prives", "jets", "portraits", "jets-table", "pointeur")
+SUJETS = ("demandes", "commandes", "carnet", "pause", "table", "prives", "jets", "portraits", "jets-table", "pointeur", "musique")
 BATTEMENT = 25  # secondes : un commentaire pour tenir la liaison, et la session revérifiée
 DUREE_MAX = 30 * 60  # un flux se referme au bout d'une demi-heure ; le navigateur le rouvre seul
 PAR_JOUEUR = 3
@@ -79,6 +80,9 @@ def sujet_du_fichier(relatif: tuple) -> tuple[str | None, str] | None:
     # de table/ fait relire toute la table). Les pointeurs des joueurs, eux, ne vont qu'à l'atelier.
     if relatif == (pointeurs.DOSSIER, pointeurs.MJ):
         return None, "pointeur"
+    # La musique du MJ (musique_coin.py, 19/11) : un sujet à part, hors de table/.
+    if relatif == (musique_coin.DOSSIER, musique_coin.FICHIER):
+        return None, "musique"
     # La table (table_joueurs.py) : la vue, ou le pion d'un joueur ; chaque page relit le sien.
     if relatif and relatif[0] == table_joueurs.DOSSIER and table_joueurs.MEDIA not in relatif:
         return None, "table"
@@ -162,7 +166,7 @@ class Flux:
                 *(d / table_joueurs.DOSSIER).glob("*.json"), *(d / table_joueurs.DOSSIER / table_joueurs.PIONS).glob("*.json"),
                 *(d / prives.DOSSIER).glob("*.json"), *(d / prives.LUS).glob("*.json"),
                 *(d / jets_distance.DOSSIER).glob("*.json"), *(d / portraits.DOSSIER).glob(f"*/{portraits.INDEX}"),
-                *(d / confie.LUS).glob("*.json"), d / pointeurs.DOSSIER / pointeurs.MJ]
+                *(d / confie.LUS).glob("*.json"), d / pointeurs.DOSSIER / pointeurs.MJ, d / musique_coin.DOSSIER / musique_coin.FICHIER]
 
     def garder(self, chemin: Path) -> bool:
         try:

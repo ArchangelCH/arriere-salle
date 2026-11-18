@@ -297,6 +297,7 @@ REGLES: dict[str, str] = {
     "PUT /api/table-publique": PRINCIPAL_SEUL,
     "GET /api/musique": COMMUNE,
     "PUT /api/musique": COMMUNE,
+    "PUT /api/musique/ecoute": COMMUNE,
     # Le relais de la télécommande, un par MJ (main.relais_du_lecteur) : son téléphone ne voit que les écrans de son atelier
     # et ne confie ses commandes qu'à eux. Le canal des pages de l'atelier, adressé (adresses.py) : chaque page reçoit ce
     # que voit la TV et ce qui est commun, plus ce qui ne concerne que son MJ (sa boîte, son combat, ses plans, ses billets).

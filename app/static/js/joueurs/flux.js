@@ -5,7 +5,7 @@
 // qui écoutent ; elle se reconnecte seule, et s'arrête quand la page est cachée (téléphone en poche) : au retour, chaque
 // module relit, puisqu'il a pu manquer quelque chose.
 
-const SUJETS = ["demandes", "commandes", "carnet", "pause", "table", "prives", "jets", "portraits", "jets-table", "pointeur"];
+const SUJETS = ["demandes", "commandes", "carnet", "pause", "table", "prives", "jets", "portraits", "jets-table", "pointeur", "musique"];
 const abonnes = new Map(SUJETS.map((s) => [s, new Set()]));
 let source = null;
 let ouvertUneFois = false;

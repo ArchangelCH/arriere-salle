@@ -65,7 +65,14 @@ export function ajouterBlocTableJoueurs(grille) {
       <p>${ouverte
         ? `Ouverte : sur leur téléphone (onglet « La table »), les joueurs voient le plan que montre la TV, le déplacent et le zooment à leur guise, sans suivre votre caméra, et y retrouvent leur héros. Rien de plus que ce que montre la TV.${voit}`
         : "Fermée : l'onglet « La table » du coin des joueurs dit seulement qu'elle n'est pas ouverte."}</p>
+      <label class="case"><input type="checkbox" data-musique-coin ${etat?.musique !== false ? "checked" : ""}${etat ? "" : " disabled"}> Votre musique à la table du coin</label>
+      <p class="aide">${etat?.musique !== false
+        ? "Ce que joue votre lecteur de musique s'entend aussi sur leur page « La table », pour ceux qui le choisissent sur leur appareil (en visio, par exemple). Ni le nom ni la note de l'ambiance ne partent."
+        : "Votre musique reste sur votre ordinateur : rien ne part vers le coin."}</p>
       <p class="aide">Leurs pions et leurs distances : <a href="#/reglages/regles">Règles de jeu</a>.</p>`;
+    },
+    changements: (ev, vue, changer) => {
+      if (ev.target.matches("[data-musique-coin]")) changer({ musique: ev.target.checked }, ev.target.checked ? "Votre musique s'entend aussi à la table du coin." : "Votre musique reste sur votre ordinateur.");
     },
     clics: (ev, vue, changer) => {
       const b = ev.target.closest("[data-ouverte]");

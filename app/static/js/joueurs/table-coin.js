@@ -30,6 +30,7 @@ import { monter as monterJets } from "./jets-coin.js";
 // « Mon héros » : la Santé, la Psy et la posture que le joueur règle lui-même (etat-coin.js).
 import { monter as monterEtat } from "./etat-coin.js";
 import { monter as monterTableHeros } from "./table-heros.js";
+import { monter as monterMusique } from "./musique-coin.js";
 // ---- Les portraits des joueurs : son portrait sur sa ligne de la légende. ----
 import { suivreMonPortrait } from "./portrait-coin.js";
 // ---- Les jets des autres, en dés 3D, avec le bandeau et le jingle de la TV (lot du 12/11). ----
@@ -535,6 +536,8 @@ pointeursCoin = monterPointeurs({
 });
 // Les jets de toute la tablée et les dés du MJ montrés à la table : dés en 3D, bandeau, jingle au volume de cet appareil.
 const jetsDeLaTable = monterJetsDeLaTable();
+// La musique du MJ (19/11) : son interrupteur et sa jauge dans le panneau du volume, en bas à gauche (musique-coin.js).
+monterMusique(jetsDeLaTable.volume.racine.querySelector(".panneau-volume"));
 // L'écran de la TV dans son cadre (même origine) : pas de zoom de page de là non plus, et un toucher dans le cadre
 // ouvre la sortie audio comme un toucher sur la page.
 cadre.addEventListener("load", () => {

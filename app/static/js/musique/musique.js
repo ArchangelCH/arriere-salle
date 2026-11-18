@@ -8,6 +8,7 @@ import { MusiqueDesBoutiques } from "./musique-boutique.js";
 const FONDU_SORTIE = 900;
 const FONDU_ENTREE = 1600;
 const ATTENTE_GESTE = 4500;
+const ECOUTE_BATTEMENT = 30000;
 // Sur un écran large, le panneau pousse la page au lieu de la couvrir (combat.css) : un clic dans la page ne le ferme
 // pas, la page ne bouge pas sous le doigt.
 const POUSSE_LA_PAGE = matchMedia("(min-width: 1100px)");
@@ -159,12 +160,34 @@ export class Musique {
     this.majCommandes();
     this.combats = new MusiqueDesCombats(this);
     this.boutiques = new MusiqueDesBoutiques(this);
+    // La musique à la table du coin (19/11) : pendant la lecture, la position repart toutes les 30 secondes.
+    this.derniereEcoute = "";
+    setInterval(() => {
+      const S = window.YT?.PlayerState;
+      if (this.lecteur && this.courante && !this.enPause && S && this.lecteur.getPlayerState?.() === S.PLAYING) this.publierEcoute("joue", true);
+    }, ECOUTE_BATTEMENT);
     // La liste se lit dès l'ouverture : l'ambiance de combat sert même si le panneau reste fermé.
     this.chargerListe();
   }
 
   ouvert() {
     return this.panneau.classList.contains("ouvert");
+  }
+
+  // Ce que joue ce lecteur, pour la table du coin des joueurs (musique_coin.py) : la vidéo, l'endroit où elle en est, et si
+  // elle joue. Ni le nom de l'ambiance ni sa note. L'atelier ne le publie que la table du coin ouverte et la musique au coin
+  // permise ; un envoi raté ne dit rien (la musique d'ici continue). battement : la position seule a avancé.
+  publierEcoute(etat, battement = false) {
+    let corps = { etat: "arret" };
+    if (etat !== "arret") {
+      const video = this.lecteur?.getVideoData?.()?.video_id;
+      if (!video) return;
+      corps = { etat, video, temps: Math.max(0, Math.round((Number(this.lecteur.getCurrentTime?.()) || 0) * 10) / 10) };
+    }
+    const cle = `${corps.etat}|${corps.video || ""}`;
+    if (!battement && cle === this.derniereEcoute && corps.etat !== "joue") return;
+    this.derniereEcoute = cle;
+    api.put("/api/musique/ecoute", corps).catch(() => {});
   }
 
   async basculerPanneau() {
@@ -396,10 +419,12 @@ export class Musique {
       }
       this.titreMorceau = this.lecteur.getVideoData?.()?.title || "";
       this.majCommandes();
+      this.publierEcoute("joue");
     } else if (etat === S.PAUSED && !this.minuteurFondu && this.courante && !this.enPause) {
       // mis en pause depuis le lecteur lui-même
       this.enPause = true;
       this.majCommandes();
+      this.publierEcoute("pause");
     }
   }
 
@@ -447,7 +472,10 @@ export class Musique {
       const jeton = ++this.jeton;
       this.majCommandes();
       await this.fondu(0, 500);
-      if (jeton === this.jeton && this.enPause) this.lecteur.pauseVideo();
+      if (jeton === this.jeton && this.enPause) {
+        this.lecteur.pauseVideo();
+        this.publierEcoute("pause");
+      }
     }
     this.majCommandes();
   }
@@ -477,6 +505,7 @@ export class Musique {
     this.enPause = false;
     this.attenteGeste = false;
     this.majCommandes();
+    this.publierEcoute("arret");
     await this.fondu(0, FONDU_SORTIE);
     if (jeton === this.jeton) this.lecteur.stopVideo();
   }

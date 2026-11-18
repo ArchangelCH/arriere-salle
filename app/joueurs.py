@@ -118,6 +118,7 @@ app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 # L'écran de la table, que la page Table du coin tient dans un cadre (lot du 12/11) : la seule page du coin qui se laisse
 # encadrer, et seulement par le coin lui-même.
 ECRAN_TABLE = "/table/ecran"
+PAGE_TABLE = "/table"
 
 
 class Garde:
@@ -169,10 +170,13 @@ class Garde:
                 # Aucune page du coin ne se laisse encadrer, sauf l'écran de la table, par la page Table du coin elle-même.
                 cadre = scope["path"] == ECRAN_TABLE
                 h["X-Frame-Options"] = "SAMEORIGIN" if cadre else "DENY"
+                # La page Table seule joue la musique du MJ (musique-coin.js) : le lecteur de YouTube y entre, nulle part ailleurs.
+                youtube = scope["path"] == PAGE_TABLE
                 # blob: : l'image que le joueur choisit sur son appareil, montrée pour la cadrer avant l'envoi.
                 h["Content-Security-Policy"] = ("default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; "
-                                                f"script-src 'self'; connect-src 'self'; font-src 'self'; frame-ancestors {"'self'" if cadre else "'none'"}; "
-                                                "base-uri 'none'; form-action 'self'")
+                                                f"script-src 'self'{" https://www.youtube.com" if youtube else ""}; connect-src 'self'; font-src 'self'; "
+                                                f"{"frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com; " if youtube else ""}"
+                                                f"frame-ancestors {"'self'" if cadre else "'none'"}; base-uri 'none'; form-action 'self'")
                 if scope["path"].startswith("/api/"):
                     h["Cache-Control"] = "no-store"
             await send(message)
@@ -2393,3 +2397,18 @@ async def ecrire_mes_notes(requete: Request):
         return await asyncio.to_thread(notes.ecrire, DEPOT, j["id"], corps)
     except demandes.Refus as refus:
         raise HTTPException(refus.statut, refus.message)
+
+
+# La musique du MJ à la table du coin (musique_coin.py, 19/11) : la page Table la relit quand le flux dit « musique » et la
+# joue sur cet appareil si le joueur l'a choisi (js/joueurs/musique-coin.js, lecteur de YouTube, sur cette page seule).
+from commun import musique_coin  # noqa: E402
+
+FICHIERS |= {"js/joueurs/musique-coin.js"}
+
+
+@app.get("/api/musique-table")
+def lire_la_musique_du_mj(requete: Request):
+    connecte(requete)
+    if table_joueurs.vue_publiee(DEPOT) is None:
+        return {"etat": "arret", "video": None, "position": 0.0}
+    return musique_coin.lire(DEPOT)

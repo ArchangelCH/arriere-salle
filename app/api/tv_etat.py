@@ -511,9 +511,12 @@ def table_pour_le_coin() -> tuple[dict, dict, dict]:
             continue
         ref = f"aventurier:{a['id']}"
         sien = next((t for t in p.get("pions", []) if t.get("ref") == ref and t.get("id") in montres and isinstance(t.get("id"), str)), None)
+        # Ses familiers montrés (19/11, ref « familier:<aventurier> ») : il les bouge aussi, au tour de son héros en combat.
+        familiers = [{"id": t["id"], "debut": mouvements_joueurs.tour_publie(a["id"], p, t, familier=True)["debut"]}
+                     for t in p.get("pions", []) if t.get("ref") == f"familier:{a['id']}" and t.get("id") in montres and isinstance(t.get("id"), str)]
         # Son tour au combat et la case où ce tour a commencé (mouvements.py), d'après le combat de sa séance non close.
         pions[carnet.cle_heros(hashlib.sha256(j["jeton"].encode()).hexdigest())] = {
-            "pion": sien.get("id") if sien else None, **mouvements_joueurs.tour_publie(a["id"], p, sien)}
+            "pion": sien.get("id") if sien else None, **mouvements_joueurs.tour_publie(a["id"], p, sien), "familiers": familiers}
     return vue, medias, pions
 
 

@@ -9,6 +9,9 @@
 // Les cases se calculent sur ce que la page a reçu (plan/deplacement.js, la projection publique que voit la TV), avec le
 // réglage du MJ et le tour du héros publiés par l'atelier ; le coin le revérifie avant d'écrire la demande, l'atelier
 // sur le plan du moment avant de poser le pion. La page apprend la suite par le flux (sujets « table » et « demandes »).
+//
+// Ses familiers aussi (19/11) : l'atelier publie leurs pions avec celui du héros (« familiers », chacun avec la case où son
+// tour a commencé). Toucher l'un de ses pions le choisit ; le bouton « Bouger » reprend le dernier choisi, le héros d'abord.
 
 import { api, echapper as e } from "../api.js";
 import { GENRE, Grille, caseDuPion, casesAtteignables, verifierDeplacement } from "../plan/deplacement.js";
@@ -39,6 +42,7 @@ export class Bouger {
     this.toucherDiffere = 0;
     this.secours = 0;
     this.envoi = false;
+    this.actif = null; // l'id du pion choisi : le héros, ou l'un de ses familiers
     this.bouton = document.createElement("button");
     Object.assign(this.bouton, { type: "button", hidden: true, innerHTML: ICONE });
     this.bouton.dataset.geste = "bouger";
@@ -78,12 +82,22 @@ export class Bouger {
   }
 
   get tour() {
-    return { combat: this.r?.combat === true, mon_tour: this.r?.mon_tour === true, debut: this.r?.debut || null };
+    const f = (this.r?.familiers || []).find((x) => x.id === this.monPion()?.id);
+    return { combat: this.r?.combat === true, mon_tour: this.r?.mon_tour === true, debut: (f ? f.debut : this.r?.debut) || null };
   }
 
+  // Les pions que ce joueur bouge : son héros, puis ses familiers, tels qu'ils sont sur le plan reçu.
+  mesPions() {
+    if (!this.plan) return [];
+    const ids = [this.r?.pion, ...(this.r?.familiers || []).map((f) => f.id)].filter(Boolean);
+    return ids.map((id) => (this.plan.pions || []).find((t) => t.id === id)).filter(Boolean);
+  }
+
+  // Le pion choisi : celui qui attend l'atelier, sinon le dernier touché, sinon le héros (ou son premier familier).
   monPion() {
-    const id = this.r?.pion;
-    return id && this.plan ? (this.plan.pions || []).find((t) => t.id === id) || null : null;
+    const miens = this.mesPions();
+    const id = this.attente?.pion || this.actif;
+    return miens.find((t) => t.id === id) || miens[0] || null;
   }
 
   // Chaque lecture de la table (un plan), avant que la page ne la dessine : le pion a pu arriver, le tour passer, le MJ
@@ -138,9 +152,16 @@ export class Bouger {
 
   // Un toucher bref sur le plan, en cases. Rend vrai s'il a servi (le pion, une case, ou un renoncement).
   toucher(x, y) {
-    const t = this.monPion();
+    let t = this.monPion();
     if (!t || !this.plan) return false;
     const c = [Math.floor(x), Math.floor(y)];
+    // Un autre de ses pions touché (son familier, ou son héros) : c'est lui qui va bouger.
+    const autre = !this.attente && !this.confirmer ? this.mesPions().find((p) => p.id !== t.id && caseDuPion(p)[0] === c[0] && caseDuPion(p)[1] === c[1]) : null;
+    if (autre) {
+      if (this.choix) this.renoncer();
+      this.actif = autre.id;
+      t = autre;
+    }
     const ici = caseDuPion(t);
     const surMoi = c[0] === ici[0] && c[1] === ici[1];
     if (this.attente) {
@@ -238,7 +259,7 @@ export class Bouger {
     const portes = v.portes > 1 ? `ouvrir ${v.portes} portes` : "ouvrir la porte";
     if (v.entree && v.portes) return `Tenter d'${portes} et d'entrer, ${loin} ? Vous ne savez pas ce qu'il y a derrière.`;
     if (v.entree) {
-      const g = this.plan ? new Grille(this.plan, this.r?.pion) : null;
+      const g = this.plan ? new Grille(this.plan, this.monPion()?.id) : null;
       const de = v.de ? v.de.split(",").map(Number) : null;
       const parPorte = g && de && g.porte(de[0], de[1], vers[0] - de[0], vers[1] - de[1]);
       return parPorte ? `Entrer, ${loin} ? Vous ne savez pas ce qu'il y a derrière.`
@@ -268,7 +289,7 @@ export class Bouger {
     this.bouton.setAttribute("aria-pressed", "false");
     try {
       const d = await api.post("/api/demandes", { genre: GENRE, corps: { plan: this.plan.id, pion: t.id, depuis, vers } });
-      this.attente = { id: d.id, vers, depuis, statut: d.statut, t: Date.now(), tente };
+      this.attente = { id: d.id, pion: t.id, vers, depuis, statut: d.statut, t: Date.now(), tente };
       if (d.statut === "a-appliquer" && tente) this.dire("Vous tentez votre chance…");
       else if (d.statut === "a-appliquer") {
         // Pions libres : il glisse tout de suite ; la table de l'atelier le confirme dans la seconde.
@@ -293,7 +314,7 @@ export class Bouger {
     const a = this.attente;
     const p = this.plan;
     if (!a || !p) return;
-    p.pions = (p.pions || []).map((x) => (x.id === this.r.pion ? { ...x, x: a.vers[0] + 0.5, y: a.vers[1] + 0.5 } : x));
+    p.pions = (p.pions || []).map((x) => (x.id === a.pion ? { ...x, x: a.vers[0] + 0.5, y: a.vers[1] + 0.5 } : x));
     if (glisser) this.vue.majPions(p.pions.slice());
   }
 
@@ -383,7 +404,7 @@ export class Bouger {
   // Au téléphone, l'avis couvre le bas du plan, là où se tient souvent le héros : la vue remonte le plan (sans changer de
   // zoom) pour que son pion, son nom et une case autour restent au-dessus de l'avis. Rien s'il s'y voit déjà.
   degager() {
-    const t = this.vue.pionDuJoueur?.() || this.monPion();
+    const t = this.monPion() || this.vue.pionDuJoueur?.();
     if (!t || this.avis.hidden || !this.vue.lh || !this.vue.canvas) return;
     const toile = this.vue.canvas.getBoundingClientRect();
     const libre = this.avis.getBoundingClientRect().top - toile.top - 8; // le haut de l'avis, en pixels de la vue

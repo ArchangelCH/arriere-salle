@@ -1739,7 +1739,11 @@ def deplacer_ici(j: dict, d: dict) -> dict:
     if not isinstance(plan, dict) or plan.get("id") != d["corps"]["plan"]:
         raise demandes.Refus(409, deplacement.PLUS_LA)
     pion = table_joueurs.pion_publie(DEPOT, carnet.cle_heros(j.get("jeton", "")), vue)
-    if pion["pion"] is None or pion["pion"] != d["corps"]["pion"]:
+    # Son héros, ou l'un de ses familiers (19/11), qui a sa propre case de début de tour.
+    familier = next((f for f in pion["familiers"] if f["id"] == d["corps"]["pion"]), None)
+    if familier is not None:
+        pion = {**pion, "debut": familier["debut"]}
+    elif pion["pion"] is None or pion["pion"] != d["corps"]["pion"]:
         raise demandes.Refus(409, deplacement.PAS_SUR_LE_PLAN)
     # Le réglage publié, champ par champ (un champ abîmé reprend sa valeur par défaut) ; « ouverte » : la vue l'est.
     regles = table_joueurs.reglage({**(vue.get("regles") if isinstance(vue.get("regles"), dict) else {}), "ouverte": True})

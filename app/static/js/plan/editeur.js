@@ -1444,6 +1444,16 @@ export class EditeurPlan {
       const liste = ref === "*" ? this.aventuriers : this.aventuriers.filter((a) => a.id === ref);
       return liste.map((a) => ({ genre: "heros", ref: `aventurier:${a.id}`, nom: a.nom || "Aventurier", couleur: a.couleur || COULEURS_PIONS.heros, image: a.illustration || "" }));
     }
+    // Le familier d'un aventurier (19/11) : un pion à part, à la couleur de son héros et à son image ; son joueur le bouge
+    // depuis la table du coin comme son héros (ref « familier:<aventurier> »).
+    if (genre === "familier") {
+      const [aid, rang] = String(ref).split(":");
+      const a = this.aventuriers.find((x) => x.id === aid);
+      const f = a && (a.familiers || [])[Number(rang)];
+      if (!f) return [];
+      return [{ genre: "autre", ref: `familier:${a.id}`, nom: (f.nom || "").trim() || "Familier", couleur: a.couleur || COULEURS_PIONS.heros,
+        ...(/^\/media\/[A-Za-z0-9._-]+$/.test(f.image || "") ? { image_libre: f.image } : {}) }];
+    }
     if (genre === "pnj") {
       const q = this.pnj.find((x) => x.id === ref);
       return q ? [{ genre: "pnj", ref: `pnj:${q.id}`, nom: q.nom, image: q.illustration || "", cache: !q.connu }] : [];
@@ -2908,6 +2918,14 @@ export class EditeurPlan {
       <div class="actions"><button class="danger" data-action="supprimer-selection">Retirer</button></div>`;
   }
 
+  // Les familiers de la tablée (fiche de l'aventurier, panneau « Familier ») : leur joueur les bouge depuis le coin.
+  htmlFamiliers(pris) {
+    const liste = this.aventuriers.flatMap((a) => (a.familiers || []).map((f, i) => ({ a, f, i })).filter(({ f }) => (f.nom || "").trim() || f.espece));
+    if (!liste.length) return "";
+    return `<h3>Les familiers</h3><div class="choix-pions">${liste.map(({ a, f, i }) => `<button data-pion='${e(JSON.stringify(["familier", `${a.id}:${i}`]))}' ${pris(["familier", `${a.id}:${i}`])}><span class="pastille" style="background:${e(a.couleur || "#888")}"></span>${e((f.nom || "").trim() || "Familier")} <small>(${e(String(a.nom || "").split(/[\s,]+/)[0])})</small></button>`).join("")}</div>
+      <p class="aide">Son joueur le bouge depuis la table du coin, comme son héros (en combat, au tour du héros).</p>`;
+  }
+
   panneauPions() {
     const choisi = this.optPion ? JSON.stringify(this.optPion) : "";
     const pris = (v) => (JSON.stringify(v) === choisi ? 'aria-pressed="true"' : "");
@@ -2924,6 +2942,7 @@ export class EditeurPlan {
       ${this.aventuriers.length ? `<div class="choix-pions">${this.aventuriers.map((a) => `<button data-pion='${e(JSON.stringify(["aventurier", a.id]))}' ${pris(["aventurier", a.id])}><span class="pastille" style="background:${e(a.couleur || "#888")}"></span>${e(a.nom || "Sans nom")}</button>`).join("")}</div>
         <div class="actions"><button data-pion='${e(JSON.stringify(["aventurier", "*"]))}' ${pris(["aventurier", "*"])}>Toute la tablée</button></div>`
         : '<p class="aide">Aucun aventurier dans la tablée : créez-les dans l\'onglet Aventuriers.</p>'}
+      ${this.htmlFamiliers(pris)}
       <h3>Adversaires</h3>
       <div class="deux">
         <label class="champ">Qui<select data-pion-choix="bestiaire">${[["Rangs", RANGS], ["Créatures", CREATURES], ["Gens", GENS]].map(([t, l]) => `<optgroup label="${t}">${l.map((b) => `<option value="${e(b.cle)}" ${this.choixBestiaire === b.cle ? "selected" : ""}>${e(b.nom)}</option>`).join("")}</optgroup>`).join("")}</select></label>

@@ -365,23 +365,25 @@ class Mouvements:
             return {"combat": True, "mon_tour": bool(main), "cle": f"{s.get('id')}:{c.get('id')}:{tour}:{actif}" if main else None}
         return {"combat": False, "mon_tour": False, "cle": None}
 
-    def tour_du_heros(self, heros: str, plan: str, case: tuple | None) -> dict:
+    def tour_du_heros(self, heros: str, plan: str, case: tuple | None, cle: str | None = None) -> dict:
         """{combat, mon_tour, debut} pour le parcours : en combat et à son tour, debut est la case où son tour a commencé,
         notee au premier regard sur ce tour (son pion là où il est, s'il n'y a rien de note pour ce tour et ce plan)."""
         c = self.combat_du_heros(heros)
         tour = {"combat": c["combat"], "mon_tour": c["mon_tour"], "debut": None}
         if not c["mon_tour"] or case is None:
             return tour
+        # Un familier (19/11) a sa propre case de début, notée sous « <héros>#<pion> » : il bouge au tour de son héros.
+        cle = cle or heros
         with self.verrou:
             tours = self.lire_tours()
-            note = tours.get(heros) if isinstance(tours.get(heros), dict) else {}
+            note = tours.get(cle) if isinstance(tours.get(cle), dict) else {}
             if note.get("cle") != c["cle"] or note.get("plan") != plan or not isinstance(note.get("case"), list):
-                tours[heros] = {"cle": c["cle"], "plan": plan, "case": list(case)}
+                tours[cle] = {"cle": c["cle"], "plan": plan, "case": list(case)}
                 try:
                     self.ecrire_tours(tours)
                 except OSError:
-                    journal.warning("Case du début du tour non notee pour %s", heros)
-                note = tours[heros]
+                    journal.warning("Case du début du tour non notee pour %s", cle)
+                note = tours[cle]
         tour["debut"] = list(note["case"])
         return tour
 
@@ -401,11 +403,11 @@ class Mouvements:
         if t is not None and "x" in t and "y" in t:
             self.tour_du_heros(ref.split(":", 1)[1], p["id"], dp.case_du_pion(t))
 
-    def tour_publie(self, heros: str, plan: dict, pion: dict | None) -> dict:
+    def tour_publie(self, heros: str, plan: dict, pion: dict | None, familier: bool = False) -> dict:
         """Ce que la table du coin publie pour le pion d'un joueur (table_joueurs.py, pions/<clé>.json) : son tour au combat
-        et la case du début de ce tour, rien d'autre."""
+        et la case du début de ce tour, rien d'autre. familier : celui d'un de ses familiers, noté à part."""
         case = dp.case_du_pion(pion) if pion and "x" in pion and "y" in pion else None
-        return self.tour_du_heros(heros, plan.get("id"), case)
+        return self.tour_du_heros(heros, plan.get("id"), case, f"{heros}#{pion.get('id')}" if familier and pion else None)
 
     # ------------------------------------------------------------ appliquer, accepter, annuler
 
@@ -438,10 +440,15 @@ class Mouvements:
             heros = self.heros_du_joueur(j["id"])
             ref = f"aventurier:{heros['id']}" if heros else None
             t = next((x for x in p.get("pions") or [] if isinstance(x, dict) and ref and x.get("ref") == ref), None)
+            # Ou l'un de ses familiers (19/11) : un pion « familier:<son héros> », désigné par son id.
+            familier = next((x for x in p.get("pions") or [] if isinstance(x, dict) and heros and x.get("ref") == f"familier:{heros['id']}"
+                             and x.get("id") == corps["pion"]), None)
+            if familier is not None:
+                t = familier
             if t is None or t.get("id") != corps["pion"]:
                 raise Refus(409, dp.PAS_SUR_LE_PLAN)
             public = self.projection(p, jeton)
-            tour = self.tour_du_heros(heros["id"], p["id"], dp.case_du_pion(t))
+            tour = self.tour_du_heros(heros["id"], p["id"], dp.case_du_pion(t), f"{heros['id']}#{t['id']}" if familier is not None else None)
             # D'abord ce que voit le joueur : les mêmes refus que le coin. Puis le vrai plan, qui décide.
             dp.verifier(public, corps, regles, tour)
             res = self.sur_le_vrai_plan(p, public, corps, regles, tour, d["id"], j.get("id"))

@@ -61,6 +61,7 @@ DISTANCE_COMBAT = (1, 30)  # cases par tour de combat
 # « musique » (19/11) : la musique du MJ s'entend aussi à la table du coin (musique_coin.py), chaque appareil choisissant.
 REGLAGE_DEFAUT = {"ouverte": False, "pions": "a-valider", "distance": 12, "distance_combat": 6, "entrer": True, "musique": True}
 
+FAMILIERS_MAX = 6  # les familiers d'un héros sur un plan (trois par fiche, et quelques doublons du MJ)
 REGROUPEMENT = 0.15  # secondes : la TV qui change plusieurs fois de suite ne republie qu'une fois
 SECOURS = 30  # secondes : ce qui change sans passer par la TV (un héros relié à son joueur) se rattrape
 
@@ -340,17 +341,22 @@ def case_publiee(v) -> list | None:
 def pion_publie(depot: Path, cle: str, vue: dict | None) -> dict:
     """Le pion du joueur de cette clé sur le plan publié : son id public s'il y est vraiment montré, s'il a la main au
     combat, s'il est au combat, et la case où son tour a commencé (bouger son pion, lot E2). Sinon, rien."""
-    rien = {"pion": None, "mon_tour": False, "combat": False, "debut": None}
+    rien = {"pion": None, "mon_tour": False, "combat": False, "debut": None, "familiers": []}
     plan = (vue or {}).get("plan")
     if not CLE.match(cle or "") or not isinstance(plan, dict):
         return rien
     p = lire_json(depot / DOSSIER / PIONS / f"{cle}.json", PION_OCTETS_MAX)
-    if not isinstance(p, dict) or not isinstance(p.get("pion"), str):
+    if not isinstance(p, dict):
         return rien
     montres = {t.get("id") for t in plan.get("pions") or [] if isinstance(t, dict) and isinstance(t.get("id"), str)}
-    if p["pion"] not in montres:
+    # Ses familiers (19/11) : ceux qui sont vraiment montrés, avec la case où leur tour a commencé.
+    familiers = [{"id": f["id"], "debut": case_publiee(f.get("debut"))} for f in (p["familiers"] if isinstance(p.get("familiers"), list) else [])[:FAMILIERS_MAX]
+                 if isinstance(f, dict) and isinstance(f.get("id"), str) and f["id"] in montres and f["id"] != p.get("pion")]
+    heros = p.get("pion") if isinstance(p.get("pion"), str) and p.get("pion") in montres else None
+    if heros is None and not familiers:
         return rien
-    return {"pion": p["pion"], "mon_tour": p.get("mon_tour") is True, "combat": p.get("combat") is True, "debut": case_publiee(p.get("debut"))}
+    return {"pion": heros, "mon_tour": p.get("mon_tour") is True, "combat": p.get("combat") is True,
+            "debut": case_publiee(p.get("debut")) if heros else None, "familiers": familiers}
 
 
 def media_publie(depot: Path, nom: str) -> Path | None:

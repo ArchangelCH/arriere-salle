@@ -238,14 +238,11 @@ def test_l_atelier_recoit_la_ligne_du_geste_jamais_la_tv(atelier, propre, monkey
     assert not any(x.get("type") == "etat-joueur" for x in recus)
 
 
-def test_aucune_posture(atelier, propre):
+def test_aucune_posture_seulement_au_combat(atelier, propre):
     m = propre
     aude = m["heros_lea"]["id"]
     assert vue(m, "lea")["postures"] == {"offensive": "Offensive", "defensive": "Défensive", "focus": "Focus", "aucune": "Aucune"}
+    # Hors combat, la posture s'écrit sur la fiche : « Aucune » n'y va pas, la posture de base reste.
     d = regler(m, "lea", posture="aucune")
-    assert d["public"]["posture"] == "aucune"
-    assert atelier.get(f"/api/aventuriers/{aude}").json()["posture"] == "aucune"
-    assert attendre(lambda: vue(m, "lea")["heros"]["posture"] == "aucune")
-    # La fiche de jet le dit au coin ; les critiques restent ceux d'un test ordinaire.
-    jet = attendre(lambda: (lambda h: h if h and h.get("posture") == "aucune" else None)(m["lea"].get("/api/jets").json()["heros"]))
-    assert jet and not (jet.get("critiques") or {}).get("offensive")
+    assert d["statut"] == "echec" and d["resultat"] == ej.AUCUNE_HORS_COMBAT
+    assert atelier.get(f"/api/aventuriers/{aude}").json()["posture"] == "focus"

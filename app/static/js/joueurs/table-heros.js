@@ -196,6 +196,8 @@ export function monter(page) {
   // ------------------------------------------------------------ les notes
 
   let notes = { texte: "", modifie: null }; // ce que l'atelier garde
+  let notesLues = false; // le champ reste fermé tant que les notes ne sont pas lues : rien ne remplace ce qu'elles disent
+  champ.disabled = true;
   let minuterie = 0;
   let envoi = null;
   let encore = false;
@@ -210,6 +212,8 @@ export function monter(page) {
     try {
       notes = await demander("GET", "/api/notes");
       if (champ.value === "" || champ.value === notes.texte || !champ.dataset.touche) champ.value = notes.texte || "";
+      notesLues = true;
+      champ.disabled = false;
       direNotes(notes.modifie ? `Enregistrées à ${heure(notes.modifie)}.` : "");
     } catch (err) {
       direNotes(err.status === 401 ? "Vous n'êtes plus connecté." : `Notes illisibles pour l'instant (${err.message}).`, true);
@@ -223,7 +227,7 @@ export function monter(page) {
       return envoi;
     }
     const texte = champ.value;
-    if (texte === (notes.texte || "")) return;
+    if (!notesLues || texte === (notes.texte || "")) return;
     direNotes("Enregistrement…");
     envoi = (async () => {
       try {
@@ -290,8 +294,9 @@ export function monter(page) {
       ouvrirSac();
     } else if (quoi === "notes") {
       placer();
-      lireNotes();
-      setTimeout(() => champ.focus({ preventScroll: true }), 50);
+      lireNotes().then(() => {
+        if (ouvert === "notes" && !champ.disabled) champ.focus({ preventScroll: true });
+      });
     }
   }
 

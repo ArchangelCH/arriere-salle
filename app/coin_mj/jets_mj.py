@@ -413,7 +413,7 @@ class JetsMJ:
                 "carac": jet.get("carac_nom") or "", "competence": dit(jet.get("competence"), candidats) if jet.get("competence") else "",
                 "de": jet.get("de"), "issue": jet.get("issue"), "issue_nom": jet.get("issue_nom"),
                 **({"aventure": face_dite(jet["aventure"])} if isinstance(jet.get("aventure"), dict) and not jet["aventure"].get("annule") else {}),
-                **({"mesaventure": face_dite(jet["mesaventure"])} if isinstance(jet.get("mesaventure"), dict) else {}),
+                **({"mesaventure": face_dite(jet["mesaventure"])} if isinstance(jet.get("mesaventure"), dict) and not jet["mesaventure"].get("annule") else {}),
                 **({"rappel": True} if rappel else {})}
 
     def appliquer_face(self, j: dict, d: dict) -> str:

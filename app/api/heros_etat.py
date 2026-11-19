@@ -439,6 +439,9 @@ def change_par_son_joueur(ident: str, corps: dict) -> dict:
         return {"vitalite": w, "posture": posture, "combat": True, "avant": avant, "apres": apres}
     if "posture" in corps:
         avant, apres = posture_fiche, corps["posture"]
+        # « Aucune » ne vaut qu'au combat : hors combat, la posture s'écrit sur la fiche, qui garde une posture de base.
+        if apres == "aucune":
+            raise demandes.Refus(409, etat_joueur.AUCUNE_HORS_COMBAT)
         with SAC_VERROU:
             chemin = utilitaires.existant(config.AVENTURIERS, ident)
             fiche = utilitaires.lire_fiche(chemin)

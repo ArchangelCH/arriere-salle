@@ -125,6 +125,7 @@ html body.menu-coin-ouvert .medaillon-table, html body.menu-coin-ouvert .recap-t
 .musique-coin input[type="range"]:disabled { opacity: .45; }
 .etat-musique { margin: 0; font-size: 14px; font-style: italic; color: #c9b48f; }
 .etat-musique:empty { display: none; }
+.etat-musique[data-alerte="oui"] { color: #f0b3a6; font-style: normal; }
 .ecran-musique { width: 240px; max-width: 100%; aspect-ratio: 16 / 9; border: 1px solid rgba(214, 180, 118, .55); border-radius: 4px; overflow: hidden; background: #000; }
 .ecran-musique[hidden] { display: none; }
 .hote-musique, .hote-musique iframe { width: 100%; height: 100%; display: block; border: 0; }

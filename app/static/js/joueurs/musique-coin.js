@@ -62,6 +62,8 @@ export function monter(panneauVolume) {
   let creation = null;
   let attente = 0;
   let geste = false; // le navigateur attend un toucher sur la vidéo
+  let joue = false; // ce que dit le lecteur lui-même : il joue vraiment
+  let erreur = ""; // le dernier refus du lecteur, gardé jusqu'à ce qu'il joue
 
   const bloc = document.createElement("div");
   bloc.className = "musique-coin";
@@ -90,13 +92,14 @@ export function monter(panneauVolume) {
     jauge.value = String(volume);
     jauge.disabled = choix !== "oui";
     sortie.textContent = `${volume} %`;
-    const joue = voulu.etat !== "arret";
+    const enJeu = voulu.etat !== "arret";
     invitation.hidden = !(choix === null && voulu.etat === "joue");
-    ecran.hidden = !(choix === "oui" && joue && geste);
+    ecran.hidden = !(choix === "oui" && enJeu && (geste || erreur));
+    dit.dataset.alerte = erreur ? "oui" : "non";
     dit.textContent = choix !== "oui"
-      ? (joue ? "Votre MJ joue de la musique : cochez pour l'entendre ici." : "")
-      : geste ? "Touchez la vidéo pour lancer la musique."
-        : voulu.etat === "joue" ? "La musique du MJ joue ici." : voulu.etat === "pause" ? "Musique en pause." : "Aucune musique en ce moment.";
+      ? (enJeu ? "Votre MJ joue de la musique : cochez pour l'entendre ici." : "")
+      : erreur || (geste ? "Touchez la vidéo pour lancer la musique."
+        : voulu.etat === "joue" ? (joue ? "La musique du MJ joue ici." : "La musique se charge…") : voulu.etat === "pause" ? "Musique en pause." : "Aucune musique en ce moment.");
   }
 
   function creer() {
@@ -116,14 +119,17 @@ export function monter(panneauVolume) {
             suivre();
           },
           onStateChange: (ev) => {
-            if (ev.data === YT.PlayerState.PLAYING) {
+            joue = ev.data === YT.PlayerState.PLAYING;
+            if (joue) {
               geste = false;
+              erreur = "";
               if (voulu.etat !== "joue") p.pauseVideo();
-              dessiner();
             }
+            dessiner();
           },
-          onError: () => {
-            dit.textContent = "YouTube refuse de lire cette musique ici.";
+          onError: (ev) => {
+            erreur = `YouTube refuse de lire cette musique ici (erreur ${ev.data}).`;
+            dessiner();
           },
         },
       });

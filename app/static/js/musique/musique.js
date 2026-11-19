@@ -187,7 +187,8 @@ export class Musique {
     const cle = `${corps.etat}|${corps.video || ""}`;
     if (!battement && cle === this.derniereEcoute && corps.etat !== "joue") return;
     this.derniereEcoute = cle;
-    api.put("/api/musique/ecoute", corps).catch(() => {});
+    // Un simple fetch : ni toast ni cache des lectures vidé toutes les 30 secondes.
+    fetch("/api/musique/ecoute", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps), keepalive: true }).catch(() => {});
   }
 
   async basculerPanneau() {

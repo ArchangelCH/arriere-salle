@@ -206,10 +206,10 @@ export function monter(panneauVolume) {
 
   ecouterFlux("musique", relire);
   ecouterFlux("table", relire);
-  // De loin en loin : la position du MJ avance, celle d'ici aussi ; une nouvelle perdue se rattrape.
+  // De loin en loin, musique ou non : la position du MJ avance, et un début de musique perdu par le flux se rattrape.
   setInterval(() => {
-    if (document.visibilityState === "visible" && voulu.etat !== "arret") relire();
-  }, 45000);
+    if (document.visibilityState === "visible") relire();
+  }, 30000);
   dessiner();
   relire();
   return { relire };

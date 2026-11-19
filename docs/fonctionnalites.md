@@ -683,8 +683,9 @@ dont chaque fichier fait relire toute la table), `commun/pointeurs.py` pour les 
 ## Lot du 19/11/2026 : la table du coin, la musique, les familiers
 
 - **Posture « Aucune »** : la posture perdue (un dé de mésaventure l'a cassée). À découvert : aucune défense, aucun effet
-  (choix du MJ). Au combat (pastille barrée), au Tableau, au coin (barre « Mon héros »), sur la fiche et à la TV
-  (« sans posture »). Le créateur ne la propose pas comme posture de base.
+  (choix du MJ). **Seulement au combat** : pastille barrée de l'écran du combat, nom au Tableau, bouton de la barre
+  « Mon héros » du coin pendant un combat, « sans posture » au bandeau de la TV. Hors combat, la posture s'écrit sur la
+  fiche, qui garde une posture de base : le coin refuse « Aucune ». Jamais posture de départ d'un combat.
 - **Croix des morts** : un PNJ passé en « Mort » porte une croix et un portrait éteint, dans le carnet de PNJ du MJ (liste et
   fiche) et dans le carnet des joueurs (choix du MJ : dès « Mort »). Seul ce statut sort vers le coin (champ `mort`), jamais
   « disparu » ni « sort inconnu ».

@@ -125,3 +125,22 @@ def test_youtube_seulement_sur_la_page_table(coin):
 def test_sans_session_rien(coin):
     with TestClient(joueurs.app) as inconnu:
         assert inconnu.get("/api/musique-table").status_code in (401, 403)
+
+
+def test_le_flux_dit_chaque_changement_de_musique(tmp_path):
+    """Une page déjà ouverte apprend le début, le changement et l'arrêt de la musique (le fichier naît, change, s'efface)."""
+    import asyncio
+
+    async def essai():
+        f = flux_coin.Flux(lambda: tmp_path)
+        q = f.ouvrir("lea")
+        f.connu = {}
+        recus = []
+        for geste in ({"etat": "joue", "video": VIDEO, "temps": 1.0}, {"etat": "pause", "video": VIDEO, "temps": 4.0}, {"etat": "arret", "video": None, "temps": 0}):
+            musique_coin.ecrire(tmp_path, geste)
+            await f.relire()
+            while not q.empty():
+                recus.append(q.get_nowait())
+        return recus
+
+    assert asyncio.run(essai()) == ["musique", "musique", "musique"]

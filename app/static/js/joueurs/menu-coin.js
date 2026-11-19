@@ -14,7 +14,7 @@ const GROUPES = [
     ["/carnet#compagnie", "La compagnie", ""],
     ["/carnet#regles", "Les règles de la table", ""],
     ["/carnet#sanctuaire", "Le sanctuaire", ""],
-    ["/carnet#activites", "Entre les séances", ""],
+    ["/carnet#activites", "Les quêtes", ""],
     ["/carnet#precedemment", "Les séances d'avant", ""],
   ]],
   ["Ailleurs", [

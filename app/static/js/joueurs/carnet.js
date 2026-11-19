@@ -70,8 +70,9 @@ async function montrer() {
   const n = ++jeton;
   const boutiques = location.hash.startsWith("#boutique");
   const { vue, ancre } = vueDuHash(location.hash);
-  // L'onglet du haut qui porte la page : le carnet pour l'accueil, l'échoppe, le menu pour toutes les autres.
-  const onglet = boutiques ? "boutiques" : vue === "accueil" ? "carnet" : "menu";
+  // L'onglet du haut qui porte la page : le carnet pour l'accueil, l'échoppe, les quêtes de la semaine, le menu pour
+  // toutes les autres.
+  const onglet = boutiques ? "boutiques" : vue === "accueil" ? "carnet" : vue === "activites" ? "activites" : "menu";
   for (const a of document.querySelectorAll(".onglets-coin [data-vue]")) a.setAttribute("aria-current", String(a.dataset.vue === onglet));
   if (boutiques) {
     montre = "boutiques";

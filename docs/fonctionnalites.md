@@ -740,3 +740,35 @@ debout sur un socle rond, partout où un plan se dessine (TV, atelier, coin des 
   quand ils sont à moins de 2,6 cases.
 - Vérifieur : `node outils/verifier_figurines.mjs` (place, ordre, qui a la main, chaque sorte de pion dessinée sur un faux
   canvas qui refuse ce que Chromium 79 n'a pas). Tests : `tests/test_figurines.py`.
+
+## Le tableau des activités (19/11/2026)
+
+Choix du MJ parmi trois maquettes (tableau de l'auberge, cartes tirées, registre) : la page « Entre les séances » du coin
+devient le tableau de l'auberge, et le catalogue une réserve qui tourne.
+
+- **La réserve** (`coin_mj/activites_mj.py`) : chaque activité a un `rythme` (`toujours` : chaque semaine ; `souvent`,
+  `parfois`, `rarement` : poids 3, 2, 1 au tirage), peut être une quête unique (`unique`, avec une `accroche` d'une ligne et
+  2 places par défaut) et annoncer ses `gains` (or, rumeur, contact, objet ; seulement si le catalogue a
+  `annoncer_gains`). `offres` : combien en tirer à chaque période (3 par défaut). Un champ absent garde le comportement
+  d'avant : toutes les activités d'un catalogue d'avant sont « chaque semaine », le tableau est le même.
+- **Le tirage** (`ActivitesMJ.offre`, seule source de ce qui est proposé : la section, le dé, la page du MJ) : écrit une
+  fois au premier besoin de la période dans `data/activites-tirages.json` (jamais dans le catalogue : sa version ne bouge
+  pas), en évitant les offres de la période d'avant ; la première quête unique jamais proposée (la liste des quêtes
+  proposées n'est jamais élaguée). Proposé = ce que le tirage a écrit + les activités « chaque semaine » du moment - ce
+  qui est caché ou retiré. Le MJ change, retire ou ajoute une offre (`POST /api/activites/tableau`), refusé pour une
+  offre déjà jouée. Le dé refuse une activité qui n'est pas au tableau.
+- **Ce qui sort vers le coin** : seulement le tableau de la période (`offre`, `accroche` d'une quête au masque et sans
+  inconnu, `gains` si annoncés, `renouvellement` seulement si la réserve fait tourner le tableau) ; ni la réserve, ni ce qui
+  n'est pas tiré, ni la période suivante.
+- **Le coin** (`activites-vue.js`, `activites-coin.js`, `activites-coin.css`) : un tableau de chêne sous un fronton ; les
+  offres tirées en affiches de papier clouées, celles de chaque semaine en planches peintes (des affiches de papier tant
+  que rien ne tourne), la quête en tête sous un sceau rouge. Toucher une affiche l'ouvre en volet (hors de la page du carnet,
+  par-dessus les boutons flottants) : chances, petit mot, « Prendre l'affiche », puis le dé et le récit dans le même volet.
+  Une affiche prise porte le sceau du dé ; complète, une bande « Complet ». Une période neuve : les affiches se clouent une
+  à une (une fois par appareil). Le carnet sans gestes et l'aperçu du MJ montrent le tableau, chaque texte en entier.
+- **Le MJ** : page « Les activités » (rythme, quête unique, accroche, gains ; panneau « Au tableau en ce moment » avec
+  Changer et Retirer ; « Mettre au tableau » dans la fiche), boîte des demandes (« Un objet pour son sac » : une ligne
+  ajoutée à l'équipement dans la même écriture que l'or, au masque, refusée si elle nomme un inconnu ; avec une cagnotte,
+  posée avant et reprise si le chantier refuse).
+- Tests : la fin de `tests/test_jets_et_activites.py`.
+

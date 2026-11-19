@@ -6,6 +6,10 @@
 // le modificateur, les places, le texte que lisent les joueurs, et pour chaque issue l'or (une formule de dés), sa
 // destination et le récit type. Les petits contrats s'écrivent ici à la main. Tout s'enregistre pendant la frappe, avec la
 // version lue : un autre écran passé avant est fusionné activité par activité.
+// Le tableau (19/11) : le catalogue est une réserve. Chaque activité a un rythme (chaque semaine, souvent, parfois,
+// rarement) ; au début de chaque période, l'atelier tire au tableau quelques activités qui ne sont pas de chaque semaine, et
+// la première quête unique jamais proposée. Le panneau « Au tableau » montre la période en cours : changer une offre tirée,
+// en retirer une, en ajouter une de la réserve, tant qu'aucun héros ne l'a jouée.
 
 import { api, copie, differer, echapper as e, enregistrerAvecVersion, toast } from "../api.js";
 import { COMPETENCES } from "../aventuriers/regles.js";
@@ -14,6 +18,9 @@ import { afficherTemoin, htmlTemoin } from "../commun/temoin-enregistrement.js";
 import { formuleLisible } from "./formule.js";
 
 const ISSUES = [["reussite-critique", "Réussite critique"], ["reussite", "Réussite"], ["echec", "Échec"], ["echec-critique", "Échec critique"]];
+const RYTHMES = [["toujours", "Chaque semaine"], ["souvent", "Souvent"], ["parfois", "Parfois"], ["rarement", "Rarement"]];
+const GAINS = [["or", "De l'or"], ["rumeur", "Une rumeur"], ["contact", "Un contact"], ["objet", "Un objet"]];
+const GENRES_TABLEAU = { quete: "quête unique", toujours: "chaque semaine", tiree: "tirée" };
 const CARACS = [["physique", "Physique"], ["social", "Social"], ["mental", "Mental"]];
 const DECISIONS = { acceptee: "validée", refusee: "refusée" };
 // L'or versé d'office : « +8 po, bourse », « +4 po, les baraquements », « 0 po ».
@@ -30,6 +37,7 @@ function ajuster(zone) {
 function vierge() {
   return {
     id: nouvelId(), nom: "", texte: "", carac: "physique", competences: [], modificateur: 0, places: null, visible: false, chantier: "", notes_mj: "",
+    rythme: "toujours", unique: false, accroche: "", gains: [],
     issues: Object.fromEntries(ISSUES.map(([k]) => [k, { or: "0", vers: "bourse", recit: "" }])),
   };
 }
@@ -86,7 +94,7 @@ export class Activites {
           <div>
             <p class="kicker"><a href="#/auberge">L'auberge</a></p>
             <h1>Les activités entre les séances</h1>
-            <p class="chapo">Ce que les héros peuvent faire d'une séance à l'autre. Chaque joueur peut toutes les faire faire à son héros, chacune une fois par période, depuis son carnet ; le serveur jette le dé sur la fiche du héros, lui montre aussitôt le récit de l'issue et l'or vous attend dans la boîte « Demandes ».</p>
+            <p class="chapo">Ce que les héros peuvent faire d'une séance à l'autre : votre réserve. Au tableau de l'auberge, dans le carnet des joueurs, les activités de chaque semaine et quelques autres tirées au début de chaque période, selon leur rythme. Chaque joueur peut prendre chaque affiche une fois ; le serveur jette le dé sur la fiche du héros, lui montre aussitôt le récit de l'issue et l'or vous attend dans la boîte « Demandes ».</p>
           </div>
           ${htmlTemoin("ok")}
         </header>
@@ -109,12 +117,41 @@ export class Activites {
     const jouees = et.jouees || [];
     const zone = this.section.querySelector(".reglages-activites");
     zone.innerHTML = `
-      <p class="aide interrupteur-activites">${c.ouvert ? `<b>Ouvertes aux joueurs</b> : les activités montrées paraissent dans leur carnet${et.carnet_ouvert === false ? " (le carnet est fermé en ce moment : rien ne paraît avant qu'il rouvre)" : ""}`
-        : "<b>Fermées aux joueurs</b> : leur carnet n'en montre aucune"}. Chaque activité une fois par héros ${c.periode === "seance" ? "entre deux séances" : "et par semaine"}. <a class="vers-reglages" href="#/reglages/coin">Réglages</a></p>
+      <p class="aide interrupteur-activites">${c.ouvert ? `<b>Ouvertes aux joueurs</b> : le tableau paraît dans leur carnet${et.carnet_ouvert === false ? " (le carnet est fermé en ce moment : rien ne paraît avant qu'il rouvre)" : ""}`
+        : "<b>Fermées aux joueurs</b> : leur carnet n'en montre aucune"}. Chaque affiche du tableau une fois par héros ${c.periode === "seance" ? "entre deux séances" : "et par semaine"}. <a class="vers-reglages" href="#/reglages/coin">Réglages</a></p>
       <p class="aide">En ce moment : <b>${e(et.periode?.libelle || "")}</b>.${jouees.length ? "" : " Aucune activité jouée pour l'instant."}</p>
+      ${this.htmlTableau()}
       ${jouees.length ? `<table class="jouees-activites"><caption>Jouées cette période</caption><thead><tr><th>Héros</th><th>Activité</th><th>Dé</th><th>Issue</th><th>Or</th></tr></thead><tbody>${jouees.map((x) => `
         <tr><td>${e(x.heros.split(/[\s,]+/)[0])}</td><td>${e(x.activite)}</td><td>${e(String(x.de ?? "").padStart(2, "0"))} pour ${e(x.visee ?? "")}</td><td>${e(x.issue)}</td>
         <td>${x.decision === "refusee" ? "refusée" : x.decision ? e(orDit(x)) : "à valider"}</td></tr>`).join("")}</tbody></table>` : ""}`;
+  }
+
+  // Le tableau de la période : ce que les joueurs voient, et les gestes du MJ sur chaque affiche.
+  htmlTableau() {
+    const t = this.etat?.tableau;
+    if (!t) return "";
+    const par = new Map(this.c.activites.map((a) => [a.id, a]));
+    const prises = this.etat?.prises || {};
+    const lignes = t.ids.map((id) => {
+      const a = par.get(id);
+      if (!a) return "";
+      const jouee = (prises[id] || 0) > 0;
+      const genre = t.genres[id];
+      return `<li data-id="${e(id)}"><span class="nom">${e(a.nom)}</span><span class="genre-tableau genre-${e(genre)}">${e(GENRES_TABLEAU[genre] || "")}</span>
+        ${jouee ? `<span class="jouee">prise ${prises[id]} fois</span>` : `${genre !== "toujours" ? '<button type="button" data-action="tableau-changer">Changer</button>' : ""}<button type="button" data-action="tableau-retirer">Retirer</button>`}</li>`;
+    }).join("");
+    const tourne = this.c.activites.some((a) => a.visible && a.nom && (a.unique || a.rythme !== "toujours"));
+    return `
+      <div class="tableau-activites-mj">
+        <h2>Au tableau en ce moment</h2>
+        <ul class="affiches-mj">${lignes || '<li class="vide">Le tableau est vide : montrez une activité, ou mettez-en une au tableau depuis sa fiche.</li>'}</ul>
+        <p class="aide">${tourne ? `Le tableau change ${this.c.periode === "seance" ? "à chaque séance close" : `chaque lundi (le prochain : ${e(t.renouvellement)})`} : les activités de chaque semaine, ${this.c.offres} tirée${this.c.offres > 1 ? "s" : ""} dans la réserve et la quête unique suivante. Retoucher la réserve ne change pas ce tableau-ci ; une activité cachée en sort, une activité passée « chaque semaine » y entre.`
+          : "Toutes vos activités sont « chaque semaine » : le tableau ne change pas, comme avant la réserve. Donnez un autre rythme à certaines pour qu'il tourne."}</p>
+        <div class="reglages-tableau">
+          <label class="champ">Tirées à chaque période<input type="number" min="0" max="8" value="${e(this.c.offres ?? 3)}" data-reglage="offres"></label>
+          <label class="case"><input type="checkbox" data-reglage="annoncer_gains"${this.c.annoncer_gains ? " checked" : ""}> Annoncer sur les affiches ce qu'on peut y gagner</label>
+        </div>
+      </div>`;
   }
 
   afficherListe() {
@@ -127,8 +164,12 @@ export class Activites {
   resume(a) {
     const prises = this.etat?.prises?.[a.id] || 0;
     const faite = [...new Set((this.etat?.jouees || []).filter((x) => x.activite_id === a.id && !(x.decision === "refusee" && x.rendu)).map((x) => x.heros.split(/[\s,]+/)[0]))];
+    const t = this.etat?.tableau;
+    const auTableau = Boolean(t?.ids.includes(a.id));
+    const rythme = a.unique ? (!auTableau && (t?.quetes_proposees || []).includes(a.id) ? "quête déjà proposée" : "quête unique") : RYTHMES.find(([k]) => k === a.rythme)?.[1].toLowerCase();
     return [CARACS.find(([k]) => k === a.carac)?.[1], a.competences.join(", "), a.modificateur ? `${a.modificateur > 0 ? "+" : "\u2212"}${Math.abs(a.modificateur)}\u00a0%` : "",
-      a.places ? `${prises}/${a.places} places prises` : "", faite.length ? `faite par ${faite.join(", ")}` : ""].filter(Boolean).join(" · ");
+      a.places ? `${prises}/${a.places} places prises` : "", rythme, auTableau ? "au tableau" : "",
+      faite.length ? `faite par ${faite.join(", ")}` : ""].filter(Boolean).join(" · ");
   }
 
   htmlActivite(a, i) {
@@ -151,6 +192,14 @@ export class Activites {
             <label class="champ">Modificateur<input type="number" step="5" min="-100" max="100" value="${e(a.modificateur)}" data-champ="modificateur"></label>
             <label class="champ">Places par période<input type="number" min="1" max="20" value="${e(a.places ?? "")}" placeholder="sans limite" data-champ="places"></label>
           </div>
+          <div class="trois">
+            <label class="champ">Rythme dans la réserve<select data-champ="rythme"${a.unique ? " disabled" : ""}>${options(RYTHMES, a.rythme)}</select></label>
+            <label class="case"><input type="checkbox" data-champ="unique"${a.unique ? " checked" : ""}> Quête unique <small>proposée une seule fois</small></label>
+            <p class="au-tableau">${this.etat?.tableau?.ids.includes(a.id) ? '<span class="etiquette">Au tableau</span>' : a.visible && a.nom ? '<button type="button" data-action="tableau-ajouter">Mettre au tableau</button>' : ""}</p>
+          </div>
+          ${a.unique ? `<label class="champ">Accroche de la quête <small>une ligne, lue par les joueurs : « Tirée d'une rumeur entendue au comptoir »</small><input type="text" maxlength="160" value="${e(a.accroche || "")}" data-champ="accroche"></label>` : ""}
+          <fieldset class="gains-mj"><legend>Ce qu'on peut y gagner <small>sur l'affiche, si vous l'annoncez</small></legend>
+            ${GAINS.map(([k, n]) => `<label class="case"><input type="checkbox" data-gain="${k}"${(a.gains || []).includes(k) ? " checked" : ""}> ${n}</label>`).join("")}</fieldset>
           <label class="champ">Compétences qui aident <small>le meilleur bonus du héros parmi elles s'ajoute, séparées par des virgules</small>
             <input type="text" list="competences-activites" value="${e(a.competences.join(", "))}" data-champ="competences"></label>
           <label class="champ">Ce que lisent les joueurs<textarea rows="2" data-champ="texte">${e(a.texte)}</textarea></label>
@@ -185,6 +234,11 @@ export class Activites {
 
   saisie(ev, change = false) {
     const t = ev.target;
+    if (t.dataset.reglage) {
+      if (t.dataset.reglage === "offres") this.c.offres = Math.max(0, Math.min(8, Math.round(Number(t.value) || 0)));
+      else this.c.annoncer_gains = t.checked;
+      return this.marquer();
+    }
     const a = this.activiteDe(t);
     if (!a) return;
     if (t.tagName === "TEXTAREA") ajuster(t);
@@ -194,14 +248,24 @@ export class Activites {
       if (t.dataset.issueChamp === "or") t.classList.toggle("illisible", Boolean(t.value.trim()) && !formuleLisible(t.value));
       return this.marquer(change && t.dataset.issueChamp === "vers", a);
     }
+    if (t.dataset.gain) {
+      const g = t.dataset.gain;
+      a.gains = t.checked ? [...new Set([...(a.gains || []), g])] : (a.gains || []).filter((x) => x !== g);
+      return this.marquer(false, a);
+    }
     const champ = t.dataset.champ;
     if (!champ) return;
     if (champ === "visible") a.visible = t.checked;
+    else if (champ === "unique") {
+      a.unique = t.checked;
+      // Une quête a ses places : deux, tant que le MJ n'en dit pas autrement.
+      if (a.unique && !a.places) a.places = 2;
+    }
     else if (champ === "modificateur") a.modificateur = Math.max(-100, Math.min(100, Math.round(Number(t.value) || 0)));
     else if (champ === "places") a.places = t.value.trim() && Number(t.value) >= 1 ? Math.min(20, Math.round(Number(t.value))) : null;
     else if (champ === "competences") a.competences = t.value.split(",").map((x) => x.trim()).filter(Boolean);
     else a[champ] = t.value;
-    this.marquer(change && ["visible", "carac", "chantier"].includes(champ), a);
+    this.marquer(change && ["visible", "carac", "chantier", "unique", "rythme"].includes(champ), a);
   }
 
   // Une modification : l'envoi part un peu après la frappe ; redessiner seulement le titre de la fiche (ou toute la fiche
@@ -251,6 +315,25 @@ export class Activites {
     return this.chaine;
   }
 
+  // Un geste sur le tableau de la période : la réserve s'enregistre d'abord (une quête cochée à l'instant compte).
+  async geste(b) {
+    const id = b.closest("[data-id]")?.dataset.id;
+    if (!id) return;
+    b.disabled = true;
+    try {
+      await this.vider();
+      this.etat = await api.post("/api/activites/tableau", { action: b.dataset.action.slice(8), activite: id });
+      toast(b.dataset.action === "tableau-changer" ? "Une autre affiche la remplace au tableau." : b.dataset.action === "tableau-retirer" ? "Retirée du tableau pour cette période." : "Au tableau pour cette période.");
+    } catch (err) {
+      toast(err.message, "erreur");
+    } finally {
+      if (!this.detruit) {
+        this.afficherReglages();
+        this.afficherListe();
+      }
+    }
+  }
+
   async relireEtat() {
     try {
       this.etat = await api.get("/api/activites/etat");
@@ -264,6 +347,7 @@ export class Activites {
   async clic(ev) {
     const b = ev.target.closest("button[data-action]");
     if (!b || b.disabled) return;
+    if (b.dataset.action.startsWith("tableau-")) return this.geste(b);
     if (b.dataset.action === "nouvelle") {
       const a = vierge();
       this.c.activites.push(a);

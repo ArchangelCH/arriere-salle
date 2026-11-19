@@ -2,8 +2,9 @@
 « activite », son validateur, la section « activites » du carnet telle que le coin la lit, et ce qu'il vérifie avant
 d'écrire.
 
-Entre deux séances, chaque joueur peut faire faire à son héros toutes les activités du catalogue, chacune une fois par
-période (une semaine, ou l'intervalle entre deux séances) ; le catalogue que le MJ écrit dans l'atelier (activites_mj.py). Le joueur n'envoie que le jeton de
+Entre deux séances, chaque joueur peut faire faire à son héros chaque activité du tableau de la période, une fois par
+période (une semaine, ou l'intervalle entre deux séances) ; le tableau, l'atelier le tire dans la réserve que le MJ écrit
+(activites_mj.py). Le joueur n'envoie que le jeton de
 l'activité et, s'il veut, quelques mots : le dé se jette dans l'atelier, sur la fiche de l'atelier, quand il voit la
 demande. Le joueur lit aussitôt son jet et le récit que le MJ a écrit pour cette issue ; l'or attend le MJ.
 

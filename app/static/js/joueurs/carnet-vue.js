@@ -361,7 +361,7 @@ export const VUES = {
   compagnie: { titre: "La compagnie", chapo: "Les héros de la tablée, tels que la TV les présente, avec la couleur de leur pion." },
   regles: { titre: "Les règles de la table", chapo: "Ce que votre MJ applique, et comment lire ce que montre la TV." },
   sanctuaire: { titre: "Le sanctuaire", chapo: "Le refuge que la compagnie relève : chaque chantier, sa cagnotte, ce que le prochain niveau apporte." },
-  activites: { titre: "Entre les séances", chapo: "Une activité pour votre héros à chaque période : le dé se jette sur sa fiche, votre MJ valide l'or et raconte la suite." },
+  activites: { titre: "Entre les séances", chapo: "Le tableau de l'auberge : les affiches de la période. Le dé se jette sur la fiche de votre héros, votre MJ valide l'or et raconte la suite." },
   precedemment: { titre: "Les séances d'avant", chapo: "Le « Précédemment » de chaque séance, de la plus récente à la plus ancienne." },
 };
 const VUE_DE_L_ANCRE = {

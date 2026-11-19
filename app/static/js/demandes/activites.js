@@ -1,7 +1,8 @@
 // Une activité entre les séances dans la boîte « Demandes des joueurs » : une carte dans la liste, puis le détail.
 // Le jet que le serveur a jeté sur la fiche (et de quoi la valeur visée est faite), le récit que le joueur a déjà lu, l'or
 // que propose le catalogue ; le MJ fixe le montant et sa destination (la bourse du héros, ou la cagnotte d'un chantier),
-// écrit « ce que le héros apprend » s'il veut, puis valide ou refuse (en rendant son tour au joueur, s'il le souhaite).
+// écrit « ce que le héros apprend » et un objet pour son sac s'il veut, puis valide ou refuse (en rendant son tour au joueur,
+// s'il le souhaite).
 // Les suites (une rumeur, une idée, un contrat en brouillon) se créent d'un clic par les routes de l'atelier, jamais
 // montrées aux joueurs. Ce que le MJ a écrit reste en mémoire tant que la page est ouverte. Tout texte passe par echapper.
 
@@ -43,7 +44,7 @@ export class ValidationActivite {
   }
 
   etat() {
-    if (!choix.has(this.cle)) choix.set(this.cle, { montant: null, vers: null, apprend: "", mot: "", rendre: false, suites: [] });
+    if (!choix.has(this.cle)) choix.set(this.cle, { montant: null, vers: null, apprend: "", objet: "", mot: "", rendre: false, suites: [] });
     return choix.get(this.cle);
   }
 
@@ -112,6 +113,7 @@ export class ValidationActivite {
     s.montant = f.montant.value;
     s.vers = f.vers.value;
     s.apprend = f.apprend.value;
+    s.objet = f.objet.value;
     s.mot = f.mot.value;
     s.rendre = f.rendre.checked;
   }
@@ -177,6 +179,8 @@ export class ValidationActivite {
           </div>
           <label class="champ">Ce que ${e(prenom(h?.nom))} apprend <small>facultatif, lu par le joueur ; un nom inconnu des joueurs est refusé</small>
             <textarea name="apprend" rows="3" maxlength="${e(v.apprend_max || 1000)}">${e(s.apprend)}</textarea></label>
+          <label class="champ">Un objet pour son sac <small>facultatif : une ligne ajoutée à son équipement, lue par le joueur ; un nom inconnu des joueurs est refusé</small>
+            <input type="text" name="objet" maxlength="300" value="${e(s.objet || "")}" placeholder="Une lanterne sourde, une lettre cachetée…"></label>
           <label class="champ">Un mot pour le joueur <small>facultatif</small><textarea name="mot" rows="2" maxlength="${e(v.mot_max || 300)}">${e(s.mot)}</textarea></label>
           <label class="case"><input type="checkbox" name="rendre"${s.rendre ? " checked" : ""}> En refusant, rendre son tour au joueur : il pourra choisir une autre activité pour cette période</label>
           <div class="actions">
@@ -188,6 +192,7 @@ export class ValidationActivite {
         ${!ouverte ? `<section class="decision-activite"><h3>${e(DECISIONS[v.statut] || v.statut_dit)}</h3>
           ${v.resultat ? `<p>${e(v.resultat)}</p>` : ""}
           ${v.public?.apprend ? `<p><span class="lbl">Ce que le héros apprend</span>${e(v.public.apprend)}</p>` : ""}
+          ${v.public?.objet ? `<p><span class="lbl">Dans son sac</span>${e(v.public.objet)}</p>` : ""}
           ${v.mot ? `<p class="mot-mj">Votre mot : « ${e(v.mot)} »</p>` : ""}
           ${dec?.rendu ? "<p>Tour rendu au joueur.</p>" : ""}</section>` : ""}
         ${v.pret ? `
@@ -229,7 +234,7 @@ export class ValidationActivite {
     try {
       await api.post(`/api/activites/demandes/${encodeURIComponent(v.joueur.id)}/${encodeURIComponent(v.id)}/trancher`, {
         decision, version: v.version, montant: decision === "valider" ? montant : 0, vers: f.vers.value, apprend: f.apprend.value.trim(),
-        mot: f.mot.value.trim(), rendre: f.rendre.checked,
+        objet: decision === "valider" ? f.objet.value.trim() : "", mot: f.mot.value.trim(), rendre: f.rendre.checked,
       });
     } catch (err) {
       boutons.forEach((b) => { b.disabled = false; });
@@ -238,7 +243,7 @@ export class ValidationActivite {
       return;
     }
     const s = this.etat();
-    Object.assign(s, { montant: null, vers: null, apprend: "", mot: "", rendre: false });
+    Object.assign(s, { montant: null, vers: null, apprend: "", objet: "", mot: "", rendre: false });
     toast(decision === "valider" ? `Validée : ${v.joueur.nom} le lit dans son carnet.` : `Refusée : ${v.joueur.nom} le lit dans son carnet.`);
     this.relireBoite();
     await this.lire();

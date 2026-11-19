@@ -193,6 +193,7 @@ WS /ws/table
 GET /api/activites
 PUT /api/activites
 GET /api/activites/etat
+POST /api/activites/tableau
 GET /api/activites/demandes/{joueur}/{ident}
 POST /api/activites/demandes/{joueur}/{ident}/trancher
 GET /api/jets

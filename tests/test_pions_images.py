@@ -347,7 +347,7 @@ def test_vignette_d_avant_inchangee(tmp_path):
 
 
 def test_les_modules_du_dessin_sont_servis_au_coin():
-    for m in ("js/plan/pions.js", "js/plan/images.js"):
+    for m in ("js/plan/pions.js", "js/plan/images.js", "js/plan/figurine.js"):
         assert m in joueurs.FICHIERS
     # Les modules de l'éditeur, eux, ne sortent pas.
     for m in ("js/plan/editeur-pions.js", "js/plan/editeur-images.js"):

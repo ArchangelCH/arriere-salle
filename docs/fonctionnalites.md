@@ -706,3 +706,35 @@ dont chaque fichier fait relire toute la table), `commun/pointeurs.py` pour les 
   `ref: "familier:<aventurier>"`, à la couleur du héros et à l'image du familier (`image_libre`). Son joueur le bouge
   depuis la table du coin comme son héros (toucher le pion, puis la case) ; en combat, au tour du héros, avec sa propre case
   de début de tour (`tours` noté sous `<héros>#<pion>`). Il ne révèle pas les pièces où il entre.
+
+## Les pions en figurines (19/11/2026)
+
+Choix du MJ parmi trois maquettes (médaillons, figurines, sceaux de cire) : chaque pion est une figurine de papier
+debout sur un socle rond, partout où un plan se dessine (TV, atelier, coin des joueurs, image exportée).
+
+- **Le dessin** (`js/plan/figurine.js`, appelé par `dessinerPions` de `rendu.js`) : socle à la couleur du pion (celle du
+  joueur pour un héros, celle choisie par le MJ, sinon une teinte sourde du genre) ; support dans un cadre de métal selon
+  le genre (or héros, fer ennemis, bronze PNJ, argent familiers, étain le reste), portrait en haut, initiales sinon. Une
+  couleur très sombre garde un liseré clair. Formes : support arrondi (rond), droit (carré, blason). L'épaisseur réglée
+  change le socle. À terre, la figurine se couche, portrait éteint. Le numéro d'un ennemi est peint sur une plaque au
+  devant du socle (lisible du canapé sur la TV). Le prénom sous le socle, dans un cartouche, bordé de la couleur du
+  joueur pour un héros. Les états, le groupe, les cartons, la posture, le jeton et les barres gardent leurs places
+  autour de la figurine ; les barres passent au-dessus de sa tête.
+- **La place** : `silhouette(r)` dit le haut du support (il monte un peu sur la case du dessus) et le bas du socle ; la
+  mise en page des noms et des barres de la TV (`placerNoms`, `barresTv`, `centrePrenom`) la suit. Ordre de dessin
+  (`ordreDesFigurines`) : à terre d'abord, puis de haut en bas, un cavalier juste après sa monture.
+- **Ce qui bouge** (`VuePlan.animations` dans `vue.js`) : la figurine qui glisse se soulève et se pose dans un peu de
+  poussière ; un coup (sa Santé baisse) l'éclaire de rouge et la secoue, un soin l'éclaire de vert ; mise à terre, elle
+  bascule. Seul ce que la vue voit changer s'anime (rien à l'ouverture d'un plan). Qui a la main au combat luit (halo au
+  sol, cercle d'or) et respire, la seule animation qui dure, à 20 images par seconde. Rien ne bouge pour qui demande moins
+  de mouvement, ni dans une image exportée. Pas de nombre de points perdus : la TV ne reçoit que des parts de Santé, et
+  rien d'un adversaire.
+- **Qui a la main** : le pion d'un héros porte un jeton opaque `heros` (`tv_plans.jeton_heros`, `jeton("heros-pion", id)`,
+  qui n'ouvre aucune fiche), le même que son entrée dans l'ordre du combat (`combat_public`). La TV (`table/combat.js`,
+  seulement quand le bandeau est montré) et le coin (`table-coin.js`) font luire le héros dont c'est le tour, ou les
+  ennemis debout (`mainDuCombat`) ; l'atelier lit le combat en cours (`mainDuPlan` de `jauges.js`).
+- **Le fil du familier** : un pion de familier porte `familier: true` et `maitre` (le pion de son héros, seulement s'il
+  est montré : `pions_plan.lier_familiers`, sur le modèle des montures). Un fil pointillé à la couleur du héros les relie
+  quand ils sont à moins de 2,6 cases.
+- Vérifieur : `node outils/verifier_figurines.mjs` (place, ordre, qui a la main, chaque sorte de pion dessinée sur un faux
+  canvas qui refuse ce que Chromium 79 n'a pas). Tests : `tests/test_figurines.py`.

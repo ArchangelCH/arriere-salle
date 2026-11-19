@@ -385,7 +385,7 @@ STATIQUES_INVITE = frozenset(
     | _noms("js/lieux", "fiche-lieu jeter-carte nouveau-lieu panneau-lieu", "js")
     | _noms("js/lore", "ecart", "js")
     | _noms("js/mj", "appareils etats-joueurs main-tv menu-invite monde partage role suite", "js")
-    | _noms("js/plan", """brume dehors-dessin dehors-peint editeur-images editeur-pions editeur entrer feu generateurs
+    | _noms("js/plan", """brume dehors-dessin dehors-peint editeur-images editeur-pions editeur entrer feu figurine generateurs
         generateurs-dehors groupe-pions images importer-uvtt jauges mobilier-plus modele
         lumieres lumieres-menu mouvements-joueurs murs-plus palette-meubles peint-mobilier-plus peint-mobilier peint pions reglages-decor rendu
         sang sang-menu sols-plus textures uvtt vue""", "js")

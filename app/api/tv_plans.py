@@ -152,6 +152,11 @@ def jauges_pion(fiche: dict, etat: dict, posture: str = "") -> dict:
     }
 
 
+def jeton_heros(ident: str) -> str:
+    """Le jeton opaque d'un héros sur un plan et dans l'ordre du combat (les figurines qui luisent à son tour)."""
+    return tv_cartes.jeton("heros-pion", ident)
+
+
 def pion_public(t: dict, etats: dict | None = None, postures: dict | None = None, couleurs: dict | None = None) -> dict:
     """Un pion tel que le voit la table : un PNJ que les joueurs ne connaissent pas n'a ni nom ni portrait, un ennemi
     n'a que son numéro ; le nom d'un aventurier ou d'un PNJ connu vient de sa fiche du moment, et un aventurier porte
@@ -173,6 +178,11 @@ def pion_public(t: dict, etats: dict | None = None, postures: dict | None = None
         pub["nom"] = utilitaires.texte(t.get("nom"))
     if genre == "aventurier" and fiche:
         pub["couleur"] = (couleurs if couleurs is not None else tv_fiches.couleurs_de_la_tv()).get(ident) or couleurs_tv.lisible(pub["couleur"])
+        # Les figurines (19/11) : le jeton du héros, le même que dans l'ordre du combat (combat_public), pour que la TV et le
+        # coin fassent luire celui qui a la main ; un jeton à part, qui n'ouvre aucune fiche.
+        pub["heros"] = jeton_heros(ident)
+    elif genre == "familier":
+        pub["familier"] = True
     # Lot H2 : forme, cadre, états, groupe, étiquette, nom visible ou non, image choisie par le MJ (pions_plan.py).
     pub.update(pions_plan.plus_public(t, pub, genre, fiche, utilitaires.media_existant))
     # La lettre courte dit qui est le pion (« Au » pour Aude de Valcombe, « M » pour le Pinson) : un numéro part toujours,
@@ -263,6 +273,7 @@ def plan_public(p: dict, j: str) -> dict:
     pions = [pion_public(t, etats, postures, couleurs) for t in p.get("pions", [])
              if not t.get("cache") and not pions_plan.invisible(t) and "x" in t and "y" in t and revele(t["x"], t["y"]) and not dans_l_epaisse(t)]
     pions_plan.lier_montures(pions, p.get("pions", []))
+    pions_plan.lier_familiers(pions, p.get("pions", []))
     textes = [{k: t.get(k) for k in ("id", "texte", "x", "y", "taille")} for t in p.get("textes", [])
               if not t.get("mj") and "x" in t and "y" in t and revele(t["x"], t["y"])]
     fond = p.get("fond")

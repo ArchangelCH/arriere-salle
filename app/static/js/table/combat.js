@@ -36,6 +36,9 @@ async function montrerCombat(etat, quoi) {
     delete demandes.combat;
     return retirerCombat();
   }
+  // La figurine de qui a la main luit sur le plan (plan/figurine.js, mainDuCombat).
+  S.combatMontre = c;
+  if (S.vuePlan) S.vuePlan.demander();
   combatTv.querySelector(".tour-tv b").textContent = String(c.tour || 1);
   combatTv.querySelector(".ordre-tv").innerHTML = c.ordre.map((x, i) => htmlCombattantTv(x, i === c.actif)).join("");
   const strat = combatTv.querySelector(".strat-tv");
@@ -47,6 +50,8 @@ async function montrerCombat(etat, quoi) {
 }
 
 function retirerCombat() {
+  S.combatMontre = null;
+  if (S.vuePlan) S.vuePlan.demander();
   clearTimeout(S.minuterieSablier);
   S.finSablier = 0;
   if (!combatTv.hidden) cacher(combatTv, 700);

@@ -199,7 +199,9 @@ def test_rien_de_cache_ne_sort(atelier, monde):
     assert [o["id"] for o in p["objets"]] == ["o-table"]
     assert [t["id"] for t in p["pions"]] == ["t-aude", "t-garde"]
     assert [t["texte"] for t in p["textes"]] == ["Ici dormait l'auberge"]
-    assert all(set(t) <= {"id", "genre", "court", "x", "y", "taille", "tombe", "couleur", "nom", "image", "jauges"} for t in p["pions"])
+    # Les figurines (19/11) : le jeton du héros (qui a la main), le familier et son maître.
+    assert all(set(t) <= {"id", "genre", "court", "x", "y", "taille", "tombe", "couleur", "nom", "image", "jauges", "heros", "familier", "maitre"}
+               for t in p["pions"])
     # La brume épaisse : sur les cases révélées seulement, et l'ennemi qui s'y cache n'est pas montré.
     assert p["brume"] == grille({(3, 3): 2})
     # Le fond noirci et le portrait réduit passent par les médias de la table, sous un nom tiré de leur contenu.

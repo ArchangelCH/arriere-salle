@@ -46,6 +46,19 @@ export function adversairesSurPlan(plan, combat) {
   return r;
 }
 
+// Les pions qui ont la main dans le combat en cours (Set d'identifiants) : le héros dont c'est le tour, ou les
+// adversaires du combat posés sur ce plan, debout, quand c'est aux ennemis. null hors combat.
+export function mainDuPlan(plan, combat) {
+  const x = combat && Array.isArray(combat.ordre) && Number.isInteger(combat.actif) ? combat.ordre[combat.actif] : null;
+  if (!plan || typeof x !== "string") return null;
+  if (x === "ennemis") {
+    const ids = new Set();
+    for (const id of adversairesSurPlan(plan, combat).keys()) if (!(plan.pions || []).some((t) => t.id === id && t.tombe)) ids.add(id);
+    return ids;
+  }
+  return new Set((plan.pions || []).filter((t) => t.ref === x).map((t) => t.id));
+}
+
 // Map id du pion → jauges, pour la vue du plan.
 export function jaugesDuPlan(plan, jeu) {
   const r = new Map();

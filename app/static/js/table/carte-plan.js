@@ -4,6 +4,7 @@ import { decoderCarte } from "../carte/format.js";
 import { chargerImage, memeFond } from "../carte/vue.js";
 import { fondPeint } from "../plan/peint.js";
 import { VuePlan, signatureStructure } from "../plan/vue.js";
+import { mainDuCombat } from "../plan/figurine.js";
 import { allegerPlan, rienDeRevele } from "../ecran-tv/tv-commun.js";
 import { montrerCarton } from "./cartons.js";
 import { afficher, cacher, montrerAccueil, montrerLegende, montrerPlanTv } from "./ecran.js";
@@ -82,7 +83,11 @@ async function chargerPlan(etat) {
   if (!p || !p.largeur) return null;
   allegerPlan(p, leger);
   const style = etat.style || p.style || "couleur";
-  if (!S.vuePlan) S.vuePlan = new VuePlan(toilePlan, { style, joueurs: true, tv: true, surLegende: montrerLegende, texture: S.texture, fond: "#0b0806", brume: () => toileBrume, feu: () => toileFeu, reglagesFeu: FEU_ECRAN, ...REGLAGES_TV });
+  if (!S.vuePlan) {
+    S.vuePlan = new VuePlan(toilePlan, { style, joueurs: true, tv: true, surLegende: montrerLegende, texture: S.texture, fond: "#0b0806", brume: () => toileBrume, feu: () => toileFeu, reglagesFeu: FEU_ECRAN, ...REGLAGES_TV });
+    // Qui a la main : d'après le bandeau du combat, s'il est montré (combat.js).
+    S.vuePlan.main = (pions) => mainDuCombat(pions, S.combatMontre);
+  }
   const signature = signatureStructure(p);
   const meme = S.planAffiche.plan === etat.plan;
   if (meme && signature === S.planAffiche.signature && style === S.vuePlan.style) {

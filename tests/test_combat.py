@@ -163,11 +163,11 @@ def test_la_tv_ne_recoit_que_l_ordre_et_seulement_quand_le_mj_le_montre(client, 
     assert d == {
         "id": J("seances", s["id"]), "tour": 2, "actif": 1, "strat": False, "sablier": None,
         "ordre": [
-            {"genre": "heros", "nom": "Tavarède", "couleur": "#ae00ff", "posture": "defensive", "coma": False,
+            {"genre": "heros", "nom": "Tavarède", "heros": J("heros-pion", a["id"]), "couleur": "#ae00ff", "posture": "defensive", "coma": False,
              "cartons": [{"carac": "physique", "couleur": "jaune"}, {"carac": "mental", "couleur": "rouge"}], "avantage": ""},
             {"genre": "ennemis"},
             # Couleur douteuse retirée, posture inconnue vide, à 0 Santé : dans le coma.
-            {"genre": "heros", "nom": "Velora", "couleur": "", "posture": "", "coma": True, "cartons": [], "avantage": ""},
+            {"genre": "heros", "nom": "Velora", "heros": J("heros-pion", b["id"]), "couleur": "", "posture": "", "coma": True, "cartons": [], "avantage": ""},
         ],
     }
     for interdit in SECRETS:

@@ -128,7 +128,9 @@ def test_la_lettre_courte_ne_dit_plus_qui_est_le_pion(client):
     assert "Aude" not in texte and '"Au"' not in texte
     # Sur la TV, un ennemi sans numéro ni nom porte le losange des ennemis, aucune lettre.
     rendu = (STATIQUE / "js" / "plan" / "rendu.js").read_text(encoding="utf-8")
-    assert "joueurs && t.genre === \"ennemi\" && !numero && !t.nom" in rendu and "losangeEnnemi(ctx" in rendu
+    figurine = (STATIQUE / "js" / "plan" / "figurine.js").read_text(encoding="utf-8")
+    assert "mystere: joueurs && t.genre === \"ennemi\" && !numero && !t.nom" in rendu
+    assert "} else if (o.mystere) {\n    losange(ctx" in figurine
     for collection, ident in (("plans", plan["id"]), ("pnj", inconnue["id"]), ("pnj", connue["id"]), ("aventuriers", heros["id"])):
         client.delete(f"/api/{collection}/{ident}")
 

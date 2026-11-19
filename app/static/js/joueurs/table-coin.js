@@ -20,6 +20,7 @@ import { chargerImage, gesteMolette, lireDefilement } from "../carte/vue.js";
 import { boiteRevelee } from "../plan/modele.js";
 import { fondPeint } from "../plan/peint.js";
 import { VuePlan, signatureStructure } from "../plan/vue.js";
+import { mainDuCombat } from "../plan/figurine.js";
 import { Bouger } from "./bouger.js";
 import { CarteCoin } from "./carte-coin.js";
 import { ecouterFlux } from "./flux.js";
@@ -244,6 +245,8 @@ function creerVue(style) {
     style, texture, fond: "#0b0806", repere, surLegende: montrerLegende,
     brume: () => scene.querySelector(".brume-coin"), feu: () => scene.querySelector(".feu-coin"), reglagesFeu: FEU_COIN,
   });
+  // Qui a la main : d'après le bandeau du combat que la TV montre (montrerCombat).
+  vue.main = (pions) => mainDuCombat(pions, combatMontre);
   brancherGestes(toile, vue, {
     surBouge: () => {
       auto = false;
@@ -296,7 +299,9 @@ suivreMonPortrait((url) => {
   if (legendeVue.length) montrerLegende(legendeVue);
 });
 
+let combatMontre = null;
 function montrerCombat(combat, monTour) {
+  combatMontre = combat && Array.isArray(combat.ordre) && combat.ordre.length ? combat : null;
   if (!combat || !Array.isArray(combat.ordre) || !combat.ordre.length) {
     bandeau.hidden = true;
     bandeau.innerHTML = "";

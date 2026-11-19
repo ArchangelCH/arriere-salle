@@ -85,6 +85,21 @@ def plus_public(t: dict, pub: dict, genre_ref: str, fiche: dict | None, media_ex
     return plus
 
 
+def lier_familiers(publics: list, pions: list) -> None:
+    """Le familier d'un héros (ref « familier:<aventurier> ») et son maître : l'identifiant du pion de son héros, seulement
+    si celui-ci est montré lui aussi (le fil qui les relie sur la TV ne trahit pas un héros caché)."""
+    par_id = {t.get("id"): t for t in pions if isinstance(t, dict)}
+    heros = {}
+    for pub in publics:
+        genre, _, ident = chaine((par_id.get(pub.get("id")) or {}).get("ref")).partition(":")
+        if genre == "aventurier" and ident:
+            heros.setdefault(ident, pub.get("id"))
+    for pub in publics:
+        genre, _, ident = chaine((par_id.get(pub.get("id")) or {}).get("ref")).partition(":")
+        if genre == "familier" and ident in heros and heros[ident] != pub.get("id"):
+            pub["maitre"] = heros[ident]
+
+
 def lier_montures(publics: list, pions: list) -> None:
     """La monture d'un cavalier, seulement si elle est montrée elle aussi (sur place, dans la liste publique)."""
     montres = {t.get("id") for t in publics}

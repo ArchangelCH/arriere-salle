@@ -119,6 +119,8 @@ def combat_public(c: dict, j: str) -> dict:
             couleur = couleurs.get(fiche.get("id")) or utilitaires.texte(fiche.get("couleur"))
             entree = {
                 "genre": "heros", "nom": re.split(r"[\s,]+", utilitaires.texte(fiche.get("nom")).strip())[0],
+                # Le jeton de son pion sur le plan (tv_plans.jeton_heros) : sa figurine luit quand il a la main.
+                "heros": tv_plans.jeton_heros(fiche.get("id")),
                 "couleur": couleur if COULEUR_VALIDE.fullmatch(couleur) else "",
                 "posture": h.get("posture") if h.get("posture") in POSTURES_TV else "",
                 "coma": utilitaires.nombre(h.get("sante"), 1) <= 0,

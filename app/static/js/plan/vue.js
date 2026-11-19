@@ -14,6 +14,14 @@ import { imageDuPion, poserCavaliers } from "./pions.js";
 
 const facile = (t) => 1 - (1 - t) ** 3;
 
+// Les animations des figurines (19/11), en millisecondes : l'éclair d'un coup ou d'un soin, la secousse d'un coup, la
+// chute, la poussière quand une figurine se pose. Rien ne bouge pour qui demande moins de mouvement, ni dans une image
+// exportée.
+const DUREES = { flash: 450, secousse: 380, chute: 520, poussiere: 600, glisse: 650 };
+const COUP = [220, 40, 30];
+const SOIN = [70, 190, 90];
+const moinsDeMouvement = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 // Ce qui oblige à repeindre le fond : tout sauf les pions, la brume et le feu (leurs calques se refont seuls, voir
 // majBrume et majFeu), hormis la lumière que le feu jette sur le plan peint.
 export function signatureStructure(p) {
@@ -60,6 +68,14 @@ export class VuePlan extends VueCarte {
     this.brume = null;
     this.pionsDessines = null;
     this.barresDessinees = null;
+    // Ce que la vue a déjà vu de chaque pion (sa Santé, à terre ou non) et ce qui l'anime depuis : id → { flash, chute,
+    // pose }. Un plan qui s'ouvre n'anime rien : seul un changement vu ensuite le fait.
+    this.vus = new Map();
+    this.anims = new Map();
+    // Qui a la main au combat : une fonction (pions) → identifiants des pions qui luisent ; null hors combat. La TV et le
+    // coin la posent d'après le bandeau du combat, l'atelier d'après le combat en cours.
+    this.main = null;
+    this.minuterieMain = 0;
   }
 
   redimensionner() {
@@ -72,6 +88,10 @@ export class VuePlan extends VueCarte {
   charger(plan) {
     const meme = !!this.plan && this.plan.id === plan.id;
     this.oublierEtatsPeints();
+    if (!meme) {
+      this.vus.clear();
+      this.anims.clear();
+    }
     this.carte = plan;
     this.plan = plan;
     this.champs = { w: plan.largeur, h: plan.hauteur };
@@ -236,13 +256,16 @@ export class VuePlan extends VueCarte {
       pions = pions.map((p) => {
         const g = this.glisses.get(p.id);
         if (!g) return p;
-        const k = Math.min(1, (t - g.t0) / 650);
+        const k = Math.min(1, (t - g.t0) / DUREES.glisse);
         if (k >= 1) {
           this.glisses.delete(p.id);
+          // Elle se pose : un peu de poussière.
+          if (!this.sansJauges && !moinsDeMouvement()) this.animer(p.id).pose = t;
           return p;
         }
         const e = facile(k);
-        return { ...p, x: g.x0 + (p.x - g.x0) * e, y: g.y0 + (p.y - g.y0) * e };
+        // La figurine se soulève, glisse et se repose.
+        return { ...p, x: g.x0 + (p.x - g.x0) * e, y: g.y0 + (p.y - g.y0) * e, leve: moinsDeMouvement() ? 0 : Math.sin(Math.PI * k) };
       });
       this.demander();
     }
@@ -269,12 +292,73 @@ export class VuePlan extends VueCarte {
     const jauges = this.sansJauges ? new Map() : typeof this.jauges === "function" ? this.jauges() : this.jauges;
     // Dans l'éditeur, deux prénoms ne se chevauchent plus ; le pion choisi ou survolé garde le sien.
     const nomsMJ = this.mj && !this.tv ? placerNomsMJ(ctx, this.plan, zone, pions, [].concat(this.selection || [], this.survol || []), joueurs) : undefined;
-    const barres = dessinerPions(ctx, { ...this.plan, pions }, zone, { joueurs, style: this.style, images: this.images, selection: this.selection, lisible, noms: noms || nomsMJ, decales, jauges });
+    const animations = this.sansJauges ? null : this.animations(pions, jauges);
+    const barres = dessinerPions(ctx, { ...this.plan, pions }, zone, { joueurs, style: this.style, images: this.images, selection: this.selection, lisible, noms: noms || nomsMJ, decales, jauges, animations });
     // Les images du MJ posées au-dessus des pions : un feuillage, un toit, une voûte.
     if (imagesDessus(this.plan)) dessinerImagesPlan(ctx, this.plan, zone, this.imagesPlan, { dessus: true, joueurs });
     // Les plaques des barres de Santé et de Psy à l'écran (pas celles d'une image exportée, qui n'en a pas) : le feu et la
     // brume s'y ouvrent, comme sur un prénom (feu.js, brume.js).
     if (!this.sansJauges) this.barresDessinees = barres;
+  }
+
+  animer(id) {
+    if (!this.anims.has(id)) this.anims.set(id, {});
+    return this.anims.get(id);
+  }
+
+  // Ce qui anime chaque pion à cette image (Map id → { flash, secousse, chute, poussiere }), d'après ce qui a changé
+  // depuis l'image d'avant : sa Santé (un coup, un soin), le pion mis à terre. Redemande une image tant que ça bouge.
+  animations(pions, jauges) {
+    const now = performance.now();
+    const calme = moinsDeMouvement();
+    let bouge = false;
+    for (const t of pions) {
+      const j = jauges ? jauges.get(t.id) : t.jauges;
+      const sante = j && typeof j.sante === "number" ? j.sante : null;
+      const avant = this.vus.get(t.id);
+      if (avant && !calme) {
+        if (sante !== null && avant.sante !== null && sante !== avant.sante) {
+          const a = this.animer(t.id);
+          a.flash = now;
+          a.coup = sante < avant.sante;
+        }
+        if (t.tombe && !avant.tombe) this.animer(t.id).chute = now;
+      }
+      this.vus.set(t.id, { sante, tombe: !!t.tombe });
+    }
+    // La figurine de qui a la main respire : une lueur lente et un léger soulèvement. Seule animation qui dure, à 20
+    // images par seconde (la TV ne chauffe pas) ; immobile, la lueur reste, pour qui demande moins de mouvement.
+    const main = typeof this.main === "function" ? this.main(pions) : null;
+    const r = new Map();
+    if (main && main.size) {
+      const souffle = calme ? 0.6 : (Math.sin(now / 520) + 1) / 2;
+      for (const id of main) r.set(id, { eclat: souffle, leve: calme ? 0 : 0.2 + souffle * 0.2 });
+      if (!calme && !this.minuterieMain) {
+        this.minuterieMain = setTimeout(() => {
+          this.minuterieMain = 0;
+          this.demander();
+        }, 50);
+      }
+    }
+    if (!this.anims.size) return r.size ? r : null;
+    for (const [id, a] of this.anims) {
+      const x = {};
+      const kf = a.flash ? (now - a.flash) / DUREES.flash : 1;
+      if (kf < 1) x.flash = { k: 1 - kf, rvb: a.coup ? COUP : SOIN };
+      const ks = a.flash && a.coup ? (now - a.flash) / DUREES.secousse : 1;
+      if (ks < 1) x.secousse = Math.sin(now / 22) * (1 - ks);
+      const kc = a.chute ? (now - a.chute) / DUREES.chute : 1;
+      if (kc < 1) x.chute = kc;
+      const kp = a.pose ? (now - a.pose) / DUREES.poussiere : 1;
+      if (kp < 1) x.poussiere = kp;
+      if (kf >= 1 && ks >= 1 && kc >= 1 && kp >= 1) this.anims.delete(id);
+      else {
+        r.set(id, Object.assign(r.get(id) || {}, x));
+        bouge = true;
+      }
+    }
+    if (bouge) this.demander();
+    return r;
   }
 
   // La hauteur d'écran sur laquelle se règlent les tailles lisibles : celle de la TV. Un téléphone tenu en hauteur compte
@@ -315,6 +399,7 @@ export class VuePlan extends VueCarte {
   }
 
   detruire() {
+    clearTimeout(this.minuterieMain);
     this.oublierEtatsPeints();
     if (this.brume) this.brume.detruire();
     if (this.feu) this.feu.detruire();

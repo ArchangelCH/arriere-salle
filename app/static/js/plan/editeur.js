@@ -16,7 +16,7 @@ import { Attente, DELAI, aGlisse, auDoigt } from "../commun/doigt.js";
 import { Reessai } from "../commun/reessai.js";
 import { annoncerCorbeille, lienVersions } from "../corbeille/corbeille.js";
 import { ecouterEtatJeu, poserPlanCourant } from "../commun/etat-jeu.js";
-import { adversairesSurPlan, jaugesDuPlan } from "./jauges.js";
+import { adversairesSurPlan, jaugesDuPlan, mainDuPlan } from "./jauges.js";
 import { Pointeur, panneauPointeur, textePortee } from "../ecran-tv/pointeur.js";
 import { montrerPointeursJoueurs } from "../commun/pointeurs-joueurs.js";
 import { MODELES, generer } from "./generateurs.js";
@@ -280,6 +280,8 @@ export class EditeurPlan {
     // Les jauges des pions : l'état des héros et le combat en cours, relus pendant qu'on joue (etat-jeu.js).
     this.jeu = null;
     this.vue.jauges = () => (this.jaugesVisibles() ? jaugesDuPlan(this.plan, this.jeu) : null);
+    // La figurine de qui a la main luit, comme sur la TV.
+    this.vue.main = () => (this.jaugesVisibles() ? mainDuPlan(this.plan, this.jeu?.combat) : null);
     this.finEcouteJeu = ecouterEtatJeu((jeu) => {
       if (this.detruit) return;
       this.jeu = jeu;

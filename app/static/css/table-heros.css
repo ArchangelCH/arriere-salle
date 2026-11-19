@@ -142,3 +142,5 @@ html body.menu-coin-ouvert .medaillon-table, html body.menu-coin-ouvert .recap-t
   color: #f4ead4; font: 600 16px/1 var(--corps, "EB Garamond", Georgia, serif); cursor: pointer;
 }
 .invitation-musique button.principal { background: var(--or-vif, #f0cb78); border-color: #fff3d6; color: #1a110a; }
+/* Le sac ou les notes ouverts : le médaillon de la fiche s'efface, il mordait sur le bas du tiroir au téléphone. */
+body[data-tiroir="sac"] .medaillon-table, body[data-tiroir="notes"] .medaillon-table { display: none; }

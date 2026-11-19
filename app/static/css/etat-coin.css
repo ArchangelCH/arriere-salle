@@ -48,8 +48,8 @@
   .jauge-etat { flex: 1 1 0; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 2px 4px; }
   .jauge-etat .nom-etat { grid-column: 1 / -1; min-width: 0; }
   .jauge-etat output { min-width: 0; font-size: 20px; }
-  /* Le nom du héros laisse sa place, sauf s'il porte un jeton (avantage ou désavantage) à montrer. */
-  .qui-etat:not(:has(.jeton-etat)) { display: none; }
+  /* La ligne du nom reste : elle porte le sac et les notes (19/11). Le nom se resserre, les boutons gardent leur place. */
+  .qui-etat { gap: 8px; }
   .postures-etat { flex: 1 0 100%; }
   .postures-etat button { flex: 1 1 0; padding: 0 4px; }
   .postures-etat .nom-etat { display: none; }

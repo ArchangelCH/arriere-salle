@@ -1589,7 +1589,9 @@ export function ordreDesFigurines(pions) {
     const m = t.enSelle && par.get(t.monture);
     return m ? m.y + 1e-4 : t.y;
   };
-  return pions.slice().sort((a, b) => (a.tombe ? 0 : 1) - (b.tombe ? 0 : 1) || cle(a) - cle(b));
+  // Dans une rangée, de gauche à droite : le nombre d'un groupe, posé à droite de sa plaque, passe sous le voisin de
+  // droite au lieu de couvrir son numéro.
+  return pions.slice().sort((a, b) => (a.tombe ? 0 : 1) - (b.tombe ? 0 : 1) || cle(a) - cle(b) || a.x - b.x);
 }
 
 // o.noms : faux pour n'écrire aucun prénom, ou la taille de chaque prénom écrit (placerNoms sur la TV, placerNomsMJ dans

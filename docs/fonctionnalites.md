@@ -722,12 +722,14 @@ debout sur un socle rond, partout où un plan se dessine (TV, atelier, coin des 
   autour de la figurine ; les barres passent au-dessus de sa tête.
 - **La place** : `silhouette(r)` dit le haut du support (il monte un peu sur la case du dessus) et le bas du socle ; la
   mise en page des noms et des barres de la TV (`placerNoms`, `barresTv`, `centrePrenom`) la suit. Ordre de dessin
-  (`ordreDesFigurines`) : à terre d'abord, puis de haut en bas, un cavalier juste après sa monture.
+  (`ordreDesFigurines`) : à terre d'abord, puis de haut en bas, un cavalier juste après sa monture. Une figurine se prend
+  par la tête comme par le socle (`dansFigurine`, dans l'éditeur et à la table du coin, `bouger.js`).
 - **Ce qui bouge** (`VuePlan.animations` dans `vue.js`) : la figurine qui glisse se soulève et se pose dans un peu de
   poussière ; un coup (sa Santé baisse) l'éclaire de rouge et la secoue, un soin l'éclaire de vert ; mise à terre, elle
   bascule. Seul ce que la vue voit changer s'anime (rien à l'ouverture d'un plan). Qui a la main au combat luit (halo au
-  sol, cercle d'or) et respire, la seule animation qui dure, à 20 images par seconde. Rien ne bouge pour qui demande moins
-  de mouvement, ni dans une image exportée. Pas de nombre de points perdus : la TV ne reçoit que des parts de Santé, et
+  sol, cercle d'or) : elle respire 2,4 s quand la main passe (20 images par seconde), puis la lueur reste fixe ; en
+  continu, redessiner le plan prenait plus de la moitié du processeur de la TV. Rien ne bouge pour qui demande moins de
+  mouvement, ni dans une image exportée. Pas de nombre de points perdus : la TV ne reçoit que des parts de Santé, et
   rien d'un adversaire.
 - **Qui a la main** : le pion d'un héros porte un jeton opaque `heros` (`tv_plans.jeton_heros`, `jeton("heros-pion", id)`,
   qui n'ouvre aucune fiche), le même que son entrée dans l'ordre du combat (`combat_public`). La TV (`table/combat.js`,

@@ -35,7 +35,7 @@ const phrase = (t) => {
 const prenom = (a) => (a.nom || "").split(/[\s,]+/)[0] || "votre aventurier";
 
 function recto(a, n) {
-  const posture = [...R.POSTURES, R.SANS_POSTURE].find((p) => p.cle === a.posture);
+  const posture = R.postureDe(a.posture);
   const comps = (a.competences || []).filter((c) => (c.nom || "").trim());
   const armes = (a.armes || []).filter((w) => (w.nom || "").trim());
   const indice = +a.protection?.indice || 0;

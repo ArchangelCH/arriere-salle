@@ -80,7 +80,7 @@ export function etatDuMoment(fiche, etat = null) {
 // moment (etat, sinon en pleine forme), sa posture de base. Sa fiche n'est pas touchée.
 export function herosDepuis(fiche, couleur = "", etat = null) {
   const { max, sante, psyMax, psy, santeDon, cartons, avantage } = etatDuMoment(fiche, etat);
-  // « Aucune » n'est jamais une posture de base : un héros entre au combat dans la sienne.
+  // La posture de la fiche, « Aucune » comprise (retirée hors combat, elle se garde) ; une clé inconnue : « focus ».
   const posture = POSTURES_COMBAT.some(([k]) => k === fiche.posture) ? fiche.posture : "focus";
   return {
     id: fiche.id, nom: fiche.nom || "Sans nom", couleur: fiche.couleur || couleur || "", max, sante, psyMax, psy, santeDon, posture, cartons,

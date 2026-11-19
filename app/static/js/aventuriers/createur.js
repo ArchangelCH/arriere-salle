@@ -721,7 +721,7 @@ export class Createur {
     const comps = (a.competences || []).filter((c) => (c.nom || "").trim());
     const armes = (a.armes || []).filter((w) => (w.nom || "").trim());
     const dons = (a.dons || []).map(R.lireDon);
-    const posture = [...R.POSTURES, R.SANS_POSTURE].find((p) => p.cle === a.posture);
+    const posture = R.postureDe(a.posture);
     const messages = Object.entries(v.etapes).flatMap(([n, x]) => x.messages.filter((m) => m.niveau !== "info").map((m) => ({ ...m, n })));
     return `
       <p class="kicker">La fiche</p>

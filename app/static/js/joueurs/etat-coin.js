@@ -113,7 +113,7 @@ export function monter(page) {
         <button type="button" data-delta="1" aria-label="${nom} : un point de plus"${pause || haut ? " disabled" : ""}>+</button>
       </div>`;
     }).join("");
-    // « Aucune » (la posture perdue) ne se choisit qu'au combat : hors combat, la posture s'écrit sur la fiche.
+    // Toutes les postures, « Aucune » comprise : au combat elle vaut pour ce combat, hors combat elle s'écrit sur la fiche.
     const postures = Object.entries(etat.postures || {}).map(([cle, nom]) => `<button type="button" data-posture="${e(cle)}" aria-pressed="${m.posture === cle}"${pause ? " disabled" : ""}>${e(nom)}</button>`).join("");
     const jeton = JETONS[h.jeton] ? `<span class="jeton-etat" data-jeton="${e(h.jeton)}">${JETONS[h.jeton]}</span>` : "";
     const don = v.sante_don > 0 ? `<span class="don-etat">${e(v.sante_don)} de Santé payé${v.sante_don > 1 ? "s" : ""} faute de Psy : un repos complet les rend</span>` : "";

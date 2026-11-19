@@ -439,7 +439,7 @@ def change_par_son_joueur(ident: str, corps: dict) -> dict:
         return {"vitalite": w, "posture": posture, "combat": True, "avant": avant, "apres": apres}
     if "posture" in corps:
         avant, apres = posture_fiche, corps["posture"]
-        # Hors combat, la posture s'écrit sur la fiche, « Aucune » comprise (choix d'Adrien du 19/11 : le joueur peut
+        # Hors combat, la posture s'écrit sur la fiche, « Aucune » comprise (choix du MJ du 19/11 : le joueur peut
         # retirer sa posture) ; un combat qui commence la reprend telle quelle.
         with SAC_VERROU:
             chemin = utilitaires.existant(config.AVENTURIERS, ident)

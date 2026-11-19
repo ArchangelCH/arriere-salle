@@ -242,7 +242,7 @@ def test_aucune_posture_aussi_hors_combat(atelier, propre):
     m = propre
     aude = m["heros_lea"]["id"]
     assert vue(m, "lea")["postures"] == {"offensive": "Offensive", "defensive": "Défensive", "focus": "Focus", "aucune": "Aucune"}
-    # Hors combat, le joueur retire sa posture (choix d'Adrien du 19/11) : « Aucune » s'écrit sur la fiche, puis il en reprend une.
+    # Hors combat, le joueur retire sa posture (choix du MJ du 19/11) : « Aucune » s'écrit sur la fiche, puis il en reprend une.
     d = regler(m, "lea", posture="aucune")
     assert d["statut"] != "echec", d
     assert atelier.get(f"/api/aventuriers/{aude}").json()["posture"] == "aucune"

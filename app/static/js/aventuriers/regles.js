@@ -460,9 +460,11 @@ export const DEFENSES_PAR_TOUR = { offensive: 0, defensive: 1, focus: 0, aucune:
 // Sans posture (perdue sur un dé de mésaventure, ou retirée par le joueur depuis son coin) : hors de POSTURES (le créateur
 // ne la propose pas), mais lue sur une fiche ou au combat.
 export const SANS_POSTURE = { cle: "aucune", nom: "Aucune", donne: "Rien.", coute: "À découvert : aucune esquive ni parade." };
+// La posture d'une fiche par sa clé, « Aucune » comprise ; null pour une clé inconnue.
+export const postureDe = (cle) => [...POSTURES, SANS_POSTURE].find((p) => p.cle === cle) || null;
 
 export function essentiel(a) {
-  const posture = [...POSTURES, SANS_POSTURE].find((p) => p.cle === a.posture) || null;
+  const posture = postureDe(a.posture);
   const competences = (a.competences || []).filter((c) => (c.nom || "").trim())
     .map((c) => ({ nom: c.nom.trim(), valeur: valeurCompetence(a, c), bonus: +c.bonus || 0, avec: c.avec || competenceConnue(c.nom)?.avec || "Physique" }))
     .sort((x, y) => y.valeur - x.valeur || x.nom.localeCompare(y.nom, "fr"));

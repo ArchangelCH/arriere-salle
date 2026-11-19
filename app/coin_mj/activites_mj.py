@@ -515,7 +515,11 @@ class ActivitesMJ:
         with self.verrou:
             t = self.lire_tirages()
             per = t["periodes"].get(p["cle"])
-            if per is None:
+            if per is None and not c["ouvert"]:
+                # Fermées aux joueurs : rien ne s'écrit (une quête ne s'use pas sans avoir été vue) ; le tableau se tire à
+                # l'ouverture, les activités de chaque semaine seules en attendant.
+                per = {}
+            elif per is None:
                 toujours = [a["id"] for a in c["activites"] if self.au_tableau(a) and not a["unique"] and a["rythme"] == "toujours"]
                 tirees = self.tirer(c, t, set(toujours), c["offres"], hasard or secrets)
                 quete = self.quete_suivante(c, t, set())
@@ -549,6 +553,8 @@ class ActivitesMJ:
         a = next((x for x in c["activites"] if x["id"] == ident), None)
         if not a:
             raise Refus(404, "Cette activité n'est plus dans la réserve.")
+        if not c["ouvert"]:
+            raise Refus(409, "Ouvrez d'abord les activités aux joueurs : le tableau se tire à leur ouverture.")
         o = self.offre(c, p)
         with self.verrou:
             t = self.lire_tirages()
@@ -902,7 +908,8 @@ class ActivitesMJ:
                 else:
                     resultat = f"{po(ou['montant'])} pour {ou['chantier']}, au sanctuaire."
                 if objet:
-                    resultat += f" « {objet} » rejoint son sac."
+                    phrase = f" « {objet} » rejoint son sac."
+                    resultat += phrase if len(resultat) + len(phrase) <= demandes.RESULTAT_MAX else " Un objet rejoint son sac."
                 noter |= {"decision": "acceptee", "montant": ou["montant"] if ou else 0, "vers": ou["vers"] if ou else "",
                           "chantier": vers[9:] if ou and ou["vers"] == "cagnotte" else "", "chantier_nom": ou["chantier"] if ou else "",
                           "apprend": apprend, "objet": objet}

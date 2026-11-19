@@ -836,3 +836,51 @@ def test_un_objet_rejoint_le_sac_avec_l_or(atelier, tablee, neuf, monkeypatch):
     vu = la_demande(t, "b", d["id"])
     assert vu["public"]["objet"] == "Une lanterne sourde" and "rejoint son sac" in vu["resultat"]
 
+
+def test_un_objet_seul_ou_avec_une_cagnotte(atelier, tablee, neuf, monkeypatch):
+    t = tablee
+    s = sanctuaire.nouveau_sanctuaire()
+    s["joueurs"] = True
+    utilitaires.ecrire(refuge.SANCTUAIRE, s | {"modifie": utilitaires.maintenant()})
+    equipement = lambda code: atelier.get(f"/api/aventuriers/{t[code]['heros']['id']}").json()["equipement"]  # noqa: E731
+    # Sans or : l'objet seul, et une phrase courte même pour un objet long (la file borne le résultat).
+    long_ = "Une boîte à musique gravée " + "de lierre " * 27
+    d = jouer(t, "a", monkeypatch, 40, 3)
+    assert trancher(atelier, t, "a", d["id"], decision="valider", montant=0, objet=long_).status_code == 200
+    vu = la_demande(t, "a", d["id"])
+    assert equipement("a")[-1] == " ".join(long_.split())[:300].strip() and bourse(atelier, t, "a") == 30
+    assert vu["public"]["or"] is None and vu["resultat"].endswith("Un objet rejoint son sac.")
+    # Avec une cagnotte : l'or au chantier, l'objet au sac.
+    d = jouer(t, "b", monkeypatch, 40, 3)
+    assert trancher(atelier, t, "b", d["id"], decision="valider", montant=6, vers="batiment:auberge", objet="Une truelle").status_code == 200
+    assert equipement("b")[-1] == "Une truelle" and bourse(atelier, t, "b") == 30
+    assert next(x for x in refuge.lire_sanctuaire()["batiments"] if x["id"] == "auberge")["cagnotte"] == 6
+    # Le chantier refuse (introuvable) : l'objet ne reste pas dans le sac, rien n'est tranché.
+    actions_coin.activites_mj.journal.fichier.unlink(missing_ok=True)
+    with demandes.verrou(config.PROPOSITIONS):
+        demandes.fichier(config.PROPOSITIONS, t["b"]["joueur"]["id"]).unlink(missing_ok=True)
+    d = jouer(t, "b", monkeypatch, 40, 3)
+    avant = equipement("b")
+    r = trancher(atelier, t, "b", d["id"], decision="valider", montant=6, vers="batiment:introuvable", objet="Une pelle")
+    assert r.status_code == 409 and equipement("b") == avant and la_demande(t, "b", d["id"])["statut"] == "en-attente"
+
+
+def test_les_reglages_gardent_la_reserve_et_le_tableau_attend_l_ouverture(atelier, tablee, neuf):
+    poser(atelier, catalogue(offres=2, annoncer_gains=True, autres=[RESERVE[0], QUETE]))
+    # Les Réglages renvoient le catalogue lu, l'interrupteur changé : la réserve garde ses rythmes et ses réglages.
+    doc = atelier.get("/api/activites").json()
+    r = atelier.put("/api/activites", json={**doc, "ouvert": False, "version_base": doc["modifie"]})
+    c = r.json()
+    assert r.status_code == 200 and c["offres"] == 2 and c["annoncer_gains"] is True
+    assert {a["id"]: (a["rythme"], a["unique"]) for a in c["activites"]} == {"forger": ("toujours", False), "reserve-a": ("souvent", False),
+                                                                             "quete-du-puits": ("toujours", True)}
+    # Fermées : aucun tirage ne s'écrit, la quête n'est pas usée ; le MJ ne change pas un tableau qui n'est pas tiré.
+    actions_coin.activites_mj.tirages_fichier.unlink(missing_ok=True)
+    assert atelier.get("/api/activites/etat").json()["tableau"]["ids"] == ["forger"]
+    assert not actions_coin.activites_mj.tirages_fichier.exists()
+    assert atelier.post("/api/activites/tableau", json={"action": "ajouter", "activite": "reserve-a"}).status_code == 409
+    # Rouvertes : le tableau se tire, la quête y est.
+    doc = atelier.get("/api/activites").json()
+    atelier.put("/api/activites", json={**doc, "ouvert": True, "version_base": doc["modifie"]})
+    assert "quete-du-puits" in atelier.get("/api/activites/etat").json()["tableau"]["ids"]
+

@@ -110,6 +110,9 @@ def test_le_dessin_reste_lisible_par_la_tv_et_sert_partout():
     assert "js/plan/figurine.js" in joueurs.FICHIERS and "js/plan/figurine.js" in acces_mj.STATIQUES_INVITE
     assert 'from "./figurine.js"' in (JS / "plan/rendu.js").read_text(encoding="utf-8")
     assert 'from "../plan/figurine.js"' in (JS / "joueurs/table-coin.js").read_text(encoding="utf-8")
+    # Une figurine se prend par la tête comme par le socle, dans l'éditeur et à la table du coin.
+    assert "if (dansFigurine(t, x, y)) return { genre: \"pion\", id: t.id };" in (JS / "plan/editeur.js").read_text(encoding="utf-8")
+    assert "|| dansFigurine(p, x, y)" in (JS / "joueurs/bouger.js").read_text(encoding="utf-8")
     # Rien ne bouge pour qui demande moins de mouvement, ni dans une image exportée.
     vue = (JS / "plan/vue.js").read_text(encoding="utf-8")
     assert "prefers-reduced-motion: reduce" in vue and "const animations = this.sansJauges ? null : this.animations(pions, jauges);" in vue

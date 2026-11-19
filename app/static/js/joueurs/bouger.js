@@ -15,6 +15,7 @@
 
 import { api, echapper as e } from "../api.js";
 import { GENRE, Grille, caseDuPion, casesAtteignables, verifierDeplacement } from "../plan/deplacement.js";
+import { dansFigurine } from "../plan/figurine.js";
 import { ecouterFlux } from "./flux.js";
 
 const LOIN = 6; // cases : à partir de là, le joueur confirme d'un second geste
@@ -155,15 +156,17 @@ export class Bouger {
     let t = this.monPion();
     if (!t || !this.plan) return false;
     const c = [Math.floor(x), Math.floor(y)];
+    // Sa figurine touchée par la tête, qui monte un peu sur la case du dessus, compte comme sa case (figurine.js).
+    const touche = (p) => (caseDuPion(p)[0] === c[0] && caseDuPion(p)[1] === c[1]) || dansFigurine(p, x, y);
     // Un autre de ses pions touché (son familier, ou son héros) : c'est lui qui va bouger.
-    const autre = !this.attente && !this.confirmer ? this.mesPions().find((p) => p.id !== t.id && caseDuPion(p)[0] === c[0] && caseDuPion(p)[1] === c[1]) : null;
+    const autre = !this.attente && !this.confirmer ? this.mesPions().find((p) => p.id !== t.id && touche(p)) : null;
     if (autre) {
       if (this.choix) this.renoncer();
       this.actif = autre.id;
       t = autre;
     }
     const ici = caseDuPion(t);
-    const surMoi = c[0] === ici[0] && c[1] === ici[1];
+    const surMoi = touche(t);
     if (this.attente) {
       if (surMoi || this.surFantome(c)) this.dire(this.texteAttente(), this.boutonsAttente());
       return surMoi;

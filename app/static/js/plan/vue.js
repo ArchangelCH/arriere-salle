@@ -17,7 +17,7 @@ const facile = (t) => 1 - (1 - t) ** 3;
 // Les animations des figurines (19/11), en millisecondes : l'éclair d'un coup ou d'un soin, la secousse d'un coup, la
 // chute, la poussière quand une figurine se pose. Rien ne bouge pour qui demande moins de mouvement, ni dans une image
 // exportée.
-const DUREES = { flash: 450, secousse: 380, chute: 520, poussiere: 600, glisse: 650 };
+const DUREES = { flash: 450, secousse: 380, chute: 520, poussiere: 600, glisse: 650, main: 2400 };
 const COUP = [220, 40, 30];
 const SOIN = [70, 190, 90];
 const moinsDeMouvement = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -75,6 +75,8 @@ export class VuePlan extends VueCarte {
     // Qui a la main au combat : une fonction (pions) → identifiants des pions qui luisent ; null hors combat. La TV et le
     // coin la posent d'après le bandeau du combat, l'atelier d'après le combat en cours.
     this.main = null;
+    this.mainCle = "";
+    this.mainDepuis = 0;
     this.minuterieMain = 0;
   }
 
@@ -326,14 +328,21 @@ export class VuePlan extends VueCarte {
       }
       this.vus.set(t.id, { sante, tombe: !!t.tombe });
     }
-    // La figurine de qui a la main respire : une lueur lente et un léger soulèvement. Seule animation qui dure, à 20
-    // images par seconde (la TV ne chauffe pas) ; immobile, la lueur reste, pour qui demande moins de mouvement.
+    // La figurine de qui a la main luit et se tient un peu soulevée. Quand la main passe, elle respire 2,4 secondes (une
+    // lueur lente, à 20 images par seconde), puis la lueur reste sans bouger : redessiner tout le plan sans cesse
+    // chargerait la TV pendant tout le combat. Pour qui demande moins de mouvement, elle ne respire pas.
     const main = typeof this.main === "function" ? this.main(pions) : null;
+    const cle = main && main.size ? [...main].sort().join(",") : "";
+    if (cle !== this.mainCle) {
+      this.mainCle = cle;
+      this.mainDepuis = now;
+    }
     const r = new Map();
-    if (main && main.size) {
-      const souffle = calme ? 0.6 : (Math.sin(now / 520) + 1) / 2;
-      for (const id of main) r.set(id, { eclat: souffle, leve: calme ? 0 : 0.2 + souffle * 0.2 });
-      if (!calme && !this.minuterieMain) {
+    if (cle) {
+      const respire = !calme && now - this.mainDepuis < DUREES.main;
+      const souffle = respire ? 0.6 + 0.4 * (1 - Math.cos(((now - this.mainDepuis) / DUREES.main) * Math.PI * 4)) / 2 : 0.6;
+      for (const id of main) r.set(id, { eclat: souffle, leve: calme ? 0 : 0.15 + souffle * 0.2 });
+      if (respire && !this.minuterieMain) {
         this.minuterieMain = setTimeout(() => {
           this.minuterieMain = 0;
           this.demander();

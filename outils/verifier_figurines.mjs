@@ -2,7 +2,7 @@
 // l'ordre de dessin (à terre d'abord, de haut en bas, un cavalier après sa monture), qui a la main au combat, et un dessin
 // complet de chaque sorte de pion sur un faux canvas qui refuse ce que Chromium 79 (la TV) n'a pas.
 // Usage : node outils/verifier_figurines.mjs
-import { dessinerFigurine, mainDuCombat, silhouette } from "../app/static/js/plan/figurine.js";
+import { dansFigurine, dessinerFigurine, mainDuCombat, silhouette } from "../app/static/js/plan/figurine.js";
 import { dessinerPions, ordreDesFigurines } from "../app/static/js/plan/rendu.js";
 import { poserCavaliers } from "../app/static/js/plan/pions.js";
 
@@ -24,6 +24,13 @@ verifier(s.bas > 0.42 && s.bas < 0.5, `le bas du socle reste dans sa case (${s.b
 verifier(s.demi < 0.5, `le socle tient dans la largeur de sa case (${s.demi.toFixed(3)})`);
 verifier(silhouette(0.42, 1.8).bas > s.bas && silhouette(0.42, 0.5).bas < s.bas, "l'épaisseur réglée change le socle");
 verifier(proche(silhouette(0.84).haut, 2 * s.haut), "un grand pion, deux fois plus grand");
+
+// ---- On prend une figurine par la tête (au-dessus de sa case) comme par le socle, pas à côté.
+const fig = { x: 2.5, y: 2.5 };
+verifier(dansFigurine(fig, 2.5, 2.5 + s.haut + 0.03), "la tête de la figurine, sur la case du dessus, la prend");
+verifier(dansFigurine(fig, 2.5 + s.demi * 0.9, 2.5 + 0.42 * 0.42), "le bord du socle la prend");
+verifier(!dansFigurine(fig, 2.5, 2.5 + s.haut - 0.08) && !dansFigurine(fig, 3.2, 2.5) && !dansFigurine(fig, 2.5, 3.2), "à côté, rien");
+verifier(dansFigurine({ x: 4, y: 4, taille: 2 }, 4, 4 - 1.15), "un grand pion se prend aussi par la tête");
 
 // ---- L'ordre de dessin.
 const pions = [

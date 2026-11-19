@@ -355,3 +355,16 @@ export function mainDuCombat(pions, combat) {
   }
   return ids;
 }
+
+// Le point (x, y), en cases, touche-t-il la figurine ? Son support debout (le portrait, qui monte un peu sur la case du
+// dessus) ou son socle : on la prend par la tête comme par le pied.
+export function dansFigurine(t, x, y) {
+  const r = 0.42 * (t.taille || 1);
+  const dx = x - t.x;
+  const dy = y - t.y;
+  const pied = r * PIED;
+  if (Math.abs(dx) <= (r * SUPPORT.l) / 2 && dy >= pied - r * SUPPORT.h && dy <= pied) return true;
+  const ex = dx / (r * SOCLE.rx);
+  const ey = (dy - r * SOCLE.dy) / (r * SOCLE.ry);
+  return ex * ex + ey * ey <= 1 || Math.hypot(dx, dy) <= r * 1.07;
+}

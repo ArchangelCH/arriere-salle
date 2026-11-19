@@ -27,7 +27,8 @@ import {
   boiteRevelee, cacheParLaBrume, calculerMurs, casesArete, dedans, emprise, idx, nouvelId, piece as lirePiece,
 } from "./modele.js";
 import { AMBIANCES } from "./peint.js";
-import { vignetteMeuble } from "./rendu.js";
+import { ordreDesFigurines, vignetteMeuble } from "./rendu.js";
+import { dansFigurine } from "./figurine.js";
 import { PaletteMeubles } from "./palette-meubles.js";
 import { htmlLumiere, htmlMurs, htmlTeintes } from "./reglages-decor.js";
 import * as lum from "./lumieres.js";
@@ -985,11 +986,12 @@ export class EditeurPlan {
   toucher(x, y, genres = ["pion", "texte", "habillage", "meuble", "porte", "piece"]) {
     const p = this.plan;
     if (genres.includes("pion")) {
-      // Tels qu'ils sont dessinés : un cavalier sur sa monture se prend avant elle.
-      const pions = poserCavaliers(p.pions);
+      // Tels qu'ils sont dessinés, celui du dessus d'abord : un cavalier sur sa monture se prend avant elle, une figurine
+      // par sa tête comme par son socle (figurine.js).
+      const pions = ordreDesFigurines(poserCavaliers(p.pions));
       for (let i = pions.length - 1; i >= 0; i--) {
         const t = pions[i];
-        if (Math.hypot(t.x - x, t.y - y) <= 0.45 * (t.taille || 1)) return { genre: "pion", id: t.id };
+        if (dansFigurine(t, x, y)) return { genre: "pion", id: t.id };
       }
     }
     if (genres.includes("texte")) {

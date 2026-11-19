@@ -274,6 +274,9 @@ def test_le_bandeau_du_combat_et_la_main(atelier, monde):
     bandeau = lea.json()["vue"]["combat"]
     assert set(bandeau) == {"tour", "ordre", "actif", "strat"} and bandeau["actif"] == 0 and bandeau["strat"] is True
     assert [x.get("nom", x["genre"]) for x in bandeau["ordre"]] == ["Aude", "ennemis", "Bertrand"]
+    # Les figurines (19/11) : le jeton du héros qui a la main est celui de son pion ; le héros caché n'est pas publié.
+    pions = {t["id"]: t for t in lea.json()["vue"]["plan"]["pions"]}
+    assert bandeau["ordre"][0]["heros"] == pions["t-aude"]["heros"] and "t-bertrand" not in pions
     assert lea.json()["mon_tour"] is True and basile.json()["mon_tour"] is False
     for texte in (lea.text, basile.text, tout_ce_qui_est_publie()):
         for interdit in ("ADVERSAIRE-", "CAPACITE-", "Fanfrel", "aventurier:", "sablier", "capacites", "adversaires"):

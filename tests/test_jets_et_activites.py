@@ -884,3 +884,16 @@ def test_les_reglages_gardent_la_reserve_et_le_tableau_attend_l_ouverture(atelie
     atelier.put("/api/activites", json={**doc, "ouvert": True, "version_base": doc["modifie"]})
     assert "quete-du-puits" in atelier.get("/api/activites/etat").json()["tableau"]["ids"]
 
+
+def test_une_reserve_d_une_centaine_tient_entiere(atelier, tablee, neuf):
+    """Une réserve de 120 activités, toutes tirables, et 7 offres par période : rien n'est coupé à l'enregistrement ni à la
+    relecture, et le tableau en tire exactement 7."""
+    autres = [RESERVE[0] | {"id": f"pioche-{k:03d}", "nom": f"Pioche {k:03d}"} for k in range(119)]
+    c = poser(atelier, catalogue(offres=7, autres=autres))
+    assert len(c["activites"]) == 120 and c["offres"] == 7
+    lu_ = atelier.get("/api/activites").json()
+    assert [a["id"] for a in lu_["activites"]] == ["forger"] + [a["id"] for a in autres]
+    actions_coin.activites_mj.tirages_fichier.unlink(missing_ok=True)
+    o = actions_coin.activites_mj.offre(hasard=Seme(3))
+    assert sum(1 for g in o["genres"].values() if g == "tiree") == 7 and o["genres"]["forger"] == "toujours"
+

@@ -67,9 +67,15 @@ export class Activites {
     this.section.addEventListener("toggle", (ev) => {
       const d = ev.target.closest?.("details[data-id]");
       if (!d) return;
-      if (d.open) this.ouvertes.add(d.dataset.id);
-      else this.ouvertes.delete(d.dataset.id);
+      if (d.open) {
+        this.ouvertes.add(d.dataset.id);
+        // Les champs d'une fiche ne se mesurent qu'à son ouverture : une réserve d'une centaine reste légère.
+        d.querySelectorAll("textarea").forEach(ajuster);
+      } else this.ouvertes.delete(d.dataset.id);
     }, true);
+    this.section.addEventListener("input", (ev) => {
+      if (ev.target.matches?.("[data-chercher]")) this.filtrer();
+    });
     this.tout();
   }
 
@@ -100,6 +106,11 @@ export class Activites {
         </header>
         <div class="reglages-activites"></div>
         <datalist id="competences-activites">${COMPETENCES.flatMap(([, l]) => l).map(([n]) => `<option value="${e(n)}">`).join("")}</datalist>
+        <div class="chercher-activites">
+          <label class="champ">Chercher dans la réserve<input type="search" data-chercher placeholder="un nom, une compétence, un mot du texte" autocomplete="off"></label>
+          <label class="champ">Rythme<select data-chercher><option value="">tous</option>${RYTHMES.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}<option value="quete">quêtes uniques</option><option value="tableau">au tableau</option><option value="cachee">cachées</option></select></label>
+          <p class="compte-activites" aria-live="polite"></p>
+        </div>
         <div class="liste-activites-mj"></div>
         <p class="actions"><button type="button" data-action="nouvelle">Nouvelle activité</button></p>
         <p class="aide">Dans un récit type : <code>{prenom}</code> devient le prénom du héros ; <code>{il|elle}</code>, <code>fourbu{|e}</code> s'accordent. Un récit qui nomme un PNJ ou un lieu inconnu des joueurs ne leur part pas : ils lisent « Votre MJ vous racontera la suite ». L'or s'écrit <code>10</code>, <code>2D6</code>, <code>1D6 + 4</code>, <code>2D6 × 5</code>, ou <code>-1D6</code> pour une perte ; vous le changez à la validation.</p>
@@ -158,7 +169,29 @@ export class Activites {
     const zone = this.section.querySelector(".liste-activites-mj");
     zone.innerHTML = this.c.activites.length ? this.c.activites.map((a, i) => this.htmlActivite(a, i)).join("")
       : '<p class="vide">Aucune activité. « Nouvelle activité » en ajoute une.</p>';
-    zone.querySelectorAll("textarea").forEach(ajuster);
+    zone.querySelectorAll("details[open] textarea").forEach(ajuster);
+    this.filtrer();
+  }
+
+  // La recherche dans la réserve : un mot (nom, compétences, texte), un rythme, les quêtes, le tableau, les cachées.
+  filtrer() {
+    const champs = this.section.querySelectorAll("[data-chercher]");
+    if (!champs.length) return;
+    const mot = champs[0].value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const genre = champs[1].value;
+    const auTableau = new Set(this.etat?.tableau?.ids || []);
+    let vus = 0;
+    for (const d of this.section.querySelectorAll("details.activite-mj")) {
+      const a = this.c.activites.find((x) => x.id === d.dataset.id);
+      if (!a) continue;
+      const texte = `${a.nom} ${a.competences.join(" ")} ${a.texte}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const ok = (!mot || texte.includes(mot)) && (!genre || (genre === "quete" ? a.unique : genre === "tableau" ? auTableau.has(a.id)
+        : genre === "cachee" ? !a.visible : !a.unique && a.rythme === genre));
+      d.hidden = !ok;
+      if (ok) vus += 1;
+    }
+    const n = this.c.activites.length;
+    this.section.querySelector(".compte-activites").textContent = mot || genre ? `${vus} sur ${n}` : `${n} activité${n > 1 ? "s" : ""} dans la réserve`;
   }
 
   resume(a) {

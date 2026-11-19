@@ -115,3 +115,9 @@
 .gains-mj legend small { font: italic 400 13px var(--corps); letter-spacing: 0; text-transform: none; color: var(--texte-pale); }
 .gains-mj .case { margin: 0; }
 .au-tableau { margin: 0; align-self: center; }
+
+/* La recherche dans la réserve (une centaine de quêtes). */
+.chercher-activites { display: flex; flex-wrap: wrap; align-items: end; gap: 8px 16px; max-width: 1100px; margin: 0 0 12px; }
+.chercher-activites .champ { margin: 0; flex: 1 1 16em; max-width: 26em; }
+.chercher-activites .champ:nth-child(2) { flex: 0 1 12em; }
+.compte-activites { margin: 0 0 8px; font-style: italic; color: var(--texte-doux); }

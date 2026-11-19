@@ -6,6 +6,7 @@
 // de plus récent que Chromium 79.
 
 import { brumeVue, hache } from "./modele.js";
+import { silhouette } from "./figurine.js";
 import { pionMontre, trouerPrenom } from "./rendu.js";
 
 // L'atelier peint la brume à la moitié de ses pixels d'écran, la TV au quart (mesuré processeur ralenti 6 fois : un
@@ -259,12 +260,13 @@ function poserMotif(ctx, motif, d, t, boite) {
 }
 
 function eclaircir(ctx, t, force) {
-  // Un ovale qui descend sous le pion, jusqu'à son prénom.
+  // Un ovale haut, de la tête de la figurine jusqu'à son prénom sous le socle.
   const r = 0.42 * (t.taille || 1);
+  const s = silhouette(r);
   ctx.save();
-  ctx.translate(t.x, t.y + r * 0.45);
-  ctx.scale(1, 1.45);
-  const g = ctx.createRadialGradient(0, 0, r * 0.5, 0, 0, r * 1.5);
+  ctx.translate(t.x, t.y + (s.haut + s.bas) / 2 + r * 0.22);
+  ctx.scale(1, 1.7);
+  const g = ctx.createRadialGradient(0, 0, r * 0.6, 0, 0, r * 1.5);
   g.addColorStop(0, `rgba(0,0,0,${force})`);
   g.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = g;

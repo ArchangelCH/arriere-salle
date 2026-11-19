@@ -389,7 +389,7 @@ STATIQUES_INVITE = frozenset(
     | _noms("js/plan", """brume dehors-dessin dehors-peint editeur-images editeur-pions editeur entrer feu figurine generateurs
         generateurs-dehors groupe-pions images importer-uvtt jauges mobilier-plus modele
         lumieres lumieres-menu mouvements-joueurs murs-plus palette-meubles peint-mobilier-plus peint-mobilier peint pions reglages-decor rendu
-        sang sang-menu sols-plus textures uvtt vue""", "js")
+        sang sang-menu sols-plus textures trace uvtt vue""", "js")
     | _noms("js/prives", "telephone", "js")
     | _noms("js/regles", "aide-memoire commun rapide regles", "js")
     # La page Réglages : ce qu'y voit chaque MJ ; les réglages du principal (reglages/principal.js) n'y sont pas.

@@ -103,16 +103,17 @@ def test_le_verifieur_passe():
 
 def test_le_dessin_reste_lisible_par_la_tv_et_sert_partout():
     # Chromium 79 (la TV) : ni roundRect, ni at(), qu'esbuild ne transpile pas.
-    for chemin in ("plan/figurine.js", "plan/rendu.js", "plan/vue.js", "table/carte-plan.js", "table/combat.js"):
+    for chemin in ("plan/figurine.js", "plan/trace.js", "plan/rendu.js", "plan/vue.js", "table/carte-plan.js", "table/combat.js"):
         source = (JS / chemin).read_text(encoding="utf-8")
         assert "roundRect(" not in source and not re.search(r"\.at\(-?\d", source), chemin
     # Le module des figurines sort au coin et chez le MJ invité ; plan/rendu.js et la page de la table du coin l'importent.
-    assert "js/plan/figurine.js" in joueurs.FICHIERS and "js/plan/figurine.js" in acces_mj.STATIQUES_INVITE
+    for module in ("js/plan/figurine.js", "js/plan/trace.js"):
+        assert module in joueurs.FICHIERS and module in acces_mj.STATIQUES_INVITE, module
     assert 'from "./figurine.js"' in (JS / "plan/rendu.js").read_text(encoding="utf-8")
     assert 'from "../plan/figurine.js"' in (JS / "joueurs/table-coin.js").read_text(encoding="utf-8")
     # Une figurine se prend par la tête comme par le socle, dans l'éditeur et à la table du coin.
     assert "if (dansFigurine(t, x, y)) return { genre: \"pion\", id: t.id };" in (JS / "plan/editeur.js").read_text(encoding="utf-8")
-    assert "|| dansFigurine(p, x, y)" in (JS / "joueurs/bouger.js").read_text(encoding="utf-8")
+    assert "mes.find((p) => dansFigurine(p, x, y))" in (JS / "joueurs/bouger.js").read_text(encoding="utf-8")
     # Rien ne bouge pour qui demande moins de mouvement, ni dans une image exportée.
     vue = (JS / "plan/vue.js").read_text(encoding="utf-8")
-    assert "prefers-reduced-motion: reduce" in vue and "const animations = this.sansJauges ? null : this.animations(pions, jauges);" in vue
+    assert "prefers-reduced-motion: reduce" in vue and "const animations = this.sansJauges ? null : this.animations(pions, jauges, calme);" in vue

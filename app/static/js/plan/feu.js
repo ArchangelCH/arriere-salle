@@ -8,6 +8,7 @@
 
 import { flouter, texture } from "./brume.js";
 import { CALCINE, feuVue, hache } from "./modele.js";
+import { silhouette } from "./figurine.js";
 import { pionMontre, trouerPrenom } from "./rendu.js";
 
 // L'atelier peint le calque aux trois quarts de ses pixels d'écran, la TV au tiers (le feu est doux, le navigateur
@@ -693,11 +694,13 @@ export class CalqueFeu {
       const r = 0.42 * (p.taille || 1);
       if (p.x + 3 * r < zone.x0 || p.x - 3 * r > zone.x1 || p.y + 4 * r < zone.y0 || p.y - 2 * r > zone.y1) continue;
       const force = !joueurs ? ECLAIRCIE.mj : p.genre === "heros" ? ECLAIRCIE.heros : ECLAIRCIE.autre;
-      ovale(p.x, p.y, r * 1.45, r * 1.45, force);
-      // Le prénom : environ 140 pixels de large et 30 de haut sur la TV, sous le pion.
+      // La figurine debout, du haut de son support au bas de son socle (le visage ne brûle pas sous les flammes).
+      const s = silhouette(r);
+      ovale(p.x, p.y + (s.haut + s.bas) / 2, s.demi * 1.3, ((s.bas - s.haut) / 2) * 1.1, force);
+      // Le prénom : environ 140 pixels de large et 30 de haut sur la TV, sous le socle.
       const rx = Math.max(r * 1.7, px ? 75 / px : 0);
       const ry = Math.max(r * 0.42, px ? 18 / px : 0);
-      ovale(p.x, p.y + r + ry * 0.75, rx, ry, force * 0.9);
+      ovale(p.x, p.y + s.bas + ry * 0.75, rx, ry, force * 0.9);
     }
     ctx.globalCompositeOperation = "source-over";
   }

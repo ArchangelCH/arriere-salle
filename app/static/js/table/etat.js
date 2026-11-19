@@ -11,6 +11,7 @@ export const S = {
   texture: null,
   affiche: { carte: null, version: null, style: null },
   vuePlan: null,
+  combatMontre: null, // le combat du bandeau (combat_public) : la figurine de qui a la main luit
   planAffiche: { plan: null, version: null, style: null, signature: null },
   dernierEtat: null,
   legende: [], // les héros que la légende du plan nomme

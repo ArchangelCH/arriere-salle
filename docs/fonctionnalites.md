@@ -685,7 +685,7 @@ dont chaque fichier fait relire toute la table), `commun/pointeurs.py` pour les 
 - **Posture « Aucune »** : la posture perdue (un dé de mésaventure l'a cassée), ou retirée par le joueur. À découvert : aucune
   défense, aucun effet (choix du MJ). Pastille barrée de l'écran du combat, nom au Tableau, bouton de la barre « Mon héros »
   du coin, « sans posture » au bandeau de la TV. D'abord limitée au combat ; depuis le 19/11 au matin, aussi hors combat
-  (demande d'Adrien) : elle s'écrit alors sur la fiche, et un combat qui commence la reprend.
+  (demande du MJ) : elle s'écrit alors sur la fiche, et un combat qui commence la reprend.
 - **Croix des morts** : un PNJ passé en « Mort » porte une croix et un portrait éteint, dans le carnet de PNJ du MJ (liste et
   fiche) et dans le carnet des joueurs (choix du MJ : dès « Mort »). Seul ce statut sort vers le coin (champ `mort`), jamais
   « disparu » ni « sort inconnu ».
@@ -717,13 +717,15 @@ debout sur un socle rond, partout où un plan se dessine (TV, atelier, coin des 
   le genre (or héros, fer ennemis, bronze PNJ, argent familiers, étain le reste), portrait en haut, initiales sinon. Une
   couleur très sombre garde un liseré clair. Formes : support arrondi (rond), droit (carré, blason). L'épaisseur réglée
   change le socle. À terre, la figurine se couche, portrait éteint. Le numéro d'un ennemi est peint sur une plaque au
-  devant du socle (lisible du canapé sur la TV). Le prénom sous le socle, dans un cartouche, bordé de la couleur du
-  joueur pour un héros. Les états, le groupe, les cartons, la posture, le jeton et les barres gardent leurs places
-  autour de la figurine ; les barres passent au-dessus de sa tête.
+  devant du socle (lisible du canapé sur la TV) ; le nombre d'un groupe se pose à sa droite. Le prénom sous le socle
+  (sous la plaque d'un numéro), dans un cartouche, bordé de la couleur du joueur pour un héros. Les états, les cartons,
+  la posture, le jeton et les barres gardent leurs places autour de la figurine ; les barres passent au-dessus de sa
+  tête. Le feu et la brume s'éclaircissent sur toute la figurine debout, et le repère du coin l'entoure.
 - **La place** : `silhouette(r)` dit le haut du support (il monte un peu sur la case du dessus) et le bas du socle ; la
   mise en page des noms et des barres de la TV (`placerNoms`, `barresTv`, `centrePrenom`) la suit. Ordre de dessin
   (`ordreDesFigurines`) : à terre d'abord, puis de haut en bas, un cavalier juste après sa monture. Une figurine se prend
-  par la tête comme par le socle (`dansFigurine`, dans l'éditeur et à la table du coin, `bouger.js`).
+  par la tête comme par le socle (`dansFigurine`, dans l'éditeur et à la table du coin, `bouger.js`), la plus en avant
+  d'abord ; pendant un déplacement au coin, une case à portée l'emporte sur la tête qui la survole.
 - **Ce qui bouge** (`VuePlan.animations` dans `vue.js`) : la figurine qui glisse se soulève et se pose dans un peu de
   poussière ; un coup (sa Santé baisse) l'éclaire de rouge et la secoue, un soin l'éclaire de vert ; mise à terre, elle
   bascule. Seul ce que la vue voit changer s'anime (rien à l'ouverture d'un plan). Qui a la main au combat luit (halo au
@@ -734,7 +736,8 @@ debout sur un socle rond, partout où un plan se dessine (TV, atelier, coin des 
 - **Qui a la main** : le pion d'un héros porte un jeton opaque `heros` (`tv_plans.jeton_heros`, `jeton("heros-pion", id)`,
   qui n'ouvre aucune fiche), le même que son entrée dans l'ordre du combat (`combat_public`). La TV (`table/combat.js`,
   seulement quand le bandeau est montré) et le coin (`table-coin.js`) font luire le héros dont c'est le tour, ou les
-  ennemis debout (`mainDuCombat`) ; l'atelier lit le combat en cours (`mainDuPlan` de `jauges.js`).
+  ennemis debout (`mainDuCombat`) ; l'atelier fait luire les mêmes (`mainDuPlan` de `jauges.js`), d'après le combat en
+  cours.
 - **Le fil du familier** : un pion de familier porte `familier: true` et `maitre` (le pion de son héros, seulement s'il
   est montré : `pions_plan.lier_familiers`, sur le modèle des montures). Un fil pointillé à la couleur du héros les relie
   quand ils sont à moins de 2,6 cases.
@@ -749,14 +752,19 @@ devient le tableau de l'auberge, et le catalogue une réserve qui tourne.
 - **La réserve** (`coin_mj/activites_mj.py`) : chaque activité a un `rythme` (`toujours` : chaque semaine ; `souvent`,
   `parfois`, `rarement` : poids 3, 2, 1 au tirage), peut être une quête unique (`unique`, avec une `accroche` d'une ligne et
   2 places par défaut) et annoncer ses `gains` (or, rumeur, contact, objet ; seulement si le catalogue a
-  `annoncer_gains`). `offres` : combien en tirer à chaque période (3 par défaut). Un champ absent garde le comportement
-  d'avant : toutes les activités d'un catalogue d'avant sont « chaque semaine », le tableau est le même.
+  `annoncer_gains`). `offres` : combien en tirer à chaque période (3 par défaut, 8 au plus). La réserve garde 150 activités
+  au plus (`ACTIVITES_MAX`) : au-delà, l'enregistrement est refusé (413), jamais coupé. Un champ absent garde le
+  comportement d'avant : toutes les activités d'un catalogue d'avant sont « chaque semaine », le tableau est le même.
 - **Le tirage** (`ActivitesMJ.offre`, seule source de ce qui est proposé : la section, le dé, la page du MJ) : écrit une
   fois au premier besoin de la période dans `data/activites-tirages.json` (jamais dans le catalogue : sa version ne bouge
-  pas), en évitant les offres de la période d'avant ; la première quête unique jamais proposée (la liste des quêtes
-  proposées n'est jamais élaguée). Proposé = ce que le tirage a écrit + les activités « chaque semaine » du moment - ce
-  qui est caché ou retiré. Le MJ change, retire ou ajoute une offre (`POST /api/activites/tableau`), refusé pour une
-  offre déjà jouée. Le dé refuse une activité qui n'est pas au tableau.
+  pas), et seulement quand les joueurs voient le tableau (activités ouvertes et carnet ouvert : une quête ne s'use pas
+  sans avoir été vue), en évitant les offres (tirées et ajoutées) de la période d'avant ; la première quête unique jamais
+  proposée dont le nom ne nomme pas un inconnu (la liste des quêtes proposées n'est jamais élaguée ; une activité du
+  tableau passée en quête y entre aussi). Proposé = ce que le tirage a écrit + les activités « chaque semaine » du moment
+  - ce qui est caché ou retiré. Le tableau « tourne » (le coin annonce les nouvelles affiches) quand une quête attend ou
+  que la réserve a plus d'activités à tirer que d'offres. Le MJ change, retire ou ajoute une offre (`POST
+  /api/activites/tableau`), refusé pour une offre déjà jouée ou quand le tableau ne se voit pas. Le dé refuse une
+  activité qui n'est pas au tableau ; de sa vérification au journal, il tient le verrou des activités.
 - **Ce qui sort vers le coin** : seulement le tableau de la période (`offre`, `accroche` d'une quête au masque et sans
   inconnu, `gains` si annoncés, `renouvellement` seulement si la réserve fait tourner le tableau) ; ni la réserve, ni ce qui
   n'est pas tiré, ni la période suivante.
@@ -767,8 +775,10 @@ devient le tableau de l'auberge, et le catalogue une réserve qui tourne.
   Une affiche prise porte le sceau du dé ; complète, une bande « Complet ». Une période neuve : les affiches se clouent une
   à une (une fois par appareil). Le carnet sans gestes et l'aperçu du MJ montrent le tableau, chaque texte en entier.
 - **Le MJ** : page « Les activités » (rythme, quête unique, accroche, gains ; panneau « Au tableau en ce moment » avec
-  Changer et Retirer ; « Mettre au tableau » dans la fiche), boîte des demandes (« Un objet pour son sac » : une ligne
-  ajoutée à l'équipement dans la même écriture que l'or, au masque, refusée si elle nomme un inconnu ; avec une cagnotte,
-  posée avant et reprise si le chantier refuse).
+  Changer et Retirer ; « Mettre au tableau » dans la fiche ; ces gestes seulement quand le tableau se voit ; une
+  recherche dans la réserve, par mot et par rythme, quêtes, tableau ou cachées, qui ne cache jamais la fiche qu'on vient
+  de toucher), boîte des demandes (« Un objet pour son sac » : ajouté à l'équipement comme un achat de l'échoppe, sa
+  quantité monte s'il y est déjà, dans la même écriture que l'or, au masque, refusé s'il nomme un inconnu ; avec une
+  cagnotte, posé avant et repris si le chantier refuse).
 - Tests : la fin de `tests/test_jets_et_activites.py`.
 

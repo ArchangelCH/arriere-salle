@@ -1062,8 +1062,9 @@ FICHIERS |= {"js/joueurs/jets-table-coin.js", "js/ecran-tv/jet-tv.js", "js/ecran
 FICHIERS |= {"js/joueurs/carte-coin.js", "js/carte/peint-worker.js"}
 # Les pions enrichis et les images posées sur le plan : du dessin seulement, importés par plan/rendu.js.
 FICHIERS |= {"js/plan/pions.js", "js/plan/images.js"}
-# Les pions en figurines (19/11) : leur dessin et qui a la main, importés par plan/rendu.js et table-coin.js.
-FICHIERS |= {"js/plan/figurine.js"}
+# Les pions en figurines (19/11) : leur dessin et qui a la main, importés par plan/rendu.js et table-coin.js ; les petits
+# gestes de dessin qu'ils partagent avec rendu.js et pions.js (écrire, coins arrondis).
+FICHIERS |= {"js/plan/figurine.js", "js/plan/trace.js"}
 # Les sols et le mobilier des plans extérieurs, importés par plan/rendu.js, peint.js et textures.js : du dessin
 # seulement (le générateur, lui, reste à l'atelier).
 FICHIERS |= {"js/plan/dehors-dessin.js", "js/plan/dehors-peint.js"}

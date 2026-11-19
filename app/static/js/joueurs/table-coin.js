@@ -20,7 +20,7 @@ import { chargerImage, gesteMolette, lireDefilement } from "../carte/vue.js";
 import { boiteRevelee } from "../plan/modele.js";
 import { fondPeint } from "../plan/peint.js";
 import { VuePlan, signatureStructure } from "../plan/vue.js";
-import { mainDuCombat } from "../plan/figurine.js";
+import { mainDuCombat, silhouette } from "../plan/figurine.js";
 import { Bouger } from "./bouger.js";
 import { CarteCoin } from "./carte-coin.js";
 import { ecouterFlux } from "./flux.js";
@@ -108,8 +108,10 @@ export class VueTableCoin extends VuePlan {
       }
       return;
     }
-    const [x, y] = this.versEcran(t.x, t.y);
-    const d = Math.max(28, 2 * 0.42 * (t.taille || 1) * this.cam.z + 16);
+    // Centré sur la figurine debout (son support monte sur la case du dessus), à sa hauteur.
+    const s = silhouette(0.42 * (t.taille || 1));
+    const [x, y] = this.versEcran(t.x, t.y + (s.haut + s.bas) / 2);
+    const d = Math.max(28, (s.bas - s.haut) * this.cam.z + 16);
     const place = `${x.toFixed(1)}:${y.toFixed(1)}:${d.toFixed(1)}`;
     if (place === this.placeRepere) return;
     this.placeRepere = place;

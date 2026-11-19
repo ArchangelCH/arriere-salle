@@ -253,6 +253,8 @@ export class VuePlan extends VueCarte {
     const joueurs = o.joueurs ?? this.joueurs;
     if (this.mj && !joueurs) dessinerVoileMJ(ctx, this.plan, zone);
     let pions = this.plan.pions || [];
+    // Une fois par image : l'animation réduite que demande le système (les pions qui glissent, les animations).
+    const calme = moinsDeMouvement();
     if (this.glisses.size) {
       const t = performance.now();
       pions = pions.map((p) => {
@@ -262,12 +264,12 @@ export class VuePlan extends VueCarte {
         if (k >= 1) {
           this.glisses.delete(p.id);
           // Elle se pose : un peu de poussière.
-          if (!this.sansJauges && !moinsDeMouvement()) this.animer(p.id).pose = t;
+          if (!this.sansJauges && !calme) this.animer(p.id).pose = t;
           return p;
         }
         const e = facile(k);
         // La figurine se soulève, glisse et se repose.
-        return { ...p, x: g.x0 + (p.x - g.x0) * e, y: g.y0 + (p.y - g.y0) * e, leve: moinsDeMouvement() ? 0 : Math.sin(Math.PI * k) };
+        return { ...p, x: g.x0 + (p.x - g.x0) * e, y: g.y0 + (p.y - g.y0) * e, leve: calme ? 0 : Math.sin(Math.PI * k) };
       });
       this.demander();
     }
@@ -276,7 +278,7 @@ export class VuePlan extends VueCarte {
     let decales;
     if (this.tv && joueurs) {
       // Les tailles d'un écran 1080p (24 px pour un prénom, 17 pour un nom serré contre d'autres, 20 pour un numéro, 5
-      // pour l'anneau), ramenées en cases (hauteurLisible).
+      // pour le cercle de la lueur), ramenées en cases (hauteurLisible).
       const px = this.hauteurLisible() / 1080 / this.cam.z;
       lisible = { nom: 24 * px, nomMin: 17 * px, numero: 20 * px, anneau: 5 * px, barre: 9 * px, carton: 26 * px, jeton: 26 * px };
       // Les prénoms se placent d'après les cases d'arrivée : un pion qui glisse ne fait pas clignoter la légende.
@@ -294,7 +296,7 @@ export class VuePlan extends VueCarte {
     const jauges = this.sansJauges ? new Map() : typeof this.jauges === "function" ? this.jauges() : this.jauges;
     // Dans l'éditeur, deux prénoms ne se chevauchent plus ; le pion choisi ou survolé garde le sien.
     const nomsMJ = this.mj && !this.tv ? placerNomsMJ(ctx, this.plan, zone, pions, [].concat(this.selection || [], this.survol || []), joueurs) : undefined;
-    const animations = this.sansJauges ? null : this.animations(pions, jauges);
+    const animations = this.sansJauges ? null : this.animations(pions, jauges, calme);
     const barres = dessinerPions(ctx, { ...this.plan, pions }, zone, { joueurs, style: this.style, images: this.images, selection: this.selection, lisible, noms: noms || nomsMJ, decales, jauges, animations });
     // Les images du MJ posées au-dessus des pions : un feuillage, un toit, une voûte.
     if (imagesDessus(this.plan)) dessinerImagesPlan(ctx, this.plan, zone, this.imagesPlan, { dessus: true, joueurs });
@@ -308,11 +310,11 @@ export class VuePlan extends VueCarte {
     return this.anims.get(id);
   }
 
-  // Ce qui anime chaque pion à cette image (Map id → { flash, secousse, chute, poussiere }), d'après ce qui a changé
-  // depuis l'image d'avant : sa Santé (un coup, un soin), le pion mis à terre. Redemande une image tant que ça bouge.
-  animations(pions, jauges) {
+  // Ce qui anime chaque pion à cette image (Map id → { flash, secousse, chute, poussiere, eclat, leve }), d'après ce qui
+  // a changé depuis l'image d'avant : sa Santé (un coup, un soin), le pion mis à terre, la main qui passe. Redemande une
+  // image tant que ça bouge. calme : l'animation réduite que demande le système.
+  animations(pions, jauges, calme) {
     const now = performance.now();
-    const calme = moinsDeMouvement();
     let bouge = false;
     for (const t of pions) {
       const j = jauges ? jauges.get(t.id) : t.jauges;

@@ -3,7 +3,7 @@
 // fait que dessiner (rendu.js l'appelle, sur la TV comme dans l'atelier et le coin) ; le serveur dit ce que les joueurs
 // en voient (app/table/pions_plan.py, mêmes listes).
 
-import { texte } from "../carte/rendu.js";
+import { ecrire, rond } from "./trace.js";
 
 // Les tailles en cases : un petit pion tient dans sa case, un grand en couvre 2 × 2, un énorme 3 × 3, un gigantesque 4 × 4.
 export const TAILLES_PION = [[0.6, "Petit"], [1, "Moyen"], [2, "Grand (2 × 2)"], [3, "Énorme (3 × 3)"], [4, "Gigantesque (4 × 4)"]];
@@ -40,59 +40,8 @@ export const invisible = (t) => Array.isArray(t.etats) && t.etats.includes("invi
 export const imageDuPion = (t) => (typeof t.image_libre === "string" && t.image_libre ? t.image_libre : t.image);
 
 // ---------------------------------------------------------------- formes
-
-// Le contour d'un pion de rayon r : rond (celui d'avant, tracé à l'identique), carré aux coins adoucis, ou blason.
-export function cheminForme(ctx, forme, x, y, r) {
-  ctx.beginPath();
-  if (forme === "carre") {
-    const c = r * 0.92;
-    const k = r * 0.2;
-    ctx.moveTo(x - c + k, y - c);
-    ctx.arcTo(x + c, y - c, x + c, y + c, k);
-    ctx.arcTo(x + c, y + c, x - c, y + c, k);
-    ctx.arcTo(x - c, y + c, x - c, y - c, k);
-    ctx.arcTo(x - c, y - c, x + c, y - c, k);
-    ctx.closePath();
-  } else if (forme === "blason") {
-    const l = r * 0.9;
-    const k = r * 0.12;
-    ctx.moveTo(x - l + k, y - r * 0.9);
-    ctx.lineTo(x + l - k, y - r * 0.9);
-    ctx.quadraticCurveTo(x + l, y - r * 0.9, x + l, y - r * 0.9 + k);
-    ctx.lineTo(x + l, y + r * 0.02);
-    ctx.quadraticCurveTo(x + l * 0.95, y + r * 0.72, x, y + r * 1.04);
-    ctx.quadraticCurveTo(x - l * 0.95, y + r * 0.72, x - l, y + r * 0.02);
-    ctx.lineTo(x - l, y - r * 0.9 + k);
-    ctx.quadraticCurveTo(x - l, y - r * 0.9, x - l + k, y - r * 0.9);
-    ctx.closePath();
-  } else {
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-  }
-}
 export const formeDuPion = (t) => (t.forme === "carre" || t.forme === "blason" ? t.forme : "rond");
 export const epaisseurDuPion = (t) => (t.epaisseur === 0.5 || t.epaisseur === 1.8 ? t.epaisseur : 1);
-
-// ---------------------------------------------------------------- textes
-
-// Écrit en 32 px puis réduit (Chrome perd des lettres d'une police minuscule agrandie), comme rendu.js.
-function ecrire(ctx, chaine, x, y, o) {
-  const f = 32;
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(o.taille / f, o.taille / f);
-  if (o.largeurMax) {
-    ctx.font = o.police.replace("{t}", f);
-    const l = (ctx.measureText(chaine).width * o.taille) / f;
-    if (l > o.largeurMax) ctx.scale(o.largeurMax / l, 1);
-  }
-  texte(ctx, chaine, 0, 0, { ...o, taille: f });
-  ctx.restore();
-}
-
-function rond(ctx, x, y, r) {
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-}
 
 // ---------------------------------------------------------------- les pastilles des états
 
@@ -275,12 +224,14 @@ export function vignetteEtat(cle, taille = 40) {
 // ---------------------------------------------------------------- groupe et étiquette
 
 // Le nombre d'un groupe (« un groupe de 5 gobelins » en un seul pion) : « ×5 » en bas à droite du pion.
-export function dessinerGroupe(ctx, t, r, n, lisible) {
+// plaque : la boîte de la plaque du numéro (figurine.js, boitePlaque) ; le nombre se pose alors à sa droite, sans la
+// couvrir, au lieu du bas du socle.
+export function dessinerGroupe(ctx, t, r, n, lisible, plaque = null) {
   if (!(n >= 2)) return;
   const b = Math.min(Math.max(0.17, (lisible?.numero || 0) * 0.62, r * 0.36), r * 0.55);
-  const x = t.x + r * 0.74;
-  const y = t.y + r * 0.72;
   const l = b * (String(n).length > 1 ? 1.75 : 1.4);
+  const x = plaque ? plaque.x1 + l + b * 0.15 : t.x + r * 0.74;
+  const y = plaque ? (plaque.y0 + plaque.y1) / 2 : t.y + r * 0.72;
   ctx.save();
   ctx.beginPath();
   ctx.moveTo(x - l + b, y - b);

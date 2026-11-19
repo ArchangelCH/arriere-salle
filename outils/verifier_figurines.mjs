@@ -73,9 +73,8 @@ function fauxCanvas() {
     get(o, k) {
       if (INTERDITS.has(k)) throw new Error(`${String(k)} : absent de Chromium 79`);
       if (k in o) return o[k];
-      return (...args) => {
+      return () => {
         appels.set(k, (appels.get(k) || 0) + 1);
-        return args.length ? undefined : undefined;
       };
     },
     set(o, k, v) {

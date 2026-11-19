@@ -2,7 +2,6 @@
 // le mobilier et les noms ; les pions se posent par-dessus à chaque image. Trois styles : couleur, parchemin (impression)
 // et peint (battle map du soir, voir peint.js).
 
-import { texte } from "../carte/rendu.js";
 import { COULEURS_PIONS, MEUBLES, SOLS, cacheParLaBrume, cleArete, emprise, hache, objetVisible, porteVisible, reveleA, teinteValide, teintesDesPieces } from "./modele.js";
 import { dessinerPlanPeint } from "./peint.js";
 import { vignetteMeublePeint } from "./peint-mobilier.js";
@@ -14,7 +13,8 @@ import { solPlusCouleur, solPlusParchemin } from "./sols-plus.js";
 import { dessinerImagesPlan } from "./images.js";
 import { dessinerEtats, dessinerEtiquette, dessinerGroupe, epaisseurDuPion, etatsDuPion, imageDuPion, invisible } from "./pions.js";
 // Les pions en figurines sur leur socle (19/11) : leur dessin et la place qu'elles prennent.
-import { cernerSocle, dessinerFigurine, dessinerFil, dessinerPoussiere, estFamilier, silhouette } from "./figurine.js";
+import { boitePlaque, cernerSocle, dessinerFigurine, dessinerFil, dessinerPoussiere, estFamilier, silhouette, tropSombre } from "./figurine.js";
+import { ecrire, rond, rrect } from "./trace.js";
 
 const ENCRE = "#2b1d12";
 const PAPIER = "#f3e9d2";
@@ -37,39 +37,6 @@ const PAL = {
 };
 
 const EP = 0.22; // épaisseur d'un mur, en cases
-
-// Chrome perd des lettres quand une police de moins d'un pixel est agrandie par la transformation : on écrit en 32 px
-// et on réduit le contexte.
-function ecrire(ctx, chaine, x, y, o) {
-  const f = 32;
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(o.taille / f, o.taille / f);
-  // largeurMax (en cases) : un texte trop large se resserre au lieu de déborder.
-  if (o.largeurMax) {
-    ctx.font = o.police.replace("{t}", f);
-    const l = (ctx.measureText(chaine).width * o.taille) / f;
-    if (l > o.largeurMax) ctx.scale(o.largeurMax / l, 1);
-  }
-  texte(ctx, chaine, 0, 0, { ...o, taille: f });
-  ctx.restore();
-}
-
-function rrect(ctx, x, y, w, h, r) {
-  const k = Math.min(r, w / 2, h / 2);
-  ctx.beginPath();
-  ctx.moveTo(x + k, y);
-  ctx.arcTo(x + w, y, x + w, y + h, k);
-  ctx.arcTo(x + w, y + h, x, y + h, k);
-  ctx.arcTo(x, y + h, x, y, k);
-  ctx.arcTo(x, y, x + w, y, k);
-  ctx.closePath();
-}
-
-function rond(ctx, x, y, r) {
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-}
 
 function remplir(ctx, fond, c) {
   ctx.fillStyle = fond;
@@ -1229,10 +1196,16 @@ export function dessinerVoileMJ(ctx, p, zone) {
 // éclaircit la brume sous les mêmes pions).
 // Un pion « invisible » suit la règle du pion caché.
 export const pionMontre = (p, t, joueurs) => !joueurs || (!t.cache && !invisible(t) && reveleA(p, t.x, t.y) && !cacheParLaBrume(p, t));
-// La boîte d'une figurine en cases : son socle en largeur, du haut de son support au bas de son socle.
-const boiteFigurine = (t) => {
-  const s = silhouette(0.42 * (t.taille || 1), epaisseurDuPion(t));
-  return { x0: t.x - s.demi, x1: t.x + s.demi, y0: t.y + s.haut, y1: t.y + s.bas };
+// Le numéro peint sur la plaque d'un ennemi (son « court »).
+const numeroDuPion = (t) => (t.genre === "ennemi" && t.court ? String(t.court) : "");
+// La boîte d'une figurine en cases : son socle en largeur, du haut de son support au bas de son socle, ou de la plaque de
+// son numéro quand elle descend plus bas (sur la TV, lisible, le chiffre grandit).
+const boiteFigurine = (t, lisible) => {
+  const r = 0.42 * (t.taille || 1);
+  const s = silhouette(r, epaisseurDuPion(t));
+  const numero = numeroDuPion(t);
+  const bas = numero ? Math.max(s.bas, boitePlaque(0, 0, r, numero, lisible).y1) : s.bas;
+  return { x0: t.x - s.demi, x1: t.x + s.demi, y0: t.y + s.haut, y1: t.y + bas };
 };
 const horsZone = (t, zone) => {
   const b = boiteFigurine(t);
@@ -1257,8 +1230,8 @@ const PRENOM_ATELIER = 0.26; // taille d'un prénom dans l'atelier, en cases
 const taillePrenom = (lisible) => Math.max(PRENOM_ATELIER, lisible?.nom || 0);
 const prenomSerre = (lisible) => Math.max(PRENOM_ATELIER, lisible?.nomMin || 0);
 // dx : le pas de côté d'un nom qu'un pion voisin gênerait (placerNoms, sur la TV), en cases.
-// Le prénom s'écrit sous le socle de la figurine.
-const centrePrenom = (t, taille, dx = 0) => [t.x + dx, boiteFigurine(t).y1 + Math.max(0.15, 0.04 + taille * 0.6)];
+// Le prénom s'écrit sous le socle de la figurine (sous la plaque de son numéro).
+const centrePrenom = (t, taille, dx = 0, lisible = null) => [t.x + dx, boiteFigurine(t, lisible).y1 + Math.max(0.15, 0.04 + taille * 0.6)];
 
 // Sur la TV, les prénoms s'écrivent en grand quand la place le permet. Un héros qui chevaucherait un autre prénom ou un
 // autre pion perd le sien au profit de la légende ; un PNJ ou un autre pion, que la légende ne nomme pas, garde toujours
@@ -1281,17 +1254,16 @@ export function placerNoms(ctx, p, zone, lisible) {
   // La place que prend un prénom de cette taille, halo compris.
   const boite = ({ t, mesure }, taille) => {
     const l = (mesure * taille) / 32 + taille * 0.5;
-    const [x, y] = centrePrenom(t, taille);
+    const [x, y] = centrePrenom(t, taille, 0, lisible);
     return { t, mesure, taille, x0: x - l / 2, x1: x + l / 2, y0: y - taille * 0.6, y1: y + taille * 0.6 };
   };
   const croise = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
-  const disque = boiteFigurine;
   // Les barres d'un héros, peintes par-dessus tout (dessinerPions) : un prénom ne s'écrit pas dessous.
   const plaques = vus.filter((t) => t.genre === "heros" && t.jauges).map((t) => {
     const m = barresTv(ctx, p, t, 0.42 * (t.taille || 1), t.jauges, lisible);
     return m && { t, ...m.plaque };
   }).filter(Boolean);
-  const gene = (b, prenoms) => prenoms.some((c) => c.t !== b.t && croise(b, c)) || vus.some((t) => t !== b.t && croise(b, disque(t)))
+  const gene = (b, prenoms) => prenoms.some((c) => c.t !== b.t && croise(b, c)) || vus.some((t) => t !== b.t && croise(b, boiteFigurine(t, lisible)))
     || plaques.some((q) => q.t !== b.t && croise(b, q));
   const ecrits = new Map();
   // D'abord les noms que la légende ne reprend pas : ils ne cèdent la grande taille qu'à un pion ou à un autre nom.
@@ -1413,7 +1385,7 @@ function dessinerPosture(ctx, posture, x, y, b) {
 // Deux barres sans graduation au-dessus du pion (Santé, puis Psy), en cases : leur hauteur, leur largeur, leur écart, le
 // haut de la première et la plaque sombre qui les porte (sa boîte : le feu et la brume s'y ouvrent) ; null sans barre.
 // La hauteur reste celle que le pion permet ; o.grand : sur la TV (lisible), celle du canapé, jusqu'à 0,6 rayon ;
-// o.serre : posées sur l'anneau du pion, sans écart (voir barresTv).
+// o.serre : posées sur la tête de la figurine, sans écart (voir barresTv).
 const BARRE_TV_MAX = 0.6;
 function mesureBarres(t, r, j, lisible, o = {}) {
   const barres = [["sante", j.sante], ["psy", j.psy]].filter(([, v]) => typeof v === "number");
@@ -1431,9 +1403,9 @@ function mesureBarres(t, r, j, lisible, o = {}) {
 }
 
 // Sur la TV, un plan entier cadré a des cases de 30 à 40 pixels, où les barres n'auraient que 4 ou 5 pixels. Elles
-// grandissent donc jusqu'à la taille lisible du canapé quand leur plaque ne couvre ni le disque d'un autre pion, ni le
+// grandissent donc jusqu'à la taille lisible du canapé quand leur plaque ne couvre ni la figurine d'un autre pion, ni le
 // nom qu'écrit un PNJ ou un autre pion (le prénom d'un autre héros, lui, cède la place : la légende le reprend,
-// placerNoms). Sinon, elles gardent leur taille, posées sur l'anneau : le numéro d'un ennemi au contact reste lisible.
+// placerNoms). Sinon, elles gardent leur taille, posées sur la tête de la figurine : un voisin au contact reste lisible.
 function barresTv(ctx, p, t, r, j, lisible) {
   const base = mesureBarres(t, r, j, lisible);
   const grand = base && mesureBarres(t, r, j, lisible, { grand: true });
@@ -1443,14 +1415,14 @@ function barresTv(ctx, p, t, r, j, lisible) {
   for (const o of p.pions || []) {
     if (o === t || o.id === t.id || !pionMontre(p, o, true)) continue;
     // La figurine voisine, son support et son socle : un voisin en diagonale ne gêne pas.
-    const f = boiteFigurine(o);
+    const f = boiteFigurine(o, lisible);
     const mi = (f.x1 - f.x0) * 0.15;
     if (q.x0 < f.x1 - mi && f.x0 + mi < q.x1 && q.y0 < f.y1 && f.y0 < q.y1) return mesureBarres(t, r, j, lisible, { serre: true });
-    // Le nom en grand, lettres seules (sans le cartouche qu'il prend sur le feu), d'un pion un peu au-dessus (mesuré
+    // Le nom en grand, cartouche compris, d'un pion un peu au-dessus (mesuré
     // seulement là : la TV refait ce calcul à chaque image).
     if (o.y > t.y || o.y < t.y - 4 || Math.abs(o.x - t.x) > 8) continue;
     const nom = o.genre === "heros" ? "" : nomEcrit(o, true);
-    const b = nom && boitePrenom(ctx, o, nom, taillePrenom(lisible));
+    const b = nom && boitePrenom(ctx, o, nom, taillePrenom(lisible), 0, lisible);
     const yn = b && (b.y0 + b.y1) / 2;
     if (b && b.x0 < q.x1 && q.x0 < b.x1 && yn - demi < q.y1 && q.y0 < yn + demi) return mesureBarres(t, r, j, lisible, { serre: true });
   }
@@ -1556,14 +1528,14 @@ function dessinerJauges(ctx, t, r, j, lisible) {
   }
 }
 
-// La boîte d'un prénom écrit sous un pion (en cases) : son cartouche sur la TV, et la place que le feu et la brume lui
+// La boîte d'un prénom écrit sous un pion (en cases) : son cartouche, et la place que le feu et la brume lui
 // laissent (feu.js, brume.js).
-export function boitePrenom(ctx, t, nom, taille, dx = 0) {
+export function boitePrenom(ctx, t, nom, taille, dx = 0, lisible = null) {
   ctx.save();
   ctx.font = "600 32px Cinzel";
   const l = ((ctx.measureText(nom).width + 0.06 * 32 * ([...nom].length - 1)) * taille) / 32 + taille * 0.8;
   ctx.restore();
-  const [x, y] = centrePrenom(t, taille, dx);
+  const [x, y] = centrePrenom(t, taille, dx, lisible);
   const h = taille * 1.3;
   return { x0: x - l / 2, y0: y - h / 2, x1: x + l / 2, y1: y + h / 2 };
 }
@@ -1576,7 +1548,7 @@ export function prenomsEcrits(ctx, p, pions, noms, lisible, decales) {
     if (!pionMontre(p, t, true)) continue;
     const nom = nomEcrit(t, true);
     const taille = !nom ? 0 : noms.get(t.id) || (t.genre === "heros" ? 0 : prenomSerre(lisible));
-    if (taille) liste.push({ t, nom, boite: boitePrenom(ctx, t, nom, taille, (decales && decales.get(t.id)) || 0) });
+    if (taille) liste.push({ t, nom, boite: boitePrenom(ctx, t, nom, taille, (decales && decales.get(t.id)) || 0, lisible) });
   }
   return liste;
 }
@@ -1603,12 +1575,11 @@ function cartouche(ctx, b, couleur) {
   rrect(ctx, b.x0, b.y0, b.x1 - b.x0, h, h * 0.22);
   ctx.fillStyle = "rgba(18,12,8,.86)";
   ctx.fill();
-  const sombre = couleur && /^#[0-9a-f]{6}$/i.test(couleur) && luminanceHex(couleur) < 0.14;
+  const sombre = tropSombre(couleur);
   ctx.lineWidth = h * (couleur ? 0.09 : 0.05);
   ctx.strokeStyle = !couleur ? "rgba(214,180,118,.55)" : sombre ? "rgba(244,234,212,.75)" : couleur;
   ctx.stroke();
 }
-const luminanceHex = (c) => [1, 3, 5].reduce((s, i, k) => s + [0.2126, 0.7152, 0.0722][k] * parseInt(c.slice(i, i + 2), 16), 0) / 255;
 
 // L'ordre de dessin des figurines : celles à terre d'abord, puis de haut en bas (une figurine monte sur la case du
 // dessus et passe devant le socle de son voisin) ; un cavalier juste après sa monture.
@@ -1649,7 +1620,7 @@ export function dessinerPions(ctx, p, zone, o = {}) {
     if (!joueurs && (t.cache || invisible(t))) ctx.globalAlpha = 0.55;
     const src = imageDuPion(t);
     const img = src && o.images?.get(src);
-    const numero = t.genre === "ennemi" && t.court ? String(t.court) : "";
+    const numero = numeroDuPion(t);
     const initiales = (t.court || (t.nom || "").trim().replace(ARTICLE, "") || t.nom || "?").split(/[\s,]+/).filter(Boolean).slice(0, 2).map((m) => m[0]).join("").toUpperCase();
     // L'animation du pion (vue.js) : soulevé quand il glisse, la lueur de qui a la main, l'éclair d'un coup ou d'un soin.
     const a = (o.animations && o.animations.get(t.id)) || null;
@@ -1669,11 +1640,11 @@ export function dessinerPions(ctx, p, zone, o = {}) {
     if (!joueurs && (t.cache || brume || invis)) cernerSocle(ctx, t.x, t.y, r, 0.08, brume ? "#c9d3df" : invis ? "#8fb3e8" : "#e0584c", 0.04, [0.08, 0.06]);
     // Le pion choisi dans l'éditeur, ou chacun des pions choisis ensemble (o.selection : un identifiant ou une liste).
     if (Array.isArray(o.selection) ? o.selection.includes(t.id) : o.selection === t.id) cernerSocle(ctx, t.x, t.y, r, 0.12, "#e0b562", 0.06);
-    // Les états en pastilles à gauche du support, le nombre d'un groupe en bas à droite du socle ; cartons, jeton et
-    // posture autour du support (relevés avec lui).
+    // Les états en pastilles à gauche du support, le nombre d'un groupe en bas à droite du socle (à droite de la plaque
+    // d'un numéro, qu'il ne couvre pas) ; cartons, jeton et posture autour du support (relevés avec lui).
     const haut = { x: t.x, y: t.y - r * 0.2 };
     dessinerEtats(ctx, haut, r, etatsDuPion(t, joueurs), lisible);
-    dessinerGroupe(ctx, t, r, t.groupe, lisible);
+    dessinerGroupe(ctx, t, r, t.groupe, lisible, numero ? boitePlaque(x, t.y, r, numero, lisible) : null);
     const jauges = o.jauges ? o.jauges.get(t.id) : t.jauges;
     if (jauges && (!joueurs || t.genre === "heros")) {
       dessinerJauges(ctx, haut, r, jauges, lisible);
@@ -1690,21 +1661,21 @@ export function dessinerPions(ctx, p, zone, o = {}) {
         : (o.noms ?? true) ? taillePrenom(lisible) : 0;
     if (taille) {
       const dx = (o.decales && o.decales.get(t.id)) || 0;
-      const [x, y] = centrePrenom(t, taille, dx);
-      cartouche(ctx, boitePrenom(ctx, t, nom, taille, dx), t.genre === "heros" ? t.couleur || COULEURS_PIONS.heros : "");
-      ecrire(ctx, nom, x, y, { taille, police: "600 {t}px Cinzel", couleur: "#f4ead4", halo: "rgba(20,14,10,.85)", espacement: 0.06, epaisseurHalo: 0.5 });
+      const [xn, yn] = centrePrenom(t, taille, dx, lisible);
+      cartouche(ctx, boitePrenom(ctx, t, nom, taille, dx, lisible), t.genre === "heros" ? t.couleur || COULEURS_PIONS.heros : "");
+      ecrire(ctx, nom, xn, yn, { taille, police: "600 {t}px Cinzel", couleur: "#f4ead4", halo: "rgba(20,14,10,.85)", espacement: 0.06, epaisseurHalo: 0.5 });
     }
     // Lot H2 : l'étiquette, sous le nom s'il est écrit, sinon juste sous le pion.
     if (t.etiquette) {
       const te = Math.max(0.22, lisible?.nomMin ? lisible.nomMin * 0.9 : 0);
       const dx = (o.decales && o.decales.get(t.id)) || 0;
-      const ye = taille ? centrePrenom(t, taille, dx)[1] + taille * 0.62 + te * 0.72 : t.y + r + te * 0.85;
+      const ye = taille ? centrePrenom(t, taille, dx, lisible)[1] + taille * 0.62 + te * 0.72 : boiteFigurine(t, lisible).y1 + te * 0.72;
       dessinerEtiquette(ctx, t, ye, String(t.etiquette).slice(0, 24), te);
     }
     ctx.restore();
   }
-  // Les barres de Santé et de Psy en dernier : celles d'un héros juste sous un autre pion ne passent plus sous le disque
-  // de celui-ci.
+  // Les barres de Santé et de Psy en dernier : celles d'un héros juste sous un autre pion ne passent plus sous la
+  // figurine de celui-ci.
   for (const b of barres) {
     ctx.save();
     ctx.globalAlpha = b.alpha;

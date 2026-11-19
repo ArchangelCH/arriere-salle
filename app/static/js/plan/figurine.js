@@ -1,10 +1,12 @@
 // Les pions en figurines (19/11) : une figurine de papier debout sur son socle rond, comme sur une vraie table. Le socle
 // prend la couleur du pion (celle du joueur pour un héros), le support porte le portrait ou les initiales dans un cadre
-// de métal selon le genre ; à terre, la figurine se couche sur son socle. Ce module ne fait que dessiner : rendu.js
-// l'appelle pour chaque pion (TV, atelier, coin des joueurs) et lit la place qu'il prend (silhouette).
+// de métal selon le genre ; à terre, la figurine se couche sur son socle. rendu.js l'appelle pour chaque pion (TV,
+// atelier, coin des joueurs) et lit la place qu'il prend (silhouette, boitePlaque) ; le module dit aussi qui a la main
+// (mainDuCombat) et si un toucher prend la figurine (dansFigurine).
 // Rien ici d'un navigateur récent : la TV a Chromium 79 (ni roundRect, ni at()).
 
-import { texte } from "../carte/rendu.js";
+import { formeDuPion } from "./pions.js";
+import { ecrire as ecrireTexte, rrect } from "./trace.js";
 
 // Les proportions, en rayons de pion (le rayon d'avant : 0,42 case pour un pion moyen). Le socle est une ellipse sous le
 // centre de la case ; le support debout monte un peu sur la case du dessus.
@@ -48,9 +50,15 @@ const css = (c) => `rgb(${c.join(",")})`;
 const clair = (c, k) => css(melange(c, [255, 255, 255], k));
 const sombre = (c, k) => css(melange(c, [0, 0, 0], k));
 const luminance = (c) => (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255;
+const SOMBRE = 0.14;
+// Une couleur trop sombre pour se voir sur le sol (un joueur en noir) : elle prend un liseré clair.
+export const tropSombre = (c) => {
+  const v = rvb(c);
+  return Boolean(v) && luminance(v) < SOMBRE;
+};
 
 // La couleur du socle : celle que le MJ a choisie (ou celle du joueur), sinon celle du genre.
-export function couleurSocle(t) {
+function couleurSocle(t) {
   return rvb(t.couleur) || rvb(SOCLES[t.genre] || SOCLES.autre);
 }
 
@@ -96,19 +104,9 @@ function cheminSupport(ctx, forme, x, y0, l, h) {
   ctx.closePath();
 }
 
-// Écrit en 32 px puis réduit (Chrome perd des lettres d'une police minuscule agrandie), comme rendu.js.
-function ecrire(ctx, chaine, x, y, taille, couleur, largeurMax) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(taille / 32, taille / 32);
-  if (largeurMax) {
-    ctx.font = "700 32px Cinzel";
-    const l = (ctx.measureText(chaine).width * taille) / 32;
-    if (l > largeurMax) ctx.scale(largeurMax / l, 1);
-  }
-  texte(ctx, chaine, 0, 0, { taille: 32, police: "700 {t}px Cinzel", couleur, halo: null });
-  ctx.restore();
-}
+// Les lettres d'une figurine (initiales, numéro) : Cinzel grasse, sans halo, resserrée au besoin.
+const ecrire = (ctx, chaine, x, y, taille, couleur, largeurMax) =>
+  ecrireTexte(ctx, chaine, x, y, { taille, police: "700 {t}px Cinzel", couleur, halo: null, largeurMax });
 
 // Le losange des ennemis (celui du bandeau du combat) : un ennemi sans numéro ni nom, vu des joueurs.
 function losange(ctx, x, y, a) {
@@ -129,11 +127,11 @@ function losange(ctx, x, y, a) {
 // a la main), flash ({ k, rvb } : un coup ou un soin), chute (0 à 1 : la figurine qui tombe), lisible (les tailles du
 // canapé sur la TV).
 export function dessinerFigurine(ctx, t, x, y, r, o = {}) {
-  const forme = t.forme === "carre" || t.forme === "blason" ? t.forme : "rond";
+  const forme = formeDuPion(t);
   const familier = estFamilier(t);
   let base = couleurSocle(t);
   if (t.tombe) base = melange(base, [90, 82, 75], 0.65);
-  const sombreBase = luminance(base) < 0.14;
+  const sombreBase = luminance(base) < SOMBRE;
   const by = y + r * SOCLE.dy;
   const rx = r * SOCLE.rx;
   const ry = r * SOCLE.ry;
@@ -261,31 +259,37 @@ export function dessinerFigurine(ctx, t, x, y, r, o = {}) {
   ctx.restore();
 
   // Le numéro d'un ennemi, peint sur une plaque au devant du socle : lisible du canapé sur la TV.
-  if (o.numero) plaqueNumero(ctx, x, by + ry * 0.62, r, o.numero, o.lisible);
+  if (o.numero) plaqueNumero(ctx, x, by + ry * PLAQUE_DY, r, o.numero, o.lisible);
+}
+
+// La plaque du numéro : au devant du socle (en hauteurs du socle sous son centre), la hauteur du chiffre, de la plaque
+// et sa largeur. Sur la TV (lisible), le chiffre prend la taille du canapé, jamais plus que le pion ne le permet.
+const PLAQUE_DY = 0.62;
+function mesurePlaque(r, numero, lisible) {
+  const hc = Math.min(Math.max(0.2, r * 0.55, lisible ? lisible.numero : 0), r * 1.25);
+  const hp = hc * 1.02;
+  return { hc, hp, lp: Math.max(hp * 1.05, hc * (0.62 * String(numero).length + 0.42)) };
+}
+
+// La boîte de la plaque du numéro d'un pion de rayon r au centre (x, y) de sa case, en cases : le nombre d'un groupe se
+// pose à sa droite, le nom et l'étiquette dessous.
+export function boitePlaque(x, y, r, numero, lisible) {
+  const { hp, lp } = mesurePlaque(r, numero, lisible);
+  const cy = y + r * (SOCLE.dy + SOCLE.ry * PLAQUE_DY);
+  return { x0: x - lp / 2, x1: x + lp / 2, y0: cy - hp / 2, y1: cy + hp / 2 };
 }
 
 // La plaque du numéro, centrée en (x, y) : rouge sombre, liseré clair, le chiffre en Cinzel.
-export function plaqueNumero(ctx, x, y, r, numero, lisible) {
-  const hc = Math.min(Math.max(0.2, r * 0.55, lisible ? lisible.numero : 0), r * 1.25);
+function plaqueNumero(ctx, x, y, r, numero, lisible) {
+  const { hc, hp, lp } = mesurePlaque(r, numero, lisible);
   const n = String(numero);
-  const hp = hc * 1.02;
-  const lp = Math.max(hp * 1.05, hc * (0.62 * n.length + 0.42));
-  const x0 = x - lp / 2;
-  const y0 = y - hp / 2;
-  const k = hp * 0.28;
   ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(x0 + k, y0);
-  ctx.arcTo(x0 + lp, y0, x0 + lp, y0 + hp, k);
-  ctx.arcTo(x0 + lp, y0 + hp, x0, y0 + hp, k);
-  ctx.arcTo(x0, y0 + hp, x0, y0, k);
-  ctx.arcTo(x0, y0, x0 + lp, y0, k);
-  ctx.closePath();
+  rrect(ctx, x - lp / 2, y - hp / 2, lp, hp, hp * 0.28);
   ctx.fillStyle = "rgba(0,0,0,.45)";
   ctx.translate(hp * 0.05, hp * 0.08);
   ctx.fill();
   ctx.translate(-hp * 0.05, -hp * 0.08);
-  const g = ctx.createLinearGradient(0, y0, 0, y0 + hp);
+  const g = ctx.createLinearGradient(0, y - hp / 2, 0, y + hp / 2);
   g.addColorStop(0, "#b8352b");
   g.addColorStop(1, "#6d140f");
   ctx.fillStyle = g;
@@ -325,7 +329,7 @@ export function dessinerPoussiere(ctx, x, y, r, k) {
 
 // Le fil pointillé qui relie un familier à son héros quand ils sont proches (moins de 2,6 cases), à la couleur du héros,
 // d'un socle à l'autre.
-export const FIL_MAX = 2.6;
+const FIL_MAX = 2.6;
 export function dessinerFil(ctx, f, m, couleur) {
   const d = Math.hypot(f.x - m.x, f.y - m.y);
   if (!(d > 0.3 && d < FIL_MAX)) return;

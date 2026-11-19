@@ -10,7 +10,7 @@ import { echapper as e } from "../api.js";
 export const po = (n) => `${n} po`;
 const signe = (n) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : "0");
 const ou = (l) => (l.length > 1 ? `${l.slice(0, -1).join(", ")} ou ${l[l.length - 1]}` : l[0] || "");
-const paragraphes = (t) => String(t || "").split(/\n+/).map((x) => x.trim()).filter(Boolean).map((x) => `<p>${e(x)}</p>`).join("");
+export const paragraphes = (t) => String(t || "").split(/\n+/).map((x) => x.trim()).filter(Boolean).map((x) => `<p>${e(x)}</p>`).join("");
 
 // La section publiée, rangée : la période, les activités.
 export function lireSection(elements) {
@@ -93,9 +93,10 @@ export function htmlFronton(periode) {
   return `<div class="fronton-activites"><span class="k">Le tableau de l'auberge</span><h3>${e(periode?.libelle || "")}</h3><p>${e(quand)}</p></div>`;
 }
 
-export function htmlTableau(periode, activites, ctx = null) {
+// cloue : la période est neuve pour ce joueur, les affiches se clouent une à une.
+export function htmlTableau(periode, activites, ctx = null, { cloue = false } = {}) {
   return `
-    <div class="tableau-activites${ctx ? "" : " lecture"}">
+    <div class="tableau-activites${ctx ? "" : " lecture"}${cloue ? " cloue" : ""}">
       ${htmlFronton(periode)}
       <div class="affiches">${activites.map((a, i) => htmlAffiche(a, i, ctx, Boolean(periode?.renouvellement))).join("") || '<p class="vide">Aucune affiche au tableau pour l\'instant.</p>'}</div>
     </div>`;

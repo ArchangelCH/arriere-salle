@@ -13,6 +13,7 @@
 
 import { api, copie, differer, echapper as e, enregistrerAvecVersion, toast } from "../api.js";
 import { COMPETENCES } from "../aventuriers/regles.js";
+import { plier } from "../chercher/moteur.js";
 import { demander } from "../commun/dialogue.js";
 import { afficherTemoin, htmlTemoin } from "../commun/temoin-enregistrement.js";
 import { formuleLisible } from "./formule.js";
@@ -51,6 +52,7 @@ export class Activites {
     this.chaine = Promise.resolve();
     this.envois = 0;
     this.modifie = false;
+    this.travaillee = null; // la fiche touchée en dernier : la recherche ne la cache pas tant qu'elle ne change pas
   }
 
   async demarrer() {
@@ -69,12 +71,15 @@ export class Activites {
       if (!d) return;
       if (d.open) {
         this.ouvertes.add(d.dataset.id);
-        // Les champs d'une fiche ne se mesurent qu'à son ouverture : une réserve d'une centaine reste légère.
-        d.querySelectorAll("textarea").forEach(ajuster);
+        // Les champs d'une fiche ne se mesurent qu'à son ouverture (une réserve d'une centaine reste légère), et
+        // seulement visible : cachée par la recherche, elle se mesure quand la recherche la rend.
+        if (!d.hidden) d.querySelectorAll("textarea").forEach(ajuster);
       } else this.ouvertes.delete(d.dataset.id);
     }, true);
     this.section.addEventListener("input", (ev) => {
-      if (ev.target.matches?.("[data-chercher]")) this.filtrer();
+      if (!ev.target.matches?.("[data-chercher]")) return;
+      this.travaillee = null;
+      this.filtrer();
     });
     this.tout();
   }
@@ -107,8 +112,8 @@ export class Activites {
         <div class="reglages-activites"></div>
         <datalist id="competences-activites">${COMPETENCES.flatMap(([, l]) => l).map(([n]) => `<option value="${e(n)}">`).join("")}</datalist>
         <div class="chercher-activites">
-          <label class="champ">Chercher dans la réserve<input type="search" data-chercher placeholder="un nom, une compétence, un mot du texte" autocomplete="off"></label>
-          <label class="champ">Rythme<select data-chercher><option value="">tous</option>${RYTHMES.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}<option value="quete">quêtes uniques</option><option value="tableau">au tableau</option><option value="cachee">cachées</option></select></label>
+          <label class="champ">Chercher dans la réserve<input type="search" data-chercher="mot" placeholder="un nom, une compétence, un mot du texte" autocomplete="off"></label>
+          <label class="champ choix-chercher">Afficher<select data-chercher="genre"><option value="">tous</option>${RYTHMES.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}<option value="quete">quêtes uniques</option><option value="tableau">au tableau</option><option value="cachee">cachées</option></select></label>
           <p class="compte-activites" aria-live="polite"></p>
         </div>
         <div class="liste-activites-mj"></div>
@@ -149,15 +154,15 @@ export class Activites {
       const jouee = (prises[id] || 0) > 0;
       const genre = t.genres[id];
       return `<li data-id="${e(id)}"><span class="nom">${e(a.nom)}</span><span class="genre-tableau genre-${e(genre)}">${e(GENRES_TABLEAU[genre] || "")}</span>
-        ${jouee ? `<span class="jouee">prise ${prises[id]} fois</span>` : `${genre !== "toujours" ? '<button type="button" data-action="tableau-changer">Changer</button>' : ""}<button type="button" data-action="tableau-retirer">Retirer</button>`}</li>`;
+        ${jouee ? `<span class="jouee">prise ${prises[id]} fois</span>` : !this.tableauVisible() ? "" : `${genre !== "toujours" ? '<button type="button" data-action="tableau-changer">Changer</button>' : ""}<button type="button" data-action="tableau-retirer">Retirer</button>`}</li>`;
     }).join("");
-    const tourne = this.c.activites.some((a) => a.visible && a.nom && (a.unique || a.rythme !== "toujours"));
+    const tourne = t.tourne;
     return `
       <div class="tableau-activites-mj">
         <h2>Au tableau en ce moment</h2>
         <ul class="affiches-mj">${lignes || '<li class="vide">Le tableau est vide : montrez une activité, ou mettez-en une au tableau depuis sa fiche.</li>'}</ul>
         <p class="aide">${tourne ? `Le tableau change ${this.c.periode === "seance" ? "à chaque séance close" : `chaque lundi (le prochain : ${e(t.renouvellement)})`} : les activités de chaque semaine, ${this.c.offres} tirée${this.c.offres > 1 ? "s" : ""} dans la réserve et la quête unique suivante. Retoucher la réserve ne change pas ce tableau-ci ; une activité cachée en sort, une activité passée « chaque semaine » y entre.`
-          : "Toutes vos activités sont « chaque semaine » : le tableau ne change pas, comme avant la réserve. Donnez un autre rythme à certaines pour qu'il tourne."}</p>
+          : "Le tableau ne changera pas à la prochaine période : aucune quête n'attend, et la réserve n'a pas plus d'activités à tirer que d'offres (ou toutes sont « chaque semaine »). Donnez un rythme à d'autres activités pour qu'il tourne."}</p>
         <div class="reglages-tableau">
           <label class="champ">Tirées à chaque période<input type="number" min="0" max="8" value="${e(this.c.offres ?? 3)}" data-reglage="offres"></label>
           <label class="case"><input type="checkbox" data-reglage="annoncer_gains"${this.c.annoncer_gains ? " checked" : ""}> Annoncer sur les affiches ce qu'on peut y gagner</label>
@@ -173,20 +178,28 @@ export class Activites {
     this.filtrer();
   }
 
-  // La recherche dans la réserve : un mot (nom, compétences, texte), un rythme, les quêtes, le tableau, les cachées.
+  // La recherche dans la réserve : un mot (nom, compétences, texte) et un choix (un rythme, les quêtes, le tableau, les
+  // cachées). La fiche touchée en dernier reste montrée : un nom tapé ou une case cochée ne la fait pas disparaître.
   filtrer() {
-    const champs = this.section.querySelectorAll("[data-chercher]");
-    if (!champs.length) return;
-    const mot = champs[0].value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const genre = champs[1].value;
+    const mot = plier(this.section.querySelector('[data-chercher="mot"]')?.value.trim());
+    const genre = this.section.querySelector('[data-chercher="genre"]')?.value || "";
     const auTableau = new Set(this.etat?.tableau?.ids || []);
+    const par = new Map(this.c.activites.map((a) => [a.id, a]));
+    const garde = (a) => {
+      if (genre === "quete") return a.unique;
+      if (genre === "tableau") return auTableau.has(a.id);
+      if (genre === "cachee") return !a.visible;
+      return !genre || (!a.unique && a.rythme === genre);
+    };
     let vus = 0;
     for (const d of this.section.querySelectorAll("details.activite-mj")) {
-      const a = this.c.activites.find((x) => x.id === d.dataset.id);
+      const a = par.get(d.dataset.id);
       if (!a) continue;
-      const texte = `${a.nom} ${a.competences.join(" ")} ${a.texte}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      const ok = (!mot || texte.includes(mot)) && (!genre || (genre === "quete" ? a.unique : genre === "tableau" ? auTableau.has(a.id)
-        : genre === "cachee" ? !a.visible : !a.unique && a.rythme === genre));
+      const ok = a.id === this.travaillee || ((!mot || plier(`${a.nom} ${a.competences.join(" ")} ${a.texte}`).includes(mot)) && garde(a));
+      if (ok && d.hidden && d.open) {
+        d.hidden = false;
+        d.querySelectorAll("textarea").forEach(ajuster);
+      }
       d.hidden = !ok;
       if (ok) vus += 1;
     }
@@ -228,7 +241,7 @@ export class Activites {
           <div class="trois">
             <label class="champ">Rythme dans la réserve<select data-champ="rythme"${a.unique ? " disabled" : ""}>${options(RYTHMES, a.rythme)}</select></label>
             <label class="case"><input type="checkbox" data-champ="unique"${a.unique ? " checked" : ""}> Quête unique <small>proposée une seule fois</small></label>
-            <p class="au-tableau">${this.etat?.tableau?.ids.includes(a.id) ? '<span class="etiquette">Au tableau</span>' : a.visible && a.nom ? '<button type="button" data-action="tableau-ajouter">Mettre au tableau</button>' : ""}</p>
+            <p class="au-tableau">${this.htmlAuTableau(a)}</p>
           </div>
           ${a.unique ? `<label class="champ">Accroche de la quête <small>une ligne, lue par les joueurs : « Tirée d'une rumeur entendue au comptoir »</small><input type="text" maxlength="160" value="${e(a.accroche || "")}" data-champ="accroche"></label>` : ""}
           <fieldset class="gains-mj"><legend>Ce qu'on peut y gagner <small>sur l'affiche, si vous l'annoncez</small></legend>
@@ -305,6 +318,7 @@ export class Activites {
   // quand un choix change ce qu'elle montre).
   marquer(redessiner = false, a = null) {
     this.modifie = true;
+    if (a) this.travaillee = a.id;
     afficherTemoin(this.section.querySelector(".temoin-enregistrement"), "modifie");
     if (a) {
       const d = this.section.querySelector(`details[data-id="${CSS.escape(a.id)}"]`);
@@ -312,6 +326,7 @@ export class Activites {
         const i = this.c.activites.indexOf(a);
         d.outerHTML = this.htmlActivite(a, i);
         this.section.querySelectorAll(`details[data-id="${CSS.escape(a.id)}"] textarea`).forEach(ajuster);
+        this.filtrer();
       } else if (d) {
         d.querySelector("summary .nom").textContent = a.nom || "Activité sans nom";
         d.querySelector("summary .meta").textContent = this.resume(a);
@@ -375,6 +390,24 @@ export class Activites {
     }
     if (this.detruit) return;
     if (!this.section.querySelector(".reglages-activites").contains(document.activeElement)) this.afficherReglages();
+    for (const d of this.section.querySelectorAll("details.activite-mj")) {
+      const a = this.c.activites.find((x) => x.id === d.dataset.id);
+      if (!a) continue;
+      d.querySelector("summary .meta").textContent = this.resume(a);
+      d.querySelector(".au-tableau").innerHTML = this.htmlAuTableau(a);
+    }
+    this.filtrer();
+  }
+
+  // Sur la fiche : « Au tableau », ou le geste qui l'y met (seulement quand les joueurs voient le tableau).
+  htmlAuTableau(a) {
+    if (this.etat?.tableau?.ids.includes(a.id)) return '<span class="etiquette">Au tableau</span>';
+    return this.tableauVisible() && a.visible && a.nom ? '<button type="button" data-action="tableau-ajouter">Mettre au tableau</button>' : "";
+  }
+
+  // Les gestes sur le tableau ne valent que s'il se voit : activités ouvertes et carnet ouvert (le serveur refuse sinon).
+  tableauVisible() {
+    return Boolean(this.c.ouvert) && this.etat?.carnet_ouvert !== false;
   }
 
   async clic(ev) {
@@ -385,6 +418,7 @@ export class Activites {
       const a = vierge();
       this.c.activites.push(a);
       this.ouvertes.add(a.id);
+      this.travaillee = a.id; // montrée même si la recherche en cours ne la retiendrait pas
       this.afficherListe();
       this.section.querySelector(`details[data-id="${CSS.escape(a.id)}"] [data-champ="nom"]`)?.focus();
       return this.marquer();

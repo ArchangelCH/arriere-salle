@@ -12,7 +12,7 @@ import sys
 import tempfile
 import time
 from collections import Counter
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 os.environ.setdefault("DATA_DIR", tempfile.mkdtemp(prefix="arriere-salle-"))
@@ -727,18 +727,15 @@ def test_un_catalogue_d_avant_garde_tout_son_tableau(atelier, tablee, neuf):
     assert c["offres"] == 3 and c["annoncer_gains"] is False and {a["rythme"] for a in c["activites"]} == {"toujours"}
 
 
-def test_le_tirage_tient_toute_la_periode(atelier, tablee, neuf, monkeypatch):
+def test_le_tirage_tient_toute_la_periode(atelier, tablee, neuf):
     t = tablee
     o = tirer(atelier, catalogue(offres=2, autres=RESERVE))
     tirees = [i for i in o["ids"] if o["genres"][i] == "tiree"]
     assert len(tirees) == 2 and o["genres"]["forger"] == "toujours" and o["tourne"] is True
     vus = tableau(t)
     assert len(vus) == 3 and "Forger des clous" in vus and lu(t, "a")["periode"]["renouvellement"].startswith("lundi ")
-    # Relu, avec un autre hasard, ou par un atelier qui redémarre (le fichier fait foi) : le même tableau.
+    # Relu avec un autre hasard : le même tableau (le fichier des tirages fait foi, rien n'est gardé en mémoire).
     assert actions_coin.activites_mj.offre(hasard=Seme(99))["ids"] == o["ids"]
-    neuf_mj = activites_mj.ActivitesMJ.__new__(activites_mj.ActivitesMJ)
-    neuf_mj.__dict__.update(actions_coin.activites_mj.__dict__)
-    assert neuf_mj.offre()["ids"] == o["ids"]
     # Rien de ce qui n'est pas tiré ne sort vers le coin : ni son nom, ni son texte, ni son jeton.
     absentes = [a for a in RESERVE if a["id"] not in tirees]
     publie = "".join(f.read_text(encoding="utf-8") for f in config.PROPOSITIONS.rglob("*.json"))
@@ -786,7 +783,7 @@ def test_la_quete_unique_ne_revient_pas(atelier, tablee, neuf, monkeypatch):
     class Demain(date):
         @classmethod
         def today(cls):
-            return date.today() + __import__("datetime").timedelta(days=7)
+            return date.today() + timedelta(days=7)
     monkeypatch.setattr(activites_mj, "date", Demain)
     carnet_api.publier_carnet()
     assert "Descendre au puits" not in tableau(t) and "Forger des clous" in tableau(t)
@@ -844,11 +841,11 @@ def test_un_objet_seul_ou_avec_une_cagnotte(atelier, tablee, neuf, monkeypatch):
     utilitaires.ecrire(refuge.SANCTUAIRE, s | {"modifie": utilitaires.maintenant()})
     equipement = lambda code: atelier.get(f"/api/aventuriers/{t[code]['heros']['id']}").json()["equipement"]  # noqa: E731
     # Sans or : l'objet seul, et une phrase courte même pour un objet long (la file borne le résultat).
-    long_ = "Une boîte à musique gravée " + "de lierre " * 27
+    long_ = "Une boîte à musique gravée " + "de lierre " * 27  # 297 signes, sous la borne de l'objet (300)
     d = jouer(t, "a", monkeypatch, 40, 3)
     assert trancher(atelier, t, "a", d["id"], decision="valider", montant=0, objet=long_).status_code == 200
     vu = la_demande(t, "a", d["id"])
-    assert equipement("a")[-1] == " ".join(long_.split())[:300].strip() and bourse(atelier, t, "a") == 30
+    assert equipement("a")[-1] == " ".join(long_.split()) and bourse(atelier, t, "a") == 30
     assert vu["public"]["or"] is None and vu["resultat"].endswith("Un objet rejoint son sac.")
     # Avec une cagnotte : l'or au chantier, l'objet au sac.
     d = jouer(t, "b", monkeypatch, 40, 3)
@@ -897,3 +894,67 @@ def test_une_reserve_d_une_centaine_tient_entiere(atelier, tablee, neuf):
     o = actions_coin.activites_mj.offre(hasard=Seme(3))
     assert sum(1 for g in o["genres"].values() if g == "tiree") == 7 and o["genres"]["forger"] == "toujours"
 
+
+def test_un_objet_deja_dans_le_sac_s_y_compte(atelier, tablee, neuf, monkeypatch):
+    """Comme un achat de l'échoppe : un objet déjà au sac voit sa quantité monter, il ne prend pas une ligne de plus."""
+    t = tablee
+    equipement = lambda: atelier.get(f"/api/aventuriers/{t['a']['heros']['id']}").json()["equipement"]  # noqa: E731
+    avant = equipement()
+    d = jouer(t, "a", monkeypatch, 40, 3)
+    assert trancher(atelier, t, "a", d["id"], decision="valider", montant=0, objet="Cape x2").status_code == 200
+    apres = equipement()
+    assert len(apres) == len(avant) and apres[avant.index("Cape")] == "Cape ×3"
+    assert "un objet pour son sac" in actions_coin.activites_mj.dire(t["a"]["joueur"], la_demande(t, "a", d["id"]))
+
+
+def test_changer_n_y_ramene_pas_la_semaine_d_avant(atelier, tablee, neuf):
+    """« Changer » tire d'abord ce qui n'était pas au tableau de la semaine d'avant (tirées et ajoutées), jamais en
+    comptant la semaine en cours comme « d'avant »."""
+    c = actions_coin.activites_mj.lire() | {"activites": [activites_mj.activite_valide(a, set()) for a in RESERVE]}
+    t = {"periodes": {"s1": {"tirees": ["reserve-a"], "ajoutees": ["reserve-c"], "fait": "2026-11-16T08:00:00"},
+                      "s2": {"tirees": ["reserve-b"], "ajoutees": [], "fait": "2026-11-23T08:00:00"}}, "quetes": []}
+    for graine in range(20):
+        assert set(actions_coin.activites_mj.tirer(c, t, "s2", {"reserve-b"}, 2, Seme(graine))) == {"reserve-d", "reserve-e"}
+
+
+def test_une_activite_du_tableau_passee_en_quete_compte_comme_proposee(atelier, tablee, neuf):
+    tirer(atelier, catalogue(offres=5, autres=RESERVE))
+    poser(atelier, catalogue(offres=5, autres=[a | ({"unique": True} if a["id"] == "reserve-a" else {}) for a in RESERVE]))
+    o = actions_coin.activites_mj.offre()
+    assert o["genres"]["reserve-a"] == "quete" and "reserve-a" in actions_coin.activites_mj.lire_tirages()["quetes"]
+
+
+def test_une_quete_qui_nomme_un_inconnu_attend(atelier, tablee, neuf):
+    """Le carnet ne la montrerait pas : elle n'est pas tirée, donc pas usée ; la quête suivante passe devant."""
+    gorvak = QUETE | {"id": "quete-gorvak", "nom": "Retrouver Gorvak Sombrefer"}
+    o = tirer(atelier, catalogue(autres=[gorvak, QUETE]))
+    assert o["genres"].get("quete-du-puits") == "quete" and "quete-gorvak" not in o["ids"]
+    assert actions_coin.activites_mj.lire_tirages()["quetes"] == ["quete-du-puits"]
+
+
+def test_carnet_ferme_rien_ne_se_tire(atelier, tablee, neuf):
+    poser(atelier, catalogue(offres=2, autres=[*RESERVE, QUETE]))
+    actions_coin.activites_mj.tirages_fichier.unlink(missing_ok=True)
+    atelier.put("/api/carnet-joueurs", json={"ouvert": False})
+    try:
+        assert atelier.get("/api/activites/etat").json()["tableau"]["ids"] == ["forger"]
+        assert not actions_coin.activites_mj.tirages_fichier.exists()
+        r = atelier.post("/api/activites/tableau", json={"action": "ajouter", "activite": "reserve-a"})
+        assert r.status_code == 409 and "carnet" in r.json()["detail"]
+    finally:
+        atelier.put("/api/carnet-joueurs", json={"ouvert": True})
+    assert "quete-du-puits" in atelier.get("/api/activites/etat").json()["tableau"]["ids"]
+
+
+def test_le_tableau_tourne_seulement_s_il_peut_changer(atelier, tablee, neuf):
+    assert tirer(atelier, catalogue(offres=5, autres=RESERVE))["tourne"] is False  # cinq offres pour cinq activités : le même tableau
+    assert tirer(atelier, catalogue(offres=4, autres=RESERVE))["tourne"] is True
+    assert tirer(atelier, catalogue(offres=0, autres=[QUETE]))["tourne"] is False  # la seule quête est déjà proposée
+
+
+def test_au_dela_de_la_limite_la_reserve_est_refusee(atelier, tablee, neuf):
+    """150 activités au plus : au-delà, l'enregistrement est refusé, jamais coupé en silence."""
+    autres = [RESERVE[0] | {"id": f"pioche-{k:03d}", "nom": f"Pioche {k:03d}"} for k in range(activites_mj.ACTIVITES_MAX)]
+    actuel = atelier.get("/api/activites").json()
+    r = atelier.put("/api/activites", json=catalogue(autres=autres) | {"version_base": actuel["modifie"]})
+    assert r.status_code == 413 and len(atelier.get("/api/activites").json()["activites"]) == 1

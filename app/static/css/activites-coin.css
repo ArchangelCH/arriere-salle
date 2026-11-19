@@ -115,8 +115,9 @@ html.volet-activite-ouvert { overflow: hidden; }
   padding: 26px max(18px, env(safe-area-inset-right)) max(22px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
   color: var(--encre); background: #efe1c0 url("../img/parchemin.jpg") center / 600px auto;
   clip-path: polygon(0 10px, 12% 0, 40% 8px, 70% 0, 100% 6px, 100% 100%, 0 100%); box-shadow: 0 -10px 30px rgba(0, 0, 0, .45);
-  animation: volet-monte .28s ease-out;
 }
+/* Il monte à l'ouverture seulement (classe posée une fois) : redessiné par le dé ou le flux, il reste en place. */
+@media (max-width: 639.98px) { .volet-affiche.monte { animation: volet-monte .28s ease-out; } }
 .volet-affiche:focus { outline: none; }
 .volet-affiche.carac-social { --carac: var(--or-sombre); }
 .volet-affiche.carac-mental { --carac: #34485e; }
@@ -128,7 +129,7 @@ html.volet-activite-ouvert { overflow: hidden; }
 .volet-affiche .texte-affiche { font-size: 17px; line-height: 1.45; }
 @media (min-width: 640px) {
   .volet-affiche { left: 50%; right: auto; bottom: auto; top: 50%; width: min(560px, calc(100vw - 40px)); max-height: 84vh;
-    transform: translate(-50%, -50%); clip-path: none; border-top: 3px double var(--or-sombre); animation: none; }
+    transform: translate(-50%, -50%); clip-path: none; border-top: 3px double var(--or-sombre); }
 }
 
 /* Les chances et le petit mot, dans le volet. */
@@ -152,7 +153,6 @@ html.volet-activite-ouvert { overflow: hidden; }
 /* L'activité de la période : la feuille épinglée, le sceau du dé, le récit, l'or. */
 .mon-activite { display: grid; gap: 10px; padding: 16px 16px 18px; border: 1px solid rgba(107, 79, 42, .55); border-top: 4px double var(--or-sombre);
   background: rgba(255, 251, 240, .72); box-shadow: 0 3px 10px rgba(43, 29, 18, .18); }
-.mon-activite .kicker { margin: 0; }
 .mon-activite h3 { margin: 0; font: 700 21px/1.2 var(--titre); overflow-wrap: anywhere; }
 .roule-activite { margin: 0; font-style: italic; color: var(--doux); }
 .jet-activite { --teinte: #4d6a2c; display: flex; align-items: center; gap: 14px; }
@@ -165,7 +165,8 @@ html.volet-activite-ouvert { overflow: hidden; }
 .issue-activite { font: 700 15px/1.2 var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--teinte); }
 .visee-activite { font-size: 16px; color: var(--doux); font-variant-numeric: lining-nums; }
 .jet-activite.annonce .de-activite { animation: sceau-frappe .5s cubic-bezier(.2, .9, .3, 1.3) both; }
-@keyframes sceau-frappe { from { transform: scale(1.6) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
+/* Sans fondu (opacity) : sous WebKit, un fondu sur les affiches et le volet les laissait à moitié transparents. */
+@keyframes sceau-frappe { from { transform: scale(1.6) rotate(-12deg); } to { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .jet-activite.annonce .de-activite { animation: none; } }
 .recit-activite { margin: 0; padding: 4px 0 4px 14px; border-left: 2px solid rgba(107, 79, 42, .45); font-style: italic; overflow-wrap: anywhere; }
 .recit-activite p { margin: 0 0 6px; }
@@ -189,7 +190,6 @@ html.volet-activite-ouvert { overflow: hidden; }
 
 /* Sur l'accueil du carnet : l'activité de la période en bref, le dé et ce qu'il a donné. */
 .mon-activite.compacte h3 { margin: 0 0 8px; font-size: 17px; }
-.mon-activite.compacte .kicker { margin-bottom: 2px; }
 .section-resume-activites .mon-activite + .mon-activite { margin-top: 12px; }
 .mon-activite.carte { margin: 4px 0 0; padding: 12px 0 0; border: 0; border-top: 1px dashed var(--filet); background: none; box-shadow: none; }
 

@@ -47,6 +47,7 @@ from fastapi import APIRouter, HTTPException, Request
 from commun import activites
 from commun import carnet
 from commun import demandes
+from commun import inventaire
 from commun import jets
 from commun import jets_distance
 from commun.demandes import Refus
@@ -426,6 +427,8 @@ class ActivitesMJ:
         return catalogue_valide(c) | {"modifie": c.get("modifie") if isinstance(c.get("modifie"), str) else None}
 
     def enregistrer(self, corps: dict) -> dict:
+        if isinstance(corps.get("activites"), list) and len(corps["activites"]) > ACTIVITES_MAX:
+            raise HTTPException(413, f"La réserve garde {ACTIVITES_MAX} activités au plus : retirez-en avant d'en ajouter.")
         with self.verrou:
             disque = self.lire()
             if corps.get("version_base") != disque.get("modifie"):
@@ -490,38 +493,52 @@ class ActivitesMJ:
                     break
         return tirees
 
-    def tirer(self, c: dict, t: dict, exclues: set, n: int, hasard) -> list:
-        """n offres tirées dans la réserve : ni de chaque semaine, ni une quête, ni déjà exclue ; d'abord celles qui
-        n'étaient pas au tableau de la période d'avant, puis les autres s'il en manque."""
-        candidats = [a for a in c["activites"] if self.au_tableau(a) and not a["unique"] and a["rythme"] != "toujours" and a["id"] not in exclues]
-        avant = max(t["periodes"].values(), key=lambda v: str(v.get("fait") or ""), default={}) if t["periodes"] else {}
-        deja = set(avant.get("tirees") or [])
+    @staticmethod
+    def tirables(c: dict) -> list:
+        """Ce que la réserve peut tirer : montré, nommé, ni de chaque semaine ni quête."""
+        return [a for a in c["activites"] if ActivitesMJ.au_tableau(a) and not a["unique"] and a["rythme"] != "toujours"]
+
+    def tirer(self, c: dict, t: dict, cle: str, exclues: set, n: int, hasard) -> list:
+        """n offres tirées dans la réserve, hors exclues ; d'abord celles qui n'étaient pas au tableau de la période d'avant
+        (la plus récente qui n'est pas la période cle, celle qu'on tire ou qu'on change), puis les autres s'il en manque."""
+        candidats = [a for a in self.tirables(c) if a["id"] not in exclues]
+        avant = max((v for k, v in t["periodes"].items() if k != cle), key=lambda v: str(v.get("fait") or ""), default={})
+        deja = set(avant.get("tirees") or []) | set(avant.get("ajoutees") or [])
         tirees = self.piocher([a for a in candidats if a["id"] not in deja], n, hasard)
         if len(tirees) < n:
             tirees += self.piocher([a for a in candidats if a["id"] in deja], n - len(tirees), hasard)
         return tirees
 
     def quete_suivante(self, c: dict, t: dict, exclues: set) -> str | None:
-        """La première quête unique du catalogue jamais proposée (une quête ne revient pas, même après le ménage des périodes)."""
-        return next((a["id"] for a in c["activites"] if a["unique"] and self.au_tableau(a) and a["id"] not in t["quetes"] and a["id"] not in exclues), None)
+        """La première quête unique du catalogue jamais proposée (une quête ne revient pas, même après le ménage des
+        périodes), et que le carnet peut montrer : une quête dont le nom nomme un inconnu attend qu'il soit connu."""
+        candidats = self.candidats()
+        return next((a["id"] for a in c["activites"] if a["unique"] and self.au_tableau(a) and a["id"] not in t["quetes"]
+                     and a["id"] not in exclues and not secrets_dans(masquer(a["nom"]), candidats)), None)
+
+    def visible_des_joueurs(self, c: dict) -> bool:
+        """Le tableau se voit : activités ouvertes et carnet ouvert. Sinon rien ne s'écrit (une quête ne s'use pas sans
+        avoir été vue)."""
+        return bool(c["ouvert"] and self.carnet_ouvert())
 
     def offre(self, c: dict | None = None, p: dict | None = None, hasard=None) -> dict:
         """Le tableau de la période, seule source de ce qui est proposé (la section, le dé, la page du MJ) : le tirage écrit
-        au premier besoin de la période, plus les activités de chaque semaine du moment, moins ce qui est caché ou retiré.
-        Rend {cle, ids (ordre d'affichage : la quête, chaque semaine, les tirées), genres {id : quete | toujours | tiree},
-        tourne (la réserve a de quoi changer le tableau)}."""
+        au premier besoin de la période (tableau visible des joueurs seulement), plus les activités de chaque semaine du
+        moment, moins ce qui est caché ou retiré. Rend {cle, ids (ordre d'affichage : la quête, chaque semaine, les
+        tirées), genres {id : quete | toujours | tiree}, tourne (le tableau changera à la période suivante), quetes (les
+        quêtes déjà proposées)}."""
         c = c or self.lire()
         p = p or self.periode(c)
+        ecrire = self.visible_des_joueurs(c)
         with self.verrou:
             t = self.lire_tirages()
             per = t["periodes"].get(p["cle"])
-            if per is None and not c["ouvert"]:
-                # Fermées aux joueurs : rien ne s'écrit (une quête ne s'use pas sans avoir été vue) ; le tableau se tire à
-                # l'ouverture, les activités de chaque semaine seules en attendant.
+            if per is None and not ecrire:
+                # Pas encore visible : le tableau se tirera à l'ouverture, les activités de chaque semaine seules en attendant.
                 per = {}
             elif per is None:
                 toujours = [a["id"] for a in c["activites"] if self.au_tableau(a) and not a["unique"] and a["rythme"] == "toujours"]
-                tirees = self.tirer(c, t, set(toujours), c["offres"], hasard or secrets)
+                tirees = self.tirer(c, t, p["cle"], set(), c["offres"], hasard or secrets)
                 quete = self.quete_suivante(c, t, set())
                 if quete:
                     t["quetes"].append(quete)
@@ -529,17 +546,24 @@ class ActivitesMJ:
                        "ajoutees": [], "retirees": [], "fait": datetime.now().isoformat(timespec="seconds")}
                 t["periodes"][p["cle"]] = per
                 self.ecrire_tirages(t)
-        par_id = {a["id"]: a for a in c["activites"]}
-        retirees = set(per.get("retirees") or [])
-        dans = set(per.get("offertes") or []) | set(per.get("ajoutees") or [])
-        dans |= {a["id"] for a in c["activites"] if a["rythme"] == "toujours" and not a["unique"]}
-        genres = {}
-        for a in c["activites"]:
-            if a["id"] in dans and a["id"] not in retirees and self.au_tableau(a):
-                genres[a["id"]] = "quete" if a["unique"] else "toujours" if a["rythme"] == "toujours" else "tiree"
+            rang = {a["id"]: i for i, a in enumerate(c["activites"])}
+            retirees = set(per.get("retirees") or [])
+            dans = set(per.get("offertes") or []) | set(per.get("ajoutees") or [])
+            dans |= {a["id"] for a in c["activites"] if a["rythme"] == "toujours" and not a["unique"]}
+            genres = {}
+            for a in c["activites"]:
+                if a["id"] in dans and a["id"] not in retirees and self.au_tableau(a):
+                    genres[a["id"]] = "quete" if a["unique"] else "toujours" if a["rythme"] == "toujours" else "tiree"
+            # Une activité du tableau passée en quête en cours de période : montrée comme quête, elle compte comme proposée.
+            neuves = [i for i, g in genres.items() if g == "quete" and i not in t["quetes"]]
+            if neuves and ecrire:
+                t["quetes"] += neuves
+                self.ecrire_tirages(t)
         ordre = {"quete": 0, "toujours": 1, "tiree": 2}
-        ids = sorted(genres, key=lambda i: (ordre[genres[i]], list(par_id).index(i)))
-        tourne = any(a["unique"] or a["rythme"] != "toujours" for a in c["activites"] if self.au_tableau(a))
+        ids = sorted(genres, key=lambda i: (ordre[genres[i]], rang[i]))
+        # Le tableau changera : une quête attend encore, ou la réserve a plus d'activités à tirer que d'offres par période.
+        tourne = (any(a["unique"] and self.au_tableau(a) and a["id"] not in t["quetes"] for a in c["activites"])
+                  or 0 < c["offres"] < len(self.tirables(c)))
         return {"cle": p["cle"], "ids": ids, "genres": genres, "tourne": tourne, "quetes": list(t["quetes"])}
 
     def changer_tableau(self, corps: dict, hasard=None) -> dict:
@@ -555,6 +579,8 @@ class ActivitesMJ:
             raise Refus(404, "Cette activité n'est plus dans la réserve.")
         if not c["ouvert"]:
             raise Refus(409, "Ouvrez d'abord les activités aux joueurs : le tableau se tire à leur ouverture.")
+        if not self.carnet_ouvert():
+            raise Refus(409, "Le carnet des joueurs est fermé : le tableau se tire à sa réouverture.")
         o = self.offre(c, p)
         with self.verrou:
             t = self.lire_tirages()
@@ -586,7 +612,7 @@ class ActivitesMJ:
                             t["quetes"].append(neuve)
                         nouvelles = [neuve] if neuve else []
                     else:
-                        nouvelles = self.tirer(c, t, exclues, 1, hasard or secrets)
+                        nouvelles = self.tirer(c, t, p["cle"], exclues, 1, hasard or secrets)
                     if not nouvelles:
                         raise Refus(409, "Plus rien dans la réserve pour la remplacer : retirez-la, ou écrivez d'autres activités.")
                     per["ajoutees"] += nouvelles
@@ -700,45 +726,47 @@ class ActivitesMJ:
         va au joueur). Rien n'est écrit avant que tout soit vérifié."""
         if not self.carnet_ouvert():
             raise Refus(423, "Le carnet est fermé : votre MJ le rouvre entre les séances.")
-        c = self.lire()
-        if not c["ouvert"]:
-            raise Refus(409, activites.FERME)
-        a = self.par_jeton(c, d["corps"]["activite"])
-        p = self.periode(c)
-        if not a or not a["visible"] or a["id"] not in self.offre(c, p)["ids"]:
-            raise Refus(409, "Cette activité n'est plus au tableau : choisissez-en une autre.")
-        h = self.heros_du_joueur(j["id"])
-        if not h:
-            raise Refus(409, "Votre héros n'est pas à la tablée en ce moment : votre MJ s'en occupera.")
-        faits = self.journal.de_la_periode(p["cle"])
-        prenom = prenom_de(masquer(h.get("nom") or ""))
-        if any(e.get("heros") == h["id"] and e.get("activite") == a["id"] for e in faits):
-            raise Refus(409, f"{prenom} a déjà fait « {masquer(a['nom'])} » pour {p['court']} : choisissez-en une autre.")
-        if a["places"] and sum(1 for e in faits if e.get("activite") == a["id"]) >= a["places"]:
-            raise Refus(409, f"Plus de place pour « {masquer(a['nom'])} » : choisissez-en une autre.")
-        cartons = self.cartons(h["id"])
-        r = jets.jet(h, a["carac"], a["competences"], a["modificateur"],
-                     jets_distance.ajustements({"cartons": cartons if isinstance(cartons, dict) else {}}, a["carac"]), hasard=hasard)
-        cfg = a["issues"][r["issue"]]
-        tire = jets.tirer(cfg["or"], hasard) if cfg["or"] else None
-        candidats = self.candidats()
-        inconnus = self.inconnus(h["id"], candidats)
-        recit_brut = raconter(cfg["recit"], prenom, h.get("genre"))
-        recit = self.pour_le_joueur(recit_brut, inconnus)
-        retenu = ""
-        if recit_brut and not recit:
-            retenu = f"Le récit type nomme {self.noms_secrets(secrets_dans(masquer(recit_brut), inconnus))} : le joueur lit « {SANS_RECIT} »."
-        competence = self.pour_le_joueur(r["competence"], inconnus, "une compétence") if r["competence"] else ""
-        e = {"type": "jet", "quand": datetime.now().isoformat(timespec="seconds"), "joueur": j["id"], "demande": d["id"],
-             "heros": h["id"], "heros_nom": str(h.get("nom") or ""), "genre": h.get("genre") if h.get("genre") in ("h", "f") else "",
-             "periode": p["cle"], "periode_libelle": p["libelle"], "activite": a["id"], "activite_nom": a["nom"],
-             "activite_vue": self.pour_le_joueur(a["nom"], inconnus, "Une activité"),
-             "jet": {**{k: r[k] for k in ("carac", "carac_nom", "base", "bonus", "modificateur", "ajustements", "visee", "de", "issue", "issue_nom")},
-                     "competence": competence, "competence_mj": r["competence"]},
-             "proposition": {"formule": cfg["or"], "lisible": tire is not None or not cfg["or"], "montant": tire["total"] if tire else 0,
-                             "des": tire["des"] if tire else [], "vers": cfg["vers"], "chantier": a["chantier"]},
-             "recit": recit or SANS_RECIT, "recit_retenu": retenu, "mot": d["corps"].get("mot", "")}
-        self.journal.noter(e)
+        # Sous le verrou des activités, de la vérification du tableau au journal : un « Retirer » du MJ attend le dé.
+        with self.verrou:
+            c = self.lire()
+            if not c["ouvert"]:
+                raise Refus(409, activites.FERME)
+            a = self.par_jeton(c, d["corps"]["activite"])
+            p = self.periode(c)
+            if not a or a["id"] not in self.offre(c, p)["ids"]:  # offre ne garde que le montré
+                raise Refus(409, "Cette activité n'est plus au tableau : choisissez-en une autre.")
+            h = self.heros_du_joueur(j["id"])
+            if not h:
+                raise Refus(409, "Votre héros n'est pas à la tablée en ce moment : votre MJ s'en occupera.")
+            faits = self.journal.de_la_periode(p["cle"])
+            prenom = prenom_de(masquer(h.get("nom") or ""))
+            if any(e.get("heros") == h["id"] and e.get("activite") == a["id"] for e in faits):
+                raise Refus(409, f"{prenom} a déjà fait « {masquer(a['nom'])} » pour {p['court']} : choisissez-en une autre.")
+            if a["places"] and sum(1 for e in faits if e.get("activite") == a["id"]) >= a["places"]:
+                raise Refus(409, f"Plus de place pour « {masquer(a['nom'])} » : choisissez-en une autre.")
+            cartons = self.cartons(h["id"])
+            r = jets.jet(h, a["carac"], a["competences"], a["modificateur"],
+                         jets_distance.ajustements({"cartons": cartons if isinstance(cartons, dict) else {}}, a["carac"]), hasard=hasard)
+            cfg = a["issues"][r["issue"]]
+            tire = jets.tirer(cfg["or"], hasard) if cfg["or"] else None
+            candidats = self.candidats()
+            inconnus = self.inconnus(h["id"], candidats)
+            recit_brut = raconter(cfg["recit"], prenom, h.get("genre"))
+            recit = self.pour_le_joueur(recit_brut, inconnus)
+            retenu = ""
+            if recit_brut and not recit:
+                retenu = f"Le récit type nomme {self.noms_secrets(secrets_dans(masquer(recit_brut), inconnus))} : le joueur lit « {SANS_RECIT} »."
+            competence = self.pour_le_joueur(r["competence"], inconnus, "une compétence") if r["competence"] else ""
+            e = {"type": "jet", "quand": datetime.now().isoformat(timespec="seconds"), "joueur": j["id"], "demande": d["id"],
+                 "heros": h["id"], "heros_nom": str(h.get("nom") or ""), "genre": h.get("genre") if h.get("genre") in ("h", "f") else "",
+                 "periode": p["cle"], "periode_libelle": p["libelle"], "activite": a["id"], "activite_nom": a["nom"],
+                 "activite_vue": self.pour_le_joueur(a["nom"], inconnus, "Une activité"),
+                 "jet": {**{k: r[k] for k in ("carac", "carac_nom", "base", "bonus", "modificateur", "ajustements", "visee", "de", "issue", "issue_nom")},
+                         "competence": competence, "competence_mj": r["competence"]},
+                 "proposition": {"formule": cfg["or"], "lisible": tire is not None or not cfg["or"], "montant": tire["total"] if tire else 0,
+                                 "des": tire["des"] if tire else [], "vers": cfg["vers"], "chantier": a["chantier"]},
+                 "recit": recit or SANS_RECIT, "recit_retenu": retenu, "mot": d["corps"].get("mot", "")}
+            self.journal.noter(e)
         self.suites[d["id"]] = {"lignes": [], "heros": set(), "sanctuaire": False, "section": True}
         return e
 
@@ -769,7 +797,7 @@ class ActivitesMJ:
         if dec and dec.get("decision") == "acceptee":
             m = dec.get("montant") or 0
             if not m:
-                return f"{tete} ; validée sans or"
+                return f"{tete} ; validée, {'un objet pour son sac' if dec.get('objet') else 'sans or'}"
             return f"{tete} ; {po(m)} {'pour sa bourse' if dec.get('vers') == 'bourse' else 'pour ' + (dec.get('chantier_nom') or 'le sanctuaire')}"
         if dec and dec.get("decision") == "refusee":
             return f"{tete} ; refusée{', tour rendu' if dec.get('rendu') else ''}"
@@ -835,7 +863,7 @@ class ActivitesMJ:
                 "recit": (e or {}).get("recit", ""), "recit_retenu": (e or {}).get("recit_retenu", ""),
                 "proposition": prop | {"destination": cle}, "destinations": self.destinations(heros),
                 "decision": self.journal.decision(joueur, ident), "public": activites.public(d),
-                "mot_max": demandes.MOT_MAX, "apprend_max": APPREND_MAX}
+                "mot_max": demandes.MOT_MAX, "apprend_max": APPREND_MAX, "objet_max": OBJET_MAX}
 
     def nettoyer_apprend(self, texte_, heros_id: str) -> str:
         """« Ce que le héros apprend » part vers le joueur : au masque, puis refusé s'il nomme un inconnu des joueurs (le MJ
@@ -925,11 +953,14 @@ class ActivitesMJ:
         return self.boite.element_demande(j, d)
 
     def objet_au_sac(self, heros: dict, objet: str) -> dict:
-        """Le changement d'équipement qui ajoute l'objet (route du sac : avant, après)."""
+        """Le changement d'équipement qui ajoute l'objet (route du sac : avant, après), comme un achat de l'échoppe : sa
+        quantité monte s'il est déjà là, sinon il prend une ligne vide ou une ligne de plus."""
         avant = self.sac_de(heros, "equipement")
-        if len(avant) >= 80:
+        try:
+            apres = inventaire.avec(avant, objet)
+        except Refus:
             raise Refus(409, "Le sac de ce héros est plein : retirez d'abord une ligne de son équipement.")
-        return {"equipement": {"avant": avant, "apres": avant + [objet]}}
+        return {"equipement": {"avant": avant, "apres": apres}}
 
     def donner(self, e: dict, montant: int, vers: str, prenom: str, suite: dict, objet: str = "") -> dict | None:
         """L'or validé : dans la bourse du héros par la route du sac (une perte ne la fait pas passer sous zéro), ou dans la
@@ -938,7 +969,7 @@ class ActivitesMJ:
         chantier refuse. Rend l'or donné, ou None s'il n'y en a pas."""
         heros = self.lire_heros(e["heros"])
         if not heros:
-            raise Refus(409, "Ce héros n'est plus dans l'atelier : refusez cette activité, ou mettez le montant à zéro.")
+            raise Refus(409, "Ce héros n'est plus dans l'atelier : refusez cette activité, ou mettez le montant à zéro et videz l'objet.")
         sac = self.objet_au_sac(heros, objet) if objet else {}
         if not montant or vers != "bourse":
             if sac:
@@ -958,22 +989,18 @@ class ActivitesMJ:
                     except HTTPException:
                         journal.exception("Objet d'une activité resté dans le sac après un refus du chantier")
                 raise
-        if vers == "bourse":
-            bourse = self.sac_de(heros, "or") or 0
-            if bourse + montant < 0:
-                raise Refus(409, f"La bourse de {prenom} n'a que {po(bourse)} : la perte ne peut pas dépasser {bourse}.")
-            try:
-                self.changer_sacs({heros["id"]: {"or": {"avant": self.sac_de(heros, "or"), "apres": bourse + montant}} | sac})
-            except HTTPException as err:
-                raise Refus(409, f"La bourse n'a pas pu changer : {err.detail}")
-            suite["heros"].add(heros["id"])
-            return {"montant": montant, "vers": "bourse", "chantier": ""}
-        return self.verser(heros, montant, vers, suite)
+        bourse = self.sac_de(heros, "or") or 0
+        if bourse + montant < 0:
+            raise Refus(409, f"La bourse de {prenom} n'a que {po(bourse)} : la perte ne peut pas dépasser {bourse}.")
+        try:
+            self.changer_sacs({heros["id"]: {"or": {"avant": self.sac_de(heros, "or"), "apres": bourse + montant}} | sac})
+        except HTTPException as err:
+            raise Refus(409, f"La bourse n'a pas pu changer : {err.detail}")
+        suite["heros"].add(heros["id"])
+        return {"montant": montant, "vers": "bourse", "chantier": ""}
 
     def verser(self, heros: dict, montant: int, vers: str, suite: dict) -> dict:
         """L'or vers la cagnotte d'un chantier (vers = batiment:<id>)."""
-        if vers == "bourse":
-            raise Refus(400, "La bourse se donne avec la route du sac.")
         if not vers.startswith("batiment:") or not ID_BATIMENT.match(vers[9:]):
             raise Refus(400, "Destination inconnue : la bourse du héros, ou un chantier du sanctuaire.")
         if montant < 0:

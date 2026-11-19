@@ -4,13 +4,13 @@ d'écrire.
 
 Entre deux séances, chaque joueur peut faire faire à son héros chaque activité du tableau de la période, une fois par
 période (une semaine, ou l'intervalle entre deux séances) ; le tableau, l'atelier le tire dans la réserve que le MJ écrit
-(activites_mj.py). Le joueur n'envoie que le jeton de
-l'activité et, s'il veut, quelques mots : le dé se jette dans l'atelier, sur la fiche de l'atelier, quand il voit la
-demande. Le joueur lit aussitôt son jet et le récit que le MJ a écrit pour cette issue ; l'or attend le MJ.
+(activites_mj.py). Le joueur n'envoie que le jeton de l'activité et, s'il veut, quelques mots : le dé se jette dans
+l'atelier, sur la fiche de l'atelier, quand il voit la demande. Le joueur lit aussitôt son jet et le récit que le MJ a
+écrit pour cette issue ; l'or attend le MJ.
 
 Ce que l'atelier écrit pour le joueur dans sa demande, une fois le dé jeté (demandes.vue_joueur le rend tel quel) :
   public = {periode, periode_libelle, activite, jet: {de, visee, issue, issue_nom, carac_nom, base, competence, bonus,
-            modificateur}, recit, puis, après le MJ : or: {montant, vers, chantier} ou None, apprend, rendu}
+            modificateur}, recit, puis, après le MJ : or: {montant, vers, chantier} ou None, apprend, objet, rendu}
 et « fige » : le dé est jeté, la demande ne se retire plus (sinon un joueur retirerait un échec pour relancer).
 
 Le joueur ne connaît du catalogue que la section publiée : chaque activité y est un jeton opaque, sans formule de gain,

@@ -8,10 +8,9 @@
 import { echapper as e } from "../api.js";
 import { demander } from "./carnet-vue.js";
 import { ecouterFlux } from "./flux.js";
-import { CLASSES, htmlAjustements, htmlGains, htmlJet, htmlTableau, offreDe, phraseOr, places, rubrique } from "./activites-vue.js";
+import { CLASSES, htmlAjustements, htmlGains, htmlJet, htmlTableau, offreDe, paragraphes, phraseOr, places, rubrique } from "./activites-vue.js";
 
 const MOT_MAX = 300;
-const paragraphes = (t) => String(t || "").split(/\n+/).map((x) => x.trim()).filter(Boolean).map((x) => `<p>${e(x)}</p>`).join("");
 const prenom = (nom) => String(nom || "").split(/[\s,]+/)[0] || "votre héros";
 const ROULE_MS = 1500; // le dé tarde : la section se relit d'elle-même, flux ou pas
 const VU = "activites-tableau-vu"; // la dernière période dont ce joueur a vu le tableau : les affiches neuves se clouent
@@ -22,6 +21,11 @@ function lireVu() {
   } catch {
     return "";
   }
+}
+// Une période que ce joueur n'a pas encore vue : ses affiches se clouent (cette fois seulement).
+function aClouer(r) {
+  const cle = r?.periode?.cle || "";
+  return Boolean(cle) && lireVu() !== cle;
 }
 function noterVu(cle) {
   try {
@@ -37,6 +41,7 @@ export class MesActivites {
     this.resume = null; // l'accueil du carnet : les affiches prises de la période, en bref
     this.etat = null; // la dernière réponse de GET /api/activites
     this.ouverte = null; // le jeton de l'affiche ouverte en volet
+    this.voletNeuf = false; // le volet vient de s'ouvrir : il monte (une fois, pas à chaque relecture)
     this.envoi = false;
     this.message = "";
     this.brouillons = {};
@@ -73,12 +78,11 @@ export class MesActivites {
   monter(zone) {
     if (!zone) return;
     this.zone = zone;
+    // Les gestes du tableau (ouvrir une affiche) ; le formulaire vit dans le volet, qui a ses propres écouteurs.
     zone.addEventListener("click", (ev) => this.clic(ev));
-    zone.addEventListener("submit", (ev) => this.soumettre(ev));
-    zone.addEventListener("input", (ev) => {
-      if (ev.target.name) this.brouillons[ev.target.name] = ev.target.value;
-    });
-    if (this.etat) this.dessiner();
+    // Les affiches à clouer attendent la réponse fraîche : dessinées d'abord depuis la mémoire, la relecture qui suit
+    // couperait leur animation.
+    if (this.etat && !aClouer(this.etat)) this.dessiner();
     this.relire();
   }
 
@@ -143,15 +147,13 @@ export class MesActivites {
       return;
     }
     if (this.ouverte && !this.activites().some((a) => a.id === this.ouverte)) this.ouverte = null;
-    // Une période que ce joueur n'avait pas encore vue : les affiches se clouent une à une (cette fois seulement).
-    const cle = r.periode?.cle || "";
-    const clouer = Boolean(cle) && lireVu() !== cle;
-    if (clouer) noterVu(cle);
+    const clouer = aClouer(r);
+    if (clouer) noterVu(r.periode.cle);
     z.innerHTML = `
       ${r.pause ? '<p class="pause-sac">Le coin est en pause : le tableau se lit, rien ne part pour l\'instant.</p>' : ""}
       <p class="refus-coin refus-activites" role="alert"${this.message && !this.ouverte ? "" : " hidden"}>${e(this.message)}</p>
       ${!r.heros ? '<p class="vide">Votre héros prendra ses affiches une fois accueilli à la tablée par le MJ.</p>' : this.htmlInvite()}
-      ${htmlTableau(r.periode, this.activites(), this).replace('class="tableau-activites', `class="tableau-activites${clouer ? " cloue" : ""}`)}
+      ${htmlTableau(r.periode, this.activites(), this, { cloue: clouer })}
       ${this.htmlPassees()}`;
     this.dessinerVolet();
     // Le dé n'est pas encore jeté (l'atelier le fait dans l'instant) : la section se relit seule.
@@ -220,10 +222,14 @@ export class MesActivites {
     const h = this.hote();
     const champ = h.querySelector("textarea:focus");
     const garde = champ ? { nom: champ.name, debut: champ.selectionStart } : null;
+    const avaitLaMain = !garde && h.contains(document.activeElement);
     const haut = h.querySelector(".volet-affiche")?.scrollTop || 0;
-    h.innerHTML = ouvert ? this.htmlVolet() : "";
+    h.innerHTML = ouvert ? this.htmlVolet(this.voletNeuf) : "";
+    this.voletNeuf = false;
     const v = h.querySelector(".volet-affiche");
     if (v && !garde) v.scrollTop = haut;
+    // Redessiné (le dé, le flux) : le volet garde la main au clavier.
+    if (v && avaitLaMain) v.focus({ preventScroll: true });
     for (const x of h.querySelectorAll("textarea[name]")) if (x.name in this.brouillons) x.value = this.brouillons[x.name];
     if (garde) {
       const neuf = h.querySelector(`[name="${CSS.escape(garde.nom)}"]`);
@@ -236,7 +242,7 @@ export class MesActivites {
     }
   }
 
-  htmlVolet() {
+  htmlVolet(monte = false) {
     const r = this.etat;
     const a = this.ouverte && this.activites().find((x) => x.id === this.ouverte);
     if (!a) return "";
@@ -245,7 +251,7 @@ export class MesActivites {
     const reste = places(a);
     return `
       <div class="voile-affiche" data-fermer></div>
-      <section class="volet-affiche carac-${e(a.carac || "physique")} offre-${genre}" role="dialog" aria-modal="true" aria-labelledby="volet-affiche-titre" tabindex="-1">
+      <section class="volet-affiche carac-${e(a.carac || "physique")} offre-${genre}${monte ? " monte" : ""}" role="dialog" aria-modal="true" aria-labelledby="volet-affiche-titre" tabindex="-1">
         <button type="button" class="fermer-affiche" data-fermer>Fermer</button>
         <p class="kicker">${e(kicker)}</p>
         <h3 id="volet-affiche-titre">${e(a.nom)}</h3>
@@ -341,6 +347,7 @@ export class MesActivites {
 
   ouvrir(id) {
     this.ouverte = id;
+    this.voletNeuf = true;
     this.message = "";
     this.dessiner();
     // Le volet prend la main au clavier ; le champ attend un toucher (le clavier du téléphone ne s'ouvre pas tout seul).

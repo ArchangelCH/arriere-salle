@@ -180,7 +180,7 @@ export class ValidationActivite {
           <label class="champ">Ce que ${e(prenom(h?.nom))} apprend <small>facultatif, lu par le joueur ; un nom inconnu des joueurs est refusé</small>
             <textarea name="apprend" rows="3" maxlength="${e(v.apprend_max || 1000)}">${e(s.apprend)}</textarea></label>
           <label class="champ">Un objet pour son sac <small>facultatif : une ligne ajoutée à son équipement, lue par le joueur ; un nom inconnu des joueurs est refusé</small>
-            <input type="text" name="objet" maxlength="300" value="${e(s.objet || "")}" placeholder="Une lanterne sourde, une lettre cachetée…"></label>
+            <input type="text" name="objet" maxlength="${e(v.objet_max || 300)}" value="${e(s.objet || "")}" placeholder="Une lanterne sourde, une lettre cachetée…"></label>
           <label class="champ">Un mot pour le joueur <small>facultatif</small><textarea name="mot" rows="2" maxlength="${e(v.mot_max || 300)}">${e(s.mot)}</textarea></label>
           <label class="case"><input type="checkbox" name="rendre"${s.rendre ? " checked" : ""}> En refusant, rendre son tour au joueur : il pourra choisir une autre activité pour cette période</label>
           <div class="actions">

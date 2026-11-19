@@ -232,6 +232,7 @@ REGLES: dict[str, str] = {
     "GET /api/activites": PRINCIPAL_SEUL,
     "PUT /api/activites": PRINCIPAL_SEUL,
     "GET /api/activites/etat": PRINCIPAL_SEUL,
+    "POST /api/activites/tableau": PRINCIPAL_SEUL,
     "GET /api/activites/demandes/{joueur}/{ident}": PRINCIPAL_SEUL,
     "GET /api/portraits-joueurs/{joueur}/{ident}/image": PRINCIPAL_SEUL,
     "POST /api/activites/demandes/{joueur}/{ident}/trancher": PRINCIPAL_SEUL,

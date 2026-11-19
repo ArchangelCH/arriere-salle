@@ -112,7 +112,7 @@ def tablee(atelier):
     atelier.delete(f"/api/rumeurs/{t['rumeur']['id']}")
     atelier.put("/api/carnet-joueurs", json={"ouvert": avant})
     demandes.ecrire_pause(config.PROPOSITIONS, False)
-    for f in (actions_coin.activites_mj.fichier, actions_coin.activites_mj.journal.fichier, refuge.SANCTUAIRE):
+    for f in (actions_coin.activites_mj.fichier, actions_coin.activites_mj.journal.fichier, actions_coin.activites_mj.tirages_fichier, refuge.SANCTUAIRE):
         f.unlink(missing_ok=True)
     carnet_api.publier_carnet()
     patch.undo()
@@ -145,6 +145,7 @@ def neuf(atelier, tablee):
     """Chaque essai part d'un catalogue connu, d'un journal vide, de bourses à 30 po, sans demande."""
     actions_coin.activites_mj.journal.fichier.unlink(missing_ok=True)
     actions_coin.activites_mj.fichier.unlink(missing_ok=True)
+    actions_coin.activites_mj.tirages_fichier.unlink(missing_ok=True)
     for code in ("a", "b"):
         h = tablee[code]["heros"]
         f = atelier.get(f"/api/aventuriers/{h['id']}").json()
@@ -362,7 +363,10 @@ def test_la_section_publiee_sans_or_ni_recit(atelier, tablee, neuf):
     s = lu(tablee, "a")
     assert s["visible"] is True and s["periode"]["cle"].startswith("semaine-")
     a = next(x for x in s["activites"] if x["nom"] == "Forger des clous")
-    assert set(a) == {"genre", "id", "nom", "texte", "carac", "carac_nom", "competences", "modificateur", "places", "restantes", "chances", "faite"}
+    # Le tableau (19/11) : sa place au tableau, l'accroche d'une quête, les gains annoncés (rien, tant que le MJ ne le veut pas).
+    assert set(a) == {"genre", "id", "nom", "texte", "carac", "carac_nom", "competences", "modificateur", "places", "restantes", "chances", "faite",
+                      "offre", "accroche", "gains"}
+    assert (a["offre"], a["accroche"], a["gains"]) == ("toujours", "", [])
     assert a["id"] != "forger" and len(a["id"]) == 20
     # Ses chances, sur sa fiche publiée : 60, plus Artisanat (forge) 25 (le meilleur bonus qui aide, quelle que soit sa caractéristique), moins 5.
     assert a["chances"]["visee"] == 80 and a["chances"]["competence"] == "Artisanat (forge)"
@@ -686,3 +690,149 @@ def test_carnet_ferme_pause_et_telegram(atelier, tablee, neuf, monkeypatch, tmp_
     jouer(t, "a", monkeypatch, 40, 2, mot="SECRET-DU-JOUEUR")
     message = asyncio.run(vague())
     assert len(message) == 1 and "Aube</b> : une activité entre les séances." in message[0] and "SECRET-DU-JOUEUR" not in message[0]
+
+
+# ---------------------------------------------------------------- le tableau de la semaine (19/11)
+
+RESERVE = [{"id": f"reserve-{k}", "nom": f"Offre {k.upper()}", "texte": f"Texte de l'offre {k}.", "carac": "social", "competences": [],
+            "modificateur": 0, "places": None, "visible": True, "rythme": "souvent",
+            "issues": {i: {"or": "1", "vers": "bourse", "recit": f"Récit {k}."} for i in jets.ISSUES}} for k in "abcde"]
+QUETE = {"id": "quete-du-puits", "nom": "Descendre au puits", "texte": "Une semaine seulement.", "carac": "mental", "competences": [],
+         "modificateur": -10, "places": 2, "visible": True, "unique": True, "accroche": "Tirée de la rumeur du puits",
+         "gains": ["or", "rumeur"], "issues": {i: {"or": "0", "vers": "bourse", "recit": "Au puits."} for i in jets.ISSUES}}
+
+
+def tableau(t, code="a"):
+    return {a["nom"]: a for a in lu(t, code)["activites"]}
+
+
+def tirer(atelier, doc, graine=1):
+    """Le catalogue posé, puis le tirage de la période fait avec un hasard semé, et la section republiée."""
+    poser(atelier, doc)
+    actions_coin.activites_mj.tirages_fichier.unlink(missing_ok=True)
+    o = actions_coin.activites_mj.offre(hasard=Seme(graine))
+    carnet_api.publier_carnet()
+    return o
+
+
+def test_un_catalogue_d_avant_garde_tout_son_tableau(atelier, tablee, neuf):
+    """Sans rythme, une activité est de chaque semaine : le tableau est celui d'avant, et le jeu ne change pas."""
+    t = tablee
+    poser(atelier, catalogue(autres=[{"id": "veiller", "nom": "Veiller", "texte": "", "carac": "mental", "competences": [], "modificateur": 0,
+                                      "places": None, "visible": True, "issues": catalogue()["activites"][0]["issues"]}]))
+    vus = tableau(t)
+    assert set(vus) == {"Forger des clous", "Veiller"} and {a["offre"] for a in vus.values()} == {"toujours"}
+    assert lu(t, "a")["periode"]["renouvellement"] == ""  # rien ne tourne : le coin ne promet pas de nouvelles affiches
+    c = atelier.get("/api/activites").json()
+    assert c["offres"] == 3 and c["annoncer_gains"] is False and {a["rythme"] for a in c["activites"]} == {"toujours"}
+
+
+def test_le_tirage_tient_toute_la_periode(atelier, tablee, neuf, monkeypatch):
+    t = tablee
+    o = tirer(atelier, catalogue(offres=2, autres=RESERVE))
+    tirees = [i for i in o["ids"] if o["genres"][i] == "tiree"]
+    assert len(tirees) == 2 and o["genres"]["forger"] == "toujours" and o["tourne"] is True
+    vus = tableau(t)
+    assert len(vus) == 3 and "Forger des clous" in vus and lu(t, "a")["periode"]["renouvellement"].startswith("lundi ")
+    # Relu, avec un autre hasard, ou par un atelier qui redémarre (le fichier fait foi) : le même tableau.
+    assert actions_coin.activites_mj.offre(hasard=Seme(99))["ids"] == o["ids"]
+    neuf_mj = activites_mj.ActivitesMJ.__new__(activites_mj.ActivitesMJ)
+    neuf_mj.__dict__.update(actions_coin.activites_mj.__dict__)
+    assert neuf_mj.offre()["ids"] == o["ids"]
+    # Rien de ce qui n'est pas tiré ne sort vers le coin : ni son nom, ni son texte, ni son jeton.
+    absentes = [a for a in RESERVE if a["id"] not in tirees]
+    publie = "".join(f.read_text(encoding="utf-8") for f in config.PROPOSITIONS.rglob("*.json"))
+    for a in absentes:
+        for secret in (a["nom"], a["texte"], actions_coin.activites_mj.jeton("activites", a["id"])):
+            assert secret not in publie and secret not in json.dumps(lu(t, "a"), ensure_ascii=False), secret
+    # Le jeton d'une activité de la réserve, envoyé tout droit : le dé n'est pas jeté.
+    absente = actions_coin.activites_mj.jeton("activites", absentes[0]["id"])
+    x = jetee(t, "a", ecrire_demande(t, "a", {"activite": absente, "mot": ""})["id"])
+    assert x["statut"] == "echec" and "plus au tableau" in x["resultat"]
+
+
+def test_retoucher_la_reserve_ne_change_pas_le_tableau(atelier, tablee, neuf):
+    t = tablee
+    o = tirer(atelier, catalogue(offres=2, autres=RESERVE))
+    tirees = [i for i in o["ids"] if o["genres"][i] == "tiree"]
+    reste = [a["id"] for a in RESERVE if a["id"] not in tirees]
+    avant = tableau(t)
+    doc = catalogue(offres=4, autres=[a | ({"rythme": "rarement"} if a["id"] in tirees else {}) for a in RESERVE])
+    poser(atelier, doc)
+    assert tableau(t).keys() == avant.keys()  # le rythme change, le tableau de la période non
+    # Forger passe de chaque semaine à souvent : elle reste au tableau de cette période.
+    doc["activites"][0]["rythme"] = "souvent"
+    poser(atelier, doc)
+    assert tableau(t).keys() == avant.keys()
+    # Cachée, une offre tirée sort aussitôt ; une activité passée « chaque semaine » entre aussitôt.
+    for a in doc["activites"]:
+        if a["id"] == tirees[0]:
+            a["visible"] = False
+        if a["id"] == reste[0]:
+            a["rythme"] = "toujours"
+    poser(atelier, doc)
+    vus = tableau(t)
+    nom = {a["id"]: a["nom"] for a in RESERVE}
+    assert nom[tirees[0]] not in vus and vus[nom[reste[0]]]["offre"] == "toujours" and nom[tirees[1]] in vus
+
+
+def test_la_quete_unique_ne_revient_pas(atelier, tablee, neuf, monkeypatch):
+    t = tablee
+    tirer(atelier, catalogue(annoncer_gains=True, autres=[QUETE]))
+    q = tableau(t)["Descendre au puits"]
+    assert (q["offre"], q["accroche"], q["gains"], q["places"], q["restantes"]) == ("quete", "Tirée de la rumeur du puits", ["or", "rumeur"], 2, 2)
+    assert lu(t, "a")["activites"][0]["nom"] == "Descendre au puits"  # la quête en tête du tableau
+    # La période suivante : la quête ne revient pas.
+    class Demain(date):
+        @classmethod
+        def today(cls):
+            return date.today() + __import__("datetime").timedelta(days=7)
+    monkeypatch.setattr(activites_mj, "date", Demain)
+    carnet_api.publier_carnet()
+    assert "Descendre au puits" not in tableau(t) and "Forger des clous" in tableau(t)
+    # Une accroche qui nomme un inconnu des joueurs ne part pas.
+    monkeypatch.undo()
+    actions_coin.activites_mj.tirages_fichier.unlink(missing_ok=True)
+    poser(atelier, catalogue(autres=[QUETE | {"accroche": "À la demande de Gorvak Sombrefer"}]))
+    assert tableau(t)["Descendre au puits"]["accroche"] == ""
+    assert "Gorvak" not in (config.PROPOSITIONS / carnet.CARNET / "activites.json").read_text(encoding="utf-8")
+
+
+def test_le_mj_change_le_tableau(atelier, tablee, neuf, monkeypatch):
+    t = tablee
+    o = tirer(atelier, catalogue(offres=1, autres=RESERVE))
+    tiree = next(i for i in o["ids"] if o["genres"][i] == "tiree")
+    r = atelier.post("/api/activites/tableau", json={"action": "changer", "activite": tiree})
+    assert r.status_code == 200, r.text
+    neuve = [i for i in r.json()["tableau"]["ids"] if i not in o["ids"]]
+    assert len(neuve) == 1 and tiree not in r.json()["tableau"]["ids"]
+    nom = {a["id"]: a["nom"] for a in RESERVE}
+    assert nom[neuve[0]] in tableau(t) and nom[tiree] not in tableau(t)
+    # Ajouter une activité de la réserve, la retirer ; mais une offre jouée reste.
+    autre = next(a["id"] for a in RESERVE if a["id"] not in (tiree, neuve[0]))
+    assert atelier.post("/api/activites/tableau", json={"action": "ajouter", "activite": autre}).status_code == 200
+    assert nom[autre] in tableau(t)
+    assert atelier.post("/api/activites/tableau", json={"action": "retirer", "activite": autre}).status_code == 200
+    assert nom[autre] not in tableau(t)
+    jouer(t, "a", monkeypatch, 40, 3)
+    r = atelier.post("/api/activites/tableau", json={"action": "changer", "activite": "forger"})
+    assert r.status_code == 409 and "déjà jouée" in r.json()["detail"]
+    assert atelier.post("/api/activites/tableau", json={"action": "rien", "activite": "forger"}).status_code == 400
+
+
+def test_un_objet_rejoint_le_sac_avec_l_or(atelier, tablee, neuf, monkeypatch):
+    t = tablee
+    # Refusée : l'objet ne compte pas.
+    d = jouer(t, "a", monkeypatch, 40, 3)
+    assert trancher(atelier, t, "a", d["id"], decision="refuser", objet="Lanterne").status_code == 200
+    assert "Lanterne" not in atelier.get(f"/api/aventuriers/{t['a']['heros']['id']}").json()["equipement"]
+    d = jouer(t, "b", monkeypatch, 40, 3)
+    r = trancher(atelier, t, "b", d["id"], decision="valider", montant=5, objet="Un clou de Gorvak Sombrefer")
+    assert r.status_code == 409 and "Gorvak" in r.json()["detail"]
+    r = trancher(atelier, t, "b", d["id"], decision="valider", montant=5, objet="  Une   lanterne sourde ")
+    assert r.status_code == 200, r.text
+    fiche = atelier.get(f"/api/aventuriers/{t['b']['heros']['id']}").json()
+    assert fiche["or"] == 35 and fiche["equipement"][-1] == "Une lanterne sourde"
+    vu = la_demande(t, "b", d["id"])
+    assert vu["public"]["objet"] == "Une lanterne sourde" and "rejoint son sac" in vu["resultat"]
+

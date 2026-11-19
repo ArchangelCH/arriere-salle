@@ -238,11 +238,13 @@ def test_l_atelier_recoit_la_ligne_du_geste_jamais_la_tv(atelier, propre, monkey
     assert not any(x.get("type") == "etat-joueur" for x in recus)
 
 
-def test_aucune_posture_seulement_au_combat(atelier, propre):
+def test_aucune_posture_aussi_hors_combat(atelier, propre):
     m = propre
     aude = m["heros_lea"]["id"]
     assert vue(m, "lea")["postures"] == {"offensive": "Offensive", "defensive": "Défensive", "focus": "Focus", "aucune": "Aucune"}
-    # Hors combat, la posture s'écrit sur la fiche : « Aucune » n'y va pas, la posture de base reste.
+    # Hors combat, le joueur retire sa posture (choix d'Adrien du 19/11) : « Aucune » s'écrit sur la fiche, puis il en reprend une.
     d = regler(m, "lea", posture="aucune")
-    assert d["statut"] == "echec" and d["resultat"] == ej.AUCUNE_HORS_COMBAT
+    assert d["statut"] != "echec", d
+    assert atelier.get(f"/api/aventuriers/{aude}").json()["posture"] == "aucune"
+    regler(m, "lea", posture="focus")
     assert atelier.get(f"/api/aventuriers/{aude}").json()["posture"] == "focus"

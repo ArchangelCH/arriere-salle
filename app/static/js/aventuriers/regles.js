@@ -457,8 +457,8 @@ export function accord(texte, a) {
 // et les armes portent leur valeur de test, caractéristique comprise ; deux armes identiques n'en font qu'une, « × 2 ».
 export const DEFENSES_PAR_TOUR = { offensive: 0, defensive: 1, focus: 0, aucune: 0 };
 
-// La posture perdue en partie (un dé de mésaventure l'a cassée) : jamais une posture de base, donc hors de POSTURES (le
-// créateur ne la propose pas), mais lue sur une fiche ou au combat.
+// Sans posture (perdue sur un dé de mésaventure, ou retirée par le joueur depuis son coin) : hors de POSTURES (le créateur
+// ne la propose pas), mais lue sur une fiche ou au combat.
 export const SANS_POSTURE = { cle: "aucune", nom: "Aucune", donne: "Rien.", coute: "À découvert : aucune esquive ni parade." };
 
 export function essentiel(a) {

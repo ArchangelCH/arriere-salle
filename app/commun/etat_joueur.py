@@ -26,7 +26,6 @@ GENRE = "etat-heros"
 CHAMPS = {"sante": "Santé", "psy": "Psy"}
 # « Aucune » : la posture perdue (un dé de mésaventure l'a cassée) ; à découvert, aucune défense, aucun effet.
 POSTURES = {"offensive": "Offensive", "defensive": "Défensive", "focus": "Focus", "aucune": "Aucune"}
-AUCUNE_HORS_COMBAT = "Sans posture, seulement en combat : hors combat, votre héros garde sa posture de base."
 DELTA_MAX = 99
 PAR_HEURE = 240  # gestes par joueur et par heure : la page regroupe les touchers rapprochés en un seul envoi
 EN_ROUTE = 60  # secondes : un geste que l'atelier n'a pas appliqué à temps ne l'est plus

@@ -81,7 +81,7 @@ export function etatDuMoment(fiche, etat = null) {
 export function herosDepuis(fiche, couleur = "", etat = null) {
   const { max, sante, psyMax, psy, santeDon, cartons, avantage } = etatDuMoment(fiche, etat);
   // « Aucune » n'est jamais une posture de base : un héros entre au combat dans la sienne.
-  const posture = POSTURES_COMBAT.some(([k]) => k === fiche.posture && k !== "aucune") ? fiche.posture : "focus";
+  const posture = POSTURES_COMBAT.some(([k]) => k === fiche.posture) ? fiche.posture : "focus";
   return {
     id: fiche.id, nom: fiche.nom || "Sans nom", couleur: fiche.couleur || couleur || "", max, sante, psyMax, psy, santeDon, posture, cartons,
     ...(avantage ? { avantage } : {}),
